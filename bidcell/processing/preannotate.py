@@ -2,7 +2,6 @@ import argparse
 import collections
 import glob
 import json
-import multiprocessing as mp
 import os
 import sys
 
@@ -11,10 +10,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from .utils import get_n_processes
 from ..config import Config, load_config
 
 np.seterr(divide="ignore", invalid="ignore")
+
+N_ANNOTATION_CHUNKS = 16
+PREANNOTATION_CHUNK_GLOB = "preannotations_*.csv"
 
 
 def json_file_to_pyobj(filename):
@@ -38,7 +39,12 @@ def normalise_matrix(matrix):
     return matrix
 
 
-def process_chunk_corr(matrix, dir_output, sc_expr, sc_labels, n_atlas_types):
+def process_chunk_corr(
+    matrix, dir_output, sc_expr, sc_labels, n_atlas_types, output_path=None
+):
+    if matrix.shape[0] == 0:
+        raise ValueError("Cannot annotate an empty chunk.")
+
     matrix_out = np.zeros((matrix.shape[0], 4))
     col_names = ["cell_id", "cell_type", "spearman", "cell_type_atlas"]
 
@@ -76,17 +82,127 @@ def process_chunk_corr(matrix, dir_output, sc_expr, sc_labels, n_atlas_types):
     df_split = pd.DataFrame(
         matrix_out, index=list(range(matrix_out.shape[0])), columns=col_names
     )
-    df_split.to_csv(
-        dir_output + "/preannotations_%d.csv" % matrix_out[0, 0], index=False
-    )
+    if output_path is None:
+        output_path = os.path.join(
+            dir_output, "preannotations_%d.csv" % matrix_out[0, 0]
+        )
+    df_split.to_csv(output_path, index=False)
+
+
+def _ids_as_int64(values, source):
+    ids_numeric = pd.to_numeric(pd.Series(values), errors="coerce")
+    ids_float = ids_numeric.to_numpy(dtype=np.float64)
+
+    if ids_numeric.isna().any() or not np.isfinite(ids_float).all():
+        raise RuntimeError(f"{source} contains missing or non-numeric cell IDs.")
+    if not np.equal(ids_float, np.floor(ids_float)).all():
+        invalid_ids = ids_float[ids_float != np.floor(ids_float)][:10].tolist()
+        raise RuntimeError(
+            f"{source} contains non-integer cell IDs. Examples: {invalid_ids}"
+        )
+
+    int64_info = np.iinfo(np.int64)
+    if ((ids_float < int64_info.min) | (ids_float > int64_info.max)).any():
+        raise RuntimeError(f"{source} contains cell IDs outside the int64 range.")
+
+    return ids_float.astype(np.int64)
+
+
+def _id_examples(ids, limit=10):
+    return sorted(int(cell_id) for cell_id in ids)[:limit]
+
+
+def _validate_annotations(cell_df, expected_ids):
+    required_columns = {"cell_id", "cell_type"}
+    missing_columns = required_columns - set(cell_df.columns)
+    if missing_columns:
+        raise RuntimeError(
+            "Merged annotation results are missing required columns: "
+            f"{sorted(missing_columns)}"
+        )
+
+    actual_ids = _ids_as_int64(cell_df["cell_id"], "Annotation results")
+    duplicate_mask = pd.Series(actual_ids).duplicated(keep=False).to_numpy()
+    duplicate_ids = set(actual_ids[duplicate_mask].tolist())
+    expected_id_set = set(expected_ids.tolist())
+    actual_id_set = set(actual_ids.tolist())
+    missing_ids = expected_id_set - actual_id_set
+    extra_ids = actual_id_set - expected_id_set
+
+    problems = []
+    if len(cell_df) != len(expected_ids):
+        problems.append(
+            f"row count differs (expected {len(expected_ids)}, actual {len(cell_df)})"
+        )
+    if duplicate_ids:
+        problems.append(
+            f"duplicate IDs: {len(duplicate_ids)} unique duplicated IDs; "
+            f"examples {_id_examples(duplicate_ids)}"
+        )
+    if missing_ids:
+        problems.append(
+            f"missing IDs: {len(missing_ids)}; examples {_id_examples(missing_ids)}"
+        )
+    if extra_ids:
+        problems.append(
+            f"extra IDs: {len(extra_ids)}; examples {_id_examples(extra_ids)}"
+        )
+    if problems:
+        raise RuntimeError(
+            "Annotation completeness validation failed: " + "; ".join(problems)
+        )
+
+    cell_df = cell_df.copy()
+    cell_df["cell_id"] = actual_ids
+    return cell_df.sort_values("cell_id").reset_index(drop=True)
+
+
+def _write_annotations_atomically(cell_df, output_path):
+    temporary_path = output_path + ".tmp"
+    try:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
+        with h5py.File(temporary_path, "w") as h5f:
+            h5f.create_dataset("data", data=cell_df["cell_type"].to_numpy())
+            h5f.create_dataset("ids", data=cell_df["cell_id"].to_numpy(dtype=np.int64))
+        os.replace(temporary_path, output_path)
+    except Exception as exc:
+        if os.path.exists(temporary_path):
+            try:
+                os.remove(temporary_path)
+            except OSError:
+                pass
+        raise RuntimeError(
+            f"Failed to write complete annotations to HDF5: {output_path}"
+        ) from exc
 
 
 def preannotate(config: Config):
     dir_dataset = config.files.data_dir
     expr_dir = os.path.join(dir_dataset, config.files.dir_cgm, "nuclei")
+    fp_expr = os.path.join(expr_dir, config.files.fp_expr)
+
+    if not os.path.isfile(fp_expr):
+        raise FileNotFoundError(f"Nuclei expression matrix not found: {fp_expr}")
 
     # Cell expressions - order of gene names (columns) will be in same order as all_gene_names.txt
-    df_cells = pd.read_csv(os.path.join(expr_dir, config.files.fp_expr), index_col=0)
+    df_cells = pd.read_csv(fp_expr, index_col=0)
+    if df_cells.empty:
+        raise RuntimeError(f"Nuclei expression matrix is empty: {fp_expr}")
+    if "cell_id" not in df_cells.columns:
+        raise RuntimeError(
+            f"Nuclei expression matrix does not contain a cell_id column: {fp_expr}"
+        )
+
+    expected_ids = _ids_as_int64(df_cells["cell_id"], "Nuclei expression matrix")
+    duplicate_input_mask = pd.Series(expected_ids).duplicated(keep=False).to_numpy()
+    if duplicate_input_mask.any():
+        duplicate_input_ids = set(expected_ids[duplicate_input_mask].tolist())
+        raise RuntimeError(
+            "Nuclei expression matrix contains duplicate cell IDs: "
+            f"{len(duplicate_input_ids)} unique duplicated IDs; "
+            f"examples {_id_examples(duplicate_input_ids)}"
+        )
     print(f"Number of cells: {df_cells.shape[0]}")
 
     # Reference data - no requirement of column orders - ensure same order as df_cells
@@ -115,44 +231,112 @@ def preannotate(config: Config):
     sc_labels = df_ref.iloc[:, -3].to_numpy().astype(int)
     # sc_names = df_ref.iloc[:, -2].to_list()
 
-    # Divide the data into chunks for multiprocessing
-    n_processes = get_n_processes(config.cpus)
-    print(f"Number of splits for multiprocessing: {n_processes}")
+    n_annotation_chunks = N_ANNOTATION_CHUNKS
+    if n_annotation_chunks < 1:
+        raise ValueError("Number of annotation chunks must be at least 1.")
+    n_annotation_chunks = min(n_annotation_chunks, len(df_cells))
+    print(f"Number of annotation chunks: {n_annotation_chunks}")
 
     matrix_all = df_cells.to_numpy().astype(np.float32)
-    matrix_all_splits = np.array_split(matrix_all, n_processes)
-    processes = []
+    matrix_all_splits = np.array_split(matrix_all, n_annotation_chunks)
+    expected_id_splits = np.array_split(expected_ids, n_annotation_chunks)
+
+    # Remove only temporary CSVs belonging to the preannotation workflow. This
+    # also prevents chunks from an older failed run being merged into this run.
+    old_chunk_paths = glob.glob(os.path.join(dir_dataset, PREANNOTATION_CHUNK_GLOB))
+    for old_chunk_path in old_chunk_paths:
+        if os.path.isfile(old_chunk_path):
+            os.remove(old_chunk_path)
+
+    expected_chunk_paths = [
+        os.path.join(
+            dir_dataset,
+            (
+                f"preannotations_chunk_{chunk_index:04d}_of_"
+                f"{n_annotation_chunks:04d}.csv"
+            ),
+        )
+        for chunk_index in range(1, n_annotation_chunks + 1)
+    ]
 
     print("Computing simple annotation")
-    for chunk in matrix_all_splits:
-        p = mp.Process(
-            target=process_chunk_corr,
-            args=(chunk, dir_dataset, sc_expr, sc_labels, n_atlas_types),
+    for chunk_index, (chunk, expected_chunk_ids, chunk_path) in enumerate(
+        zip(matrix_all_splits, expected_id_splits, expected_chunk_paths), start=1
+    ):
+        first_id = int(chunk[0, 0])
+        last_id = int(chunk[-1, 0])
+        try:
+            process_chunk_corr(
+                chunk,
+                dir_dataset,
+                sc_expr,
+                sc_labels,
+                n_atlas_types,
+                output_path=chunk_path,
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                f"Annotation chunk {chunk_index}/{n_annotation_chunks} failed. "
+                f"Temporary chunk files were retained for debugging: "
+                f"{expected_chunk_paths}"
+            ) from exc
+        if not os.path.isfile(chunk_path):
+            raise RuntimeError(
+                f"Annotation chunk {chunk_index}/{n_annotation_chunks} produced "
+                f"no result file: {chunk_path}"
+            )
+        try:
+            chunk_df = pd.read_csv(chunk_path)
+            if chunk_df.empty:
+                raise RuntimeError("chunk result is empty")
+            _validate_annotations(chunk_df, expected_chunk_ids)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Annotation chunk {chunk_index}/{n_annotation_chunks} produced "
+                f"an invalid result: {chunk_path}"
+            ) from exc
+        print(
+            f"Annotation chunk {chunk_index}/{n_annotation_chunks}: "
+            f"{len(chunk)} cells, IDs {first_id}-{last_id}"
         )
-        processes.append(p)
-        p.start()
 
-    for p in processes:
-        p.join()
+    fp_chunks = sorted(glob.glob(os.path.join(dir_dataset, PREANNOTATION_CHUNK_GLOB)))
+    expected_chunk_set = set(expected_chunk_paths)
+    actual_chunk_set = set(fp_chunks)
+    if actual_chunk_set != expected_chunk_set:
+        missing_chunks = sorted(expected_chunk_set - actual_chunk_set)
+        extra_chunks = sorted(actual_chunk_set - expected_chunk_set)
+        raise RuntimeError(
+            "Annotation chunk file validation failed: "
+            f"expected {len(expected_chunk_paths)}, found {len(fp_chunks)}; "
+            f"missing {missing_chunks}; extra {extra_chunks}"
+        )
 
-    fp_chunks = glob.glob(dir_dataset + "/preannotations_*.csv")
-    for fp_i, fpc in enumerate(fp_chunks):
-        df_i = pd.read_csv(fpc)
-        if fp_i == 0:
-            cell_df = df_i.copy()
-        else:
-            cell_df = pd.concat([cell_df, df_i], axis=0)
+    chunk_frames = []
+    for chunk_path in expected_chunk_paths:
+        try:
+            chunk_df = pd.read_csv(chunk_path)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Could not read annotation chunk result: {chunk_path}"
+            ) from exc
+        if chunk_df.empty:
+            raise RuntimeError(f"Annotation chunk result is empty: {chunk_path}")
+        chunk_frames.append(chunk_df)
 
-    cell_type_col = cell_df["cell_type"].to_numpy()
-    cell_id_col = cell_df["cell_id"].to_numpy()
+    cell_df = pd.concat(chunk_frames, axis=0, ignore_index=True)
+    cell_df = _validate_annotations(cell_df, expected_ids)
 
-    h5f = h5py.File(dir_dataset + "/" + config.files.fp_nuclei_anno, "w")
-    h5f.create_dataset("data", data=cell_type_col)
-    h5f.create_dataset("ids", data=cell_id_col)
-    h5f.close()
+    fp_annotations = os.path.join(dir_dataset, config.files.fp_nuclei_anno)
+    _write_annotations_atomically(cell_df, fp_annotations)
+
+    print(f"Expected annotation rows: {len(expected_ids)}")
+    print(f"Actual annotation rows: {len(cell_df)}")
+    print(f"Unique annotation IDs: {cell_df['cell_id'].nunique()}")
+    print(f"Saved complete annotations to: {fp_annotations}")
 
     # Clean up
-    for fpc in fp_chunks:
+    for fpc in expected_chunk_paths:
         os.remove(fpc)
 
 

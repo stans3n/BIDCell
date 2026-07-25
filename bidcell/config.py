@@ -103,9 +103,11 @@ class NucleiFovParams(BaseModel):
 
 class NucleiParams(BaseModel):
     # divide into sections if too large - maximum height to process in original resolution
-    max_height: int = 24000
+    # max_height: int = 24000
+    max_height: int = 12000
     # divide into sections if too large - maximum width to process in original resolution
-    max_width: int = 32000
+    # max_width: int = 32000
+    max_width: int = 16000
     # crop nuclei to size of transcript maps
     crop_nuclei_to_ts: bool = False
     # use CPU for Cellpose if no GPU available
