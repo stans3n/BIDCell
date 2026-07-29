@@ -68,11 +68,14 @@ class CellCallingLoss(nn.Module):
         self.weight = weight
         self.device = device
 
-    def forward(self, seg_pred, batch_sa):
+    def forward(self, seg_pred, batch_sa, spatial_weight=None):
         # Limit to searchable area where there is detected expression
         penalisable = batch_sa * 1
         criterion_ce = torch.nn.CrossEntropyLoss(reduction="none")
         loss = criterion_ce(seg_pred, penalisable[:, 0, :, :])
+
+        if spatial_weight is not None:
+            loss = loss * spatial_weight.unsqueeze(0)
 
         loss_total = torch.sum(loss)
 
@@ -91,7 +94,7 @@ class OverlapLoss(nn.Module):
         self.weight = weight
         self.device = device
 
-    def forward(self, seg_pred, batch_n):
+    def forward(self, seg_pred, batch_n, spatial_weight=None):
         batch_n = batch_n[:, 0, :, :]
         seg_probs = torch.nn.functional.softmax(seg_pred, dim=1)
 
@@ -110,7 +113,17 @@ class OverlapLoss(nn.Module):
         m = torch.nn.ReLU()
         count_cyto_overlap = m(count_cyto_overlap)
 
-        loss = torch.sum(count_cyto_overlap)
+        if spatial_weight is None:
+            # Preserve the original reduction path exactly for old callers.
+            loss = torch.sum(count_cyto_overlap)
+        else:
+            # Broadcasting above may retain a candidate axis. Collapse it to
+            # the documented [H, W] pixel penalty before applying V1 weights.
+            pixel_overlap_penalty = count_cyto_overlap
+            while pixel_overlap_penalty.ndim > 2:
+                pixel_overlap_penalty = pixel_overlap_penalty.sum(dim=0)
+            pixel_overlap_penalty = pixel_overlap_penalty * spatial_weight
+            loss = torch.sum(pixel_overlap_penalty)
 
         scale = seg_pred.shape[0] * seg_pred.shape[2] * seg_pred.shape[3]
         loss = loss / scale
@@ -129,13 +142,25 @@ class PosNegMarkerLoss(nn.Module):
         self.weight_neg = weight_neg
         self.device = device
 
-    def forward(self, seg_pred, batch_pos, batch_neg):
+    def forward(
+        self,
+        seg_pred,
+        batch_pos,
+        batch_neg,
+        spatial_weight=None,
+        weight_positive=True,
+        weight_negative=True,
+        return_diagnostics=False,
+    ):
         batch_pos = batch_pos[:, 0, :, :]
         batch_neg = batch_neg[:, 0, :, :]
 
         # POSITIVE markers
-        criterion_ce = torch.nn.CrossEntropyLoss(reduction="sum")
-        loss_pos = criterion_ce(seg_pred, batch_pos)
+        criterion_ce = torch.nn.CrossEntropyLoss(reduction="none")
+        pixel_positive_ce = criterion_ce(seg_pred, batch_pos)
+        if spatial_weight is not None and weight_positive:
+            pixel_positive_ce = pixel_positive_ce * spatial_weight.unsqueeze(0)
+        loss_pos = pixel_positive_ce.sum()
 
         # NEGATIVE markers
         seg_probs = torch.nn.functional.softmax(seg_pred, dim=1)
@@ -150,10 +175,19 @@ class PosNegMarkerLoss(nn.Module):
             torch.sigmoid((probs_cells - 0.5) * alpha) * (ones - zeros) + zeros
         )
 
-        loss_neg = torch.sum(preds_cells * batch_neg)
+        negative_penalty = preds_cells * batch_neg
+        if spatial_weight is not None and weight_negative:
+            negative_penalty = negative_penalty * spatial_weight.unsqueeze(0)
+        loss_neg = negative_penalty.sum()
 
-        loss_total = (
-            self.weight_pos * loss_pos + self.weight_neg * loss_neg
-        ) / seg_pred.shape[0]
+        n_candidates = seg_pred.shape[0]
+        weighted_loss_pos = self.weight_pos * loss_pos / n_candidates
+        weighted_loss_neg = self.weight_neg * loss_neg / n_candidates
+        loss_total = weighted_loss_pos + weighted_loss_neg
 
+        if return_diagnostics:
+            return loss_total, {
+                "loss_pos": weighted_loss_pos,
+                "loss_neg": weighted_loss_neg,
+            }
         return loss_total

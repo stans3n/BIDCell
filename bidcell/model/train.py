@@ -3,8 +3,8 @@ import logging
 import math
 import sys
 import os
+import time
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import segmentation_models_pytorch as smp
 import torch
@@ -20,6 +20,11 @@ from .model.losses import (
     PosNegMarkerLoss,
 )
 from .model.model import SegmentationModel as Network
+from .training_metrics import (
+    TrainingMetricsLogger,
+    build_candidate_overlap,
+    build_candidate_overlap_weight,
+)
 from .utils.utils import (
     get_experiment_id,
     make_dir,
@@ -28,7 +33,11 @@ from .utils.utils import (
 from ..config import load_config, Config
 
 
-def train(config: Config):
+def train(
+    config: Config,
+    config_path: str | None = None,
+    experiment_id: str | None = None,
+):
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(message)s",
         level=logging.INFO,
@@ -46,7 +55,7 @@ def train(config: Config):
     else:
         make_new = False
 
-    timestamp = get_experiment_id(
+    timestamp = experiment_id or get_experiment_id(
         make_new,
         config.experiment_dirs.dir_id,
         config.files.data_dir,
@@ -162,31 +171,218 @@ def train(config: Config):
     model = model.train()
 
     lrs = []
+    metrics_logger = None
+    if config.training_params.log_boundary_metrics:
+        metrics_logger = TrainingMetricsLogger(
+            os.path.join(experiment_path, "metrics", "training"),
+            config_path=config_path,
+        )
+        if use_cuda:
+            torch.cuda.reset_peak_memory_stats(device)
 
-    for epoch in range(initial_epoch, config.training_params.total_epochs):
-        cur_lr = optimizer.param_groups[0]["lr"]
-        print("\nEpoch =", (epoch + 1), " lr =", cur_lr)
+    try:
+        for epoch in range(initial_epoch, config.training_params.total_epochs):
+            cur_lr = optimizer.param_groups[0]["lr"]
+            print("\nEpoch =", (epoch + 1), " lr =", cur_lr)
 
-        for step_epoch, (
-            batch_x313,
-            batch_n,
-            batch_sa,
-            batch_pos,
-            batch_neg,
-            coords_h1,
-            coords_w1,
-            nucl_aug,
-            expr_aug_sum,
-        ) in enumerate(train_loader):
-            # Permute channels axis to batch axis
-            # torch.Size([1, patch_size, patch_size, 313, n_cells]) to [n_cells, 313, patch_size, patch_size]
-            batch_x313 = batch_x313[0, :, :, :, :].permute(3, 2, 0, 1)
-            batch_sa = batch_sa.permute(3, 0, 1, 2)
-            batch_pos = batch_pos.permute(3, 0, 1, 2)
-            batch_neg = batch_neg.permute(3, 0, 1, 2)
-            batch_n = batch_n.permute(3, 0, 1, 2)
+            for step_epoch, (
+                batch_x313,
+                batch_n,
+                batch_sa,
+                batch_pos,
+                batch_neg,
+                coords_h1,
+                coords_w1,
+                nucl_aug,
+                expr_aug_sum,
+            ) in enumerate(train_loader):
+                record_metrics = (
+                    metrics_logger is not None
+                    and global_step % config.training_params.metrics_interval == 0
+                )
+                if record_metrics and use_cuda:
+                    torch.cuda.synchronize(device)
+                step_started = time.perf_counter()
 
-            if batch_x313.shape[0] == 0:
+                # Permute channels axis to batch axis
+                # [1, H, W, genes, cells] -> [cells, genes, H, W]
+                batch_x313 = batch_x313[0, :, :, :, :].permute(3, 2, 0, 1)
+                batch_sa = batch_sa.permute(3, 0, 1, 2)
+                batch_pos = batch_pos.permute(3, 0, 1, 2)
+                batch_neg = batch_neg.permute(3, 0, 1, 2)
+                batch_n = batch_n.permute(3, 0, 1, 2)
+
+                if batch_x313.shape[0] == 0:
+                    if (step_epoch % model_freq) == 0:
+                        save_path = (
+                            experiment_path
+                            + "/"
+                            + config.experiment_dirs.model_dir
+                            + "/epoch_%d_step_%d.pth" % (epoch + 1, step_epoch)
+                        )
+                        torch.save(
+                            {
+                                "epoch": epoch + 1,
+                                "model_state_dict": model.state_dict(),
+                                "optimizer_state_dict": optimizer.state_dict(),
+                            },
+                            save_path,
+                        )
+                        logging.info("Model saved: %s" % save_path)
+                    continue
+
+                # Transfer to GPU
+                batch_x313 = batch_x313.to(device)
+                batch_sa = batch_sa.to(device)
+                batch_pos = batch_pos.to(device)
+                batch_neg = batch_neg.to(device)
+                batch_n = batch_n.to(device)
+
+                optimizer.zero_grad()
+                seg_pred = model(batch_x313)
+
+                candidate_overlap = None
+                spatial_weight = None
+                if config.training_params.boundary_weighting_enabled:
+                    candidate_overlap, spatial_weight = build_candidate_overlap_weight(
+                        batch_sa,
+                        config.training_params.boundary_weight,
+                        dtype=seg_pred.dtype,
+                    )
+                elif record_metrics:
+                    candidate_overlap = build_candidate_overlap(
+                        batch_sa,
+                        dtype=seg_pred.dtype,
+                    )
+
+                # Compute losses. Each switch controls only its named loss.
+                loss_ne = criterion_ne(seg_pred, batch_n)
+                loss_os = criterion_os(seg_pred, batch_n)
+                loss_cc = criterion_cc(
+                    seg_pred,
+                    batch_sa,
+                    spatial_weight=(
+                        spatial_weight
+                        if config.training_params.boundary_weight_cell_calling
+                        else None
+                    ),
+                )
+                loss_ov = criterion_ov(
+                    seg_pred,
+                    batch_n,
+                    spatial_weight=(
+                        spatial_weight
+                        if config.training_params.boundary_weight_overlap
+                        else None
+                    ),
+                )
+                loss_pn, pn_diagnostics = criterion_pn(
+                    seg_pred,
+                    batch_pos,
+                    batch_neg,
+                    spatial_weight=spatial_weight,
+                    weight_positive=(
+                        config.training_params.boundary_weight_positive_marker
+                    ),
+                    weight_negative=(
+                        config.training_params.boundary_weight_negative_marker
+                    ),
+                    return_diagnostics=True,
+                )
+
+                loss_ne = loss_ne.squeeze()
+                loss_os = loss_os.squeeze()
+                loss_cc = loss_cc.squeeze()
+                loss_ov = loss_ov.squeeze()
+                loss_pn = loss_pn.squeeze()
+                loss = loss_ne + loss_os + loss_cc + loss_ov + loss_pn
+
+                loss.backward()
+                optimizer.step()
+
+                if record_metrics:
+                    if use_cuda:
+                        torch.cuda.synchronize(device)
+                    overlap_count = candidate_overlap.detach().sum()
+                    overlap_fraction = candidate_overlap.detach().float().mean()
+                    mb = 1024.0 * 1024.0
+                    metrics_logger.write(
+                        {
+                            "global_step": global_step,
+                            "epoch": epoch + 1,
+                            "batch_index": step_epoch,
+                            "n_candidates": seg_pred.shape[0],
+                            "learning_rate": optimizer.param_groups[0]["lr"],
+                            "total_loss": loss,
+                            "loss_ne": loss_ne,
+                            "loss_os": loss_os,
+                            "loss_cc": loss_cc,
+                            "loss_ov": loss_ov,
+                            "loss_pos": pn_diagnostics["loss_pos"],
+                            "loss_neg": pn_diagnostics["loss_neg"],
+                            "candidate_overlap_pixel_count": overlap_count,
+                            "candidate_overlap_fraction": overlap_fraction,
+                            "boundary_weight": (
+                                config.training_params.boundary_weight
+                                if config.training_params.boundary_weighting_enabled
+                                else 0.0
+                            ),
+                            "step_time_seconds": time.perf_counter() - step_started,
+                            "cumulative_training_time_seconds": (
+                                metrics_logger.elapsed_seconds
+                            ),
+                            "cuda_memory_allocated_mb": (
+                                torch.cuda.memory_allocated(device) / mb
+                                if use_cuda
+                                else 0.0
+                            ),
+                            "cuda_memory_reserved_mb": (
+                                torch.cuda.memory_reserved(device) / mb
+                                if use_cuda
+                                else 0.0
+                            ),
+                            "cuda_max_memory_allocated_mb": (
+                                torch.cuda.max_memory_allocated(device) / mb
+                                if use_cuda
+                                else 0.0
+                            ),
+                            "cuda_max_memory_reserved_mb": (
+                                torch.cuda.max_memory_reserved(device) / mb
+                                if use_cuda
+                                else 0.0
+                            ),
+                        }
+                    )
+
+                step_train_loss = loss.detach().cpu().item()
+
+                if (global_step % config.training_params.sample_freq) == 0:
+                    coords_h1 = coords_h1.detach().cpu().squeeze().numpy()
+                    coords_w1 = coords_w1.detach().cpu().squeeze().numpy()
+                    sample_seg = seg_pred.detach().cpu().numpy()
+                    sample_n = nucl_aug.detach().cpu().numpy()
+                    sample_sa = batch_sa.detach().cpu().numpy()
+                    sample_expr = expr_aug_sum.detach().cpu().numpy()
+                    patch_fp = (
+                        experiment_path
+                        + "/"
+                        + config.experiment_dirs.samples_dir
+                        + "/epoch_%d_%d_%d_%d.png"
+                        % (epoch + 1, step_epoch, coords_h1, coords_w1)
+                    )
+
+                    save_fig_outputs(
+                        sample_seg, sample_n, sample_sa, sample_expr, patch_fp
+                    )
+                    print(
+                        "Epoch[{}/{}], Step[{}], Loss:{:.4f}".format(
+                            epoch + 1,
+                            config.training_params.total_epochs,
+                            step_epoch,
+                            step_train_loss,
+                        )
+                    )
+
                 if (step_epoch % model_freq) == 0:
                     save_path = (
                         experiment_path
@@ -203,100 +399,20 @@ def train(config: Config):
                         save_path,
                     )
                     logging.info("Model saved: %s" % save_path)
-                continue
 
-            # Transfer to GPU
-            batch_x313 = batch_x313.to(device)
-            batch_sa = batch_sa.to(device)
-            batch_pos = batch_pos.to(device)
-            batch_neg = batch_neg.to(device)
-            batch_n = batch_n.to(device)
+                global_step += 1
 
-            optimizer.zero_grad()
-
-            seg_pred = model(batch_x313)
-
-            # Compute losses
-            loss_ne = criterion_ne(seg_pred, batch_n)
-            loss_os = criterion_os(seg_pred, batch_n)
-            loss_cc = criterion_cc(seg_pred, batch_sa)
-            loss_ov = criterion_ov(seg_pred, batch_n)
-            loss_pn = criterion_pn(seg_pred, batch_pos, batch_neg)
-
-            loss_ne = loss_ne.squeeze()
-            loss_os = loss_os.squeeze()
-            loss_cc = loss_cc.squeeze()
-            loss_ov = loss_ov.squeeze()
-            loss_pn = loss_pn.squeeze()
-
-            loss = loss_ne + loss_os + loss_cc + loss_ov + loss_pn
-
-            # Optimisation
-            loss.backward()
-            optimizer.step()
-
-            # step_ne_loss = loss_ne.detach().cpu().numpy() # noqa
-            # step_os_loss = loss_os.detach().cpu().numpy() # noqa
-            # step_cc_loss = loss_cc.detach().cpu().numpy() # noqa
-            # step_ov_loss = loss_ov.detach().cpu().numpy() # noqa
-            # step_pn_loss = loss_pn.detach().cpu().numpy() # noqa
-
-            step_train_loss = loss.detach().cpu().numpy()
-
-            if (global_step % config.training_params.sample_freq) == 0:
-                coords_h1 = coords_h1.detach().cpu().squeeze().numpy()
-                coords_w1 = coords_w1.detach().cpu().squeeze().numpy()
-                sample_seg = seg_pred.detach().cpu().numpy()
-                sample_n = nucl_aug.detach().cpu().numpy()
-                sample_sa = batch_sa.detach().cpu().numpy()
-                sample_expr = expr_aug_sum.detach().cpu().numpy()
-                patch_fp = (
-                    experiment_path
-                    + "/"
-                    + config.experiment_dirs.samples_dir
-                    + "/epoch_%d_%d_%d_%d.png"
-                    % (epoch + 1, step_epoch, coords_h1, coords_w1)
-                )
-
-                save_fig_outputs(sample_seg, sample_n, sample_sa, sample_expr, patch_fp)
-
-                print(
-                    "Epoch[{}/{}], Step[{}], Loss:{:.4f}".format(
-                        epoch + 1,
-                        config.training_params.total_epochs,
-                        step_epoch,
-                        step_train_loss,
-                    )
-                )
-                # print('NE:{:.4f}, TC:{:.4f}, CC:{:.4f}, OV:{:.4f}, PN:{:.4f}'.format(step_ne_loss,
-                #                                                                     step_os_loss,
-                #                                                                     step_cc_loss,
-                #                                                                     step_ov_loss,
-                #                                                                     step_pn_loss))
-
-            # Save model
-            if (step_epoch % model_freq) == 0:
-                save_path = (
-                    experiment_path
-                    + "/"
-                    + config.experiment_dirs.model_dir
-                    + "/epoch_%d_step_%d.pth" % (epoch + 1, step_epoch)
-                )
-                torch.save(
-                    {
-                        "epoch": epoch + 1,
-                        "model_state_dict": model.state_dict(),
-                        "optimizer_state_dict": optimizer.state_dict(),
-                    },
-                    save_path,
-                )
-                logging.info("Model saved: %s" % save_path)
-
-            global_step += 1
-
-        # Update and append current LR
-        scheduler.step()
-        lrs.append(cur_lr)
+            scheduler.step()
+            lrs.append(cur_lr)
+    except BaseException as exc:
+        if metrics_logger is not None:
+            metrics_logger.close(status="failed", error=str(exc))
+        raise
+    else:
+        if metrics_logger is not None:
+            if use_cuda:
+                torch.cuda.synchronize(device)
+            metrics_logger.close()
 
     # Plot lr scheduler
     # plt.plot(lrs, ".-", label="LambdaLR")
@@ -312,8 +428,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--config_dir", type=str, help="path to config")
+    parser.add_argument("--experiment_id", type=str, default=None)
 
     args = parser.parse_args()
     config = load_config(args.config_dir)
 
-    train(config)
+    train(
+        config,
+        config_path=args.config_dir,
+        experiment_id=args.experiment_id,
+    )

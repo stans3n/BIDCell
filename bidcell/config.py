@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Literal, Annotated
 
 import yaml
-from pydantic import BaseModel, computed_field, model_validator, ConfigDict
+from pydantic import BaseModel, computed_field, model_validator, ConfigDict, Field
 from pydantic.functional_validators import AfterValidator
 
 
@@ -197,6 +197,16 @@ class TrainingParams(BaseModel):
     model_freq: int = 1000
     # number of training steps per sample save
     sample_freq: int = 100
+    # Candidate-overlap boundary weighting (V1). Defaults preserve the original losses.
+    boundary_weighting_enabled: bool = False
+    boundary_weight: float = Field(default=0.0, ge=0.0)
+    boundary_weight_overlap: bool = True
+    boundary_weight_positive_marker: bool = True
+    boundary_weight_negative_marker: bool = True
+    boundary_weight_cell_calling: bool = False
+    # Lightweight scalar-only training instrumentation.
+    log_boundary_metrics: bool = True
+    metrics_interval: int = Field(default=1, ge=1)
 
 
 class TestingParams(BaseModel):
