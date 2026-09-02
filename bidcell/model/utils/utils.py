@@ -91,17 +91,29 @@ def get_newest_id(exp_dir="model_outputs"):
     return exp_id
 
 
-def get_experiment_id(make_new, dir_id, data_dir):
+def get_model_outputs_root(config):
+    """Resolve the configured model-output root with legacy fallback."""
+
+    if config.experiment_dirs.output_root is not None:
+        return os.path.abspath(os.path.expanduser(config.experiment_dirs.output_root))
+    return os.path.join(config.files.data_dir, "model_outputs")
+
+
+def get_experiment_id(make_new, dir_id, data_dir, output_root=None):
     """
     Get timestamp ID of current experiment
     """
     if make_new is False:
         if dir_id == "last":
-            timestamp = get_newest_id(os.path.join(data_dir, "model_outputs"))
+            root = output_root or os.path.join(data_dir, "model_outputs")
+            timestamp = get_newest_id(root)
         else:
             timestamp = dir_id
     else:
-        timestamp = dt.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        if output_root is not None and dir_id != "last":
+            timestamp = dir_id
+        else:
+            timestamp = dt.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 
     return timestamp
 

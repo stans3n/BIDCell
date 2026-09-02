@@ -4,6 +4,7 @@ import random
 import re
 import sys
 import warnings
+from collections import OrderedDict
 
 import cv2
 import h5py
@@ -14,7 +15,15 @@ import pandas as pd
 import tifffile
 import torch
 import torch.utils.data as data
-from scipy.ndimage import rotate
+from scipy.ndimage import find_objects, rotate
+from scipy.spatial import cKDTree
+
+from ..utils.geometry_ambiguity import (
+    compute_geometry_ambiguity,
+    compute_nucleus_areas,
+    geometry_statistics,
+)
+from ..utils.patch_manifest import filter_patch_paths
 
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
@@ -30,6 +39,8 @@ class DataProcessing(data.Dataset):
     ):
         self.patch_size = config.model_params.patch_size
         self.isTraining = isTraining
+        self.v1_enabled = bool(isTraining and config.v1.enabled)
+        self.v1_params = config.v1
 
         self.expr_fp = (
             config.files.data_dir
@@ -74,12 +85,33 @@ class DataProcessing(data.Dataset):
 
         self.nuclei = tifffile.imread(self.nuclei_fp)
         self.nuclei = self.nuclei.astype(np.int32)
+        # V1 uses full-image nucleus areas for equivalent-radius
+        # normalization.  The scan occurs once, never inside __getitem__.
+        self.nucleus_areas = (
+            compute_nucleus_areas(self.nuclei) if self.v1_enabled else None
+        )
+        self._nucleus_objects = None
+        self._nucleus_tree_cache = OrderedDict()
+        if self.v1_enabled:
+            self._prepare_v1_geometry_index()
         print("Loaded nuclei")
         print(self.nuclei.shape)
 
         expr_fp_ext = ".hdf5"
         fp_patches_all = glob.glob(self.expr_fp + "/*" + expr_fp_ext)
         fp_patches_all = natsort.natsorted(fp_patches_all)
+        manifest_active = False
+        if self.isTraining and config.v1.patch_manifest is not None:
+            if not os.path.exists(config.v1.patch_manifest):
+                raise FileNotFoundError(
+                    f"V1 patch manifest not found: {config.v1.patch_manifest}"
+                )
+            fp_patches_all = filter_patch_paths(
+                fp_patches_all,
+                config.v1.patch_manifest,
+                shift=shift_patches,
+            )
+            manifest_active = True
 
         # # Get coordinates of non-overlapping patches
         # if shift_patches == 0:
@@ -103,11 +135,16 @@ class DataProcessing(data.Dataset):
         train_ids = random.sample(sample_ids, k=sample_k)
 
         if self.isTraining:
-            self.fp_patches = [fp_patches_all[x] for x in train_ids]
-            if total_steps is not None:
-                total_steps = total_steps + int(0.05 * len(train_ids))
-                if total_steps <= len(train_ids):
+            if manifest_active:
+                self.fp_patches = fp_patches_all
+                if total_steps is not None and total_steps < len(self.fp_patches):
                     self.fp_patches = self.fp_patches[:total_steps]
+            else:
+                self.fp_patches = [fp_patches_all[x] for x in train_ids]
+                if total_steps is not None:
+                    total_steps = total_steps + int(0.05 * len(train_ids))
+                    if total_steps <= len(train_ids):
+                        self.fp_patches = self.fp_patches[:total_steps]
         elif all_patches:
             self.fp_patches = fp_patches_all
         else:
@@ -170,7 +207,8 @@ class DataProcessing(data.Dataset):
         # 0, 90, 180, 270
         random_rotate = np.random.randint(4, size=1)[0]
 
-        # Flips
+        # Flips. Expression and nucleus channels share this single transform;
+        # V1 geometry is constructed afterwards from the aligned result.
         if random_flip == 0:
             batch_flip = batch_raw * 1
         else:
@@ -192,6 +230,64 @@ class DataProcessing(data.Dataset):
 
     def normalise_images(self, imgs):
         return (imgs - self.fold_mean) / self.fold_std
+
+    def _prepare_v1_geometry_index(self):
+        if self._nucleus_objects is None:
+            self._nucleus_objects = find_objects(self.nuclei)
+        if self.nucleus_areas is None:
+            self.nucleus_areas = compute_nucleus_areas(self.nuclei)
+
+    def _nucleus_tree(self, cell_id):
+        """Return a small cached tree of full-nucleus pixel coordinates."""
+
+        cell_id = int(cell_id)
+        self._prepare_v1_geometry_index()
+        if cell_id in self._nucleus_tree_cache:
+            tree = self._nucleus_tree_cache.pop(cell_id)
+            self._nucleus_tree_cache[cell_id] = tree
+            return tree
+        index = cell_id - 1
+        if index < 0 or index >= len(self._nucleus_objects):
+            raise ValueError(
+                f"Nucleus ID {cell_id} is absent from the full label image"
+            )
+        nucleus_slice = self._nucleus_objects[index]
+        if nucleus_slice is None:
+            raise ValueError(
+                f"Nucleus ID {cell_id} is absent from the full label image"
+            )
+        local_coordinates = np.argwhere(self.nuclei[nucleus_slice] == cell_id)
+        offset = np.asarray([axis.start for axis in nucleus_slice])
+        tree = cKDTree(local_coordinates + offset)
+        self._nucleus_tree_cache[cell_id] = tree
+        # A bounded LRU avoids retaining a tree for every nucleus in a full run.
+        if len(self._nucleus_tree_cache) > 256:
+            self._nucleus_tree_cache.popitem(last=False)
+        return tree
+
+    def full_nucleus_distance_maps(
+        self, row_start, column_start, cell_ids, transcript_counts
+    ):
+        """Exact full-nucleus distances at transcript pixels in one patch."""
+
+        counts = np.asarray(transcript_counts)
+        cell_ids = np.asarray(cell_ids, dtype=np.int64)
+        # Zeros outside transcript pixels are inert because candidate overlap is
+        # intersected with transcript support. Finite fill values also keep the
+        # shared imgaug flip/rotation path robust.
+        distances = np.zeros((*counts.shape, len(cell_ids)), dtype=np.float32)
+        local_coordinates = np.argwhere(counts > 0)
+        if len(local_coordinates) == 0:
+            return distances
+        global_coordinates = local_coordinates + np.asarray(
+            [int(row_start), int(column_start)]
+        )
+        for candidate_index, cell_id in enumerate(cell_ids):
+            values, _ = self._nucleus_tree(cell_id).query(global_coordinates, k=1)
+            distances[
+                local_coordinates[:, 0], local_coordinates[:, 1], candidate_index
+            ] = values.astype(np.float32)
+        return distances
 
     def __len__(self):
         "Denotes the total number of samples"
@@ -217,14 +313,32 @@ class DataProcessing(data.Dataset):
         assert expr.shape[0] == self.patch_size, print(expr.shape[0])
         assert expr.shape[1] == self.patch_size, print(expr.shape[1])
 
-        img = np.concatenate((expr, np.expand_dims(nucl, -1)), -1)
+        n_genes = expr.shape[-1]
+        raw_distance_maps = None
+        if self.v1_enabled:
+            original_cell_ids = np.unique(nucl)
+            original_cell_ids = original_cell_ids[original_cell_ids != 0].astype(
+                np.int64
+            )
+            raw_distance_maps = self.full_nucleus_distance_maps(
+                coords_h1,
+                coords_w1,
+                original_cell_ids,
+                np.sum(expr, axis=-1),
+            )
+            img = np.concatenate(
+                (expr, np.expand_dims(nucl, -1), raw_distance_maps), axis=-1
+            )
+        else:
+            img = np.concatenate((expr, np.expand_dims(nucl, -1)), -1)
 
         if self.isTraining:
             img, _, _ = self.augment_data(img)
             img = img[0, :, :, :]
 
-        expr_aug = img[:, :, :-1]
-        nucl_aug = img[:, :, -1]
+        expr_aug = img[:, :, :n_genes]
+        nucl_aug = img[:, :, n_genes]
+        raw_distance_aug = img[:, :, n_genes + 1 :] if self.v1_enabled else None
 
         # Tile cells individually along channel axis
         cell_ids, _ = np.unique(nucl_aug, return_index=True)
@@ -327,6 +441,39 @@ class DataProcessing(data.Dataset):
 
         expr_aug_sum = np.sum(expr_aug, -1)
 
+        v1_payload = None
+        if self.v1_enabled:
+            geometry = compute_geometry_ambiguity(
+                nucl_split,
+                search_areas,
+                expr_aug_sum,
+                cell_ids.astype(np.int64),
+                self.nucleus_areas,
+                tau=self.v1_params.tau,
+                eps=self.v1_params.eps,
+                mode=self.v1_params.ambiguity_mode,
+                raw_distances=raw_distance_aug,
+            )
+            stats = geometry_statistics(geometry, expr_aug_sum)
+            v1_payload = {
+                "candidate_count": torch.from_numpy(geometry.candidate_count).long(),
+                "geometry_margin": torch.from_numpy(geometry.margin).float(),
+                "candidate_overlap": torch.from_numpy(
+                    geometry.overlap_mask.astype(np.uint8)
+                ).bool(),
+                "ambiguity_global": torch.from_numpy(
+                    geometry.ambiguity_global.astype(np.uint8)
+                ).bool(),
+                "ambiguity_candidate": torch.from_numpy(
+                    geometry.ambiguity_candidate.astype(np.uint8)
+                ).bool(),
+                "principal_candidate_ids": torch.from_numpy(
+                    geometry.principal_ids
+                ).long(),
+                "cell_ids": torch.from_numpy(cell_ids.astype(np.int64)).long(),
+                **stats,
+            }
+
         # Mask expressions and change channel order
         expr_split = np.repeat(expr_aug[:, :, :, np.newaxis], n_cells, axis=3)
         expr_split = expr_split * np.expand_dims(search_areas, 2)
@@ -339,7 +486,7 @@ class DataProcessing(data.Dataset):
         search_neg_torch = torch.from_numpy(search_neg).long()
 
         if self.isTraining:
-            return (
+            sample = (
                 expr_torch,
                 nucl_torch,
                 search_areas_torch,
@@ -350,6 +497,11 @@ class DataProcessing(data.Dataset):
                 nucl_aug,
                 expr_aug_sum,
             )
+            # Training-only opt-in keeps both old training configs and the
+            # prediction tuple contract byte-for-byte compatible.
+            if v1_payload is not None:
+                return (*sample, v1_payload)
+            return sample
         else:
             return (
                 expr_torch,

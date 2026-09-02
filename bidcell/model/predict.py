@@ -19,6 +19,7 @@ from .model.model import SegmentationModel as Network
 from .utils.utils import (
     get_experiment_id,
     get_files_list,
+    get_model_outputs_root,
     get_seg_mask,
     make_dir,
     save_fig_outputs,
@@ -26,6 +27,7 @@ from .utils.utils import (
 )
 
 from ..config import load_config, Config
+from ..utils.resource_monitor import ResourceMonitor, update_resource_summary
 
 
 def predict(config: Config) -> str:
@@ -40,12 +42,18 @@ def predict(config: Config) -> str:
 
     # Create experiment directories
     make_new = False
+    model_outputs_root = get_model_outputs_root(config)
     timestamp = get_experiment_id(
         make_new,
         config.experiment_dirs.dir_id,
         config.files.data_dir,
+        output_root=(
+            model_outputs_root
+            if config.experiment_dirs.output_root is not None
+            else None
+        ),
     )
-    experiment_path = os.path.join(config.files.data_dir, "model_outputs", timestamp)
+    experiment_path = os.path.join(model_outputs_root, timestamp)
     model_dir = experiment_path + "/" + config.experiment_dirs.model_dir
     test_output_dir = experiment_path + "/" + config.experiment_dirs.test_output_dir
     make_dir(test_output_dir)
@@ -68,6 +76,8 @@ def predict(config: Config) -> str:
         model = Network(n_channels=n_genes)
 
     model = model.to(device)
+    inference_monitor = ResourceMonitor("inference", model=model)
+    inference_monitor.start()
 
     # Get list of model files
     if config.testing_params.test_epoch < 0:
@@ -206,6 +216,12 @@ def predict(config: Config) -> str:
                 seg_fp, whole_seg.astype(np.uint32), photometric="minisblack"
             )
 
+    resource_metrics = inference_monitor.stop()
+    update_resource_summary(
+        os.path.join(experiment_path, "evaluation", "tier4", "resource_summary.json"),
+        resource_metrics,
+        model=model,
+    )
     logging.info("Finished")
 
     return test_output_dir
@@ -252,8 +268,7 @@ def fill_grid(config: Config, dir_id: str):
     expr_fp_ext = ".hdf5"
 
     dir_id = os.path.join(
-        config.files.data_dir,
-        "model_outputs",
+        get_model_outputs_root(config),
         dir_id,
         config.experiment_dirs.test_output_dir,
     )

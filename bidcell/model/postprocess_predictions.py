@@ -12,6 +12,8 @@ import numpy as np
 import tifffile
 from scipy import ndimage as ndi
 from ..config import load_config, Config
+from .utils.utils import get_model_outputs_root
+from ..utils.resource_monitor import ResourceMonitor, update_resource_summary
 
 
 def get_n_processes(n_processes):
@@ -337,7 +339,10 @@ def process_check_splits(config, dir_id, nuclei_img, seg_final, chunk_ids):
 
 
 def postprocess_predictions(config: Config, dir_id: str):
-    dir_id = config.files.data_dir + "/model_outputs/" + dir_id + "/test_output/"
+    experiment_path = os.path.join(get_model_outputs_root(config), dir_id)
+    resource_monitor = ResourceMonitor("postprocessing")
+    resource_monitor.start()
+    dir_id = os.path.join(experiment_path, config.experiment_dirs.test_output_dir) + "/"
 
     pred_fp = dir_id + "epoch_%d_step_%d.tif" % (
         config.testing_params.test_epoch,
@@ -426,6 +431,11 @@ def postprocess_predictions(config: Config, dir_id: str):
     print("Saved segmentation to %s" % fp_output_seg)
     tifffile.imwrite(
         fp_output_seg, seg_final.astype(np.uint32), photometric="minisblack"
+    )
+    resource_metrics = resource_monitor.stop()
+    update_resource_summary(
+        os.path.join(experiment_path, "evaluation", "tier4", "resource_summary.json"),
+        resource_metrics,
     )
 
 

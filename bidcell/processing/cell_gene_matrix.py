@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from .utils import get_n_processes, get_patches_coords
 from ..config import Config, load_config
+from ..model.utils.utils import get_model_outputs_root
 
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -116,8 +117,7 @@ def make_cell_gene_mat(config: Config, is_cell: bool, timestamp: str | None = No
             + "_connected.tif"
         ]
         fp_seg = os.path.join(
-            config.files.data_dir,
-            "model_outputs",
+            get_model_outputs_root(config),
             timestamp,
             config.experiment_dirs.test_output_dir,
             "".join(fp_seg_name),

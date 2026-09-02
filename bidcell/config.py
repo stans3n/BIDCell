@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Literal, Annotated
 
 import yaml
-from pydantic import BaseModel, computed_field, model_validator, ConfigDict
+from pydantic import BaseModel, computed_field, model_validator, ConfigDict, Field
 from pydantic.functional_validators import AfterValidator
 
 
@@ -199,6 +199,39 @@ class TrainingParams(BaseModel):
     sample_freq: int = 100
 
 
+class V1Params(BaseModel):
+    """Geometry-guided ambiguity weighting controls.
+
+    The feature is deliberately disabled by default so configurations created
+    before V1 retain the original BIDCell behaviour.
+    """
+
+    enabled: bool = False
+    ambiguity_mode: Literal["overlap_only", "overlap_geometry"] = "overlap_geometry"
+    tau: float = 0.15
+    lambda_boundary: float = 1.0
+    eps: float = 1.0e-6
+    mean_normalize_weights: bool = True
+    weight_overlap: bool = True
+    weight_positive_marker: bool = True
+    weight_negative_marker: bool = True
+    weight_cellcalling: bool = False
+    save_geometry_diagnostics: bool = True
+    save_loss_diagnostics: bool = True
+    patch_manifest: str | None = None
+    manifest_seed: int = 1234
+
+    @model_validator(mode="after")
+    def check_numeric_controls(self):
+        if not 0 <= self.tau <= 1:
+            raise ValueError("v1.tau must be between 0 and 1")
+        if self.lambda_boundary < 0:
+            raise ValueError("v1.lambda_boundary must be non-negative")
+        if self.eps <= 0:
+            raise ValueError("v1.eps must be positive")
+        return self
+
+
 class TestingParams(BaseModel):
     test_epoch: int = 1
     test_step: int = 4000
@@ -216,6 +249,9 @@ class ExperimentDirs(BaseModel):
     model_dir: str = "models"
     test_output_dir: str = "test_output"
     samples_dir: str = "samples"
+    # Optional alternative to <data_dir>/model_outputs.  This is primarily
+    # useful for deterministic development-ablation output separation.
+    output_root: str | None = None
 
 
 class Config(BaseModel):
@@ -232,6 +268,7 @@ class Config(BaseModel):
     postprocess: PostprocessParams = PostprocessParams()
     experiment_dirs: ExperimentDirs = ExperimentDirs()
     cgm_params: CellGeneMatParams = CellGeneMatParams()
+    v1: V1Params = Field(default_factory=V1Params)
 
 
 def load_config(path: str) -> Config:

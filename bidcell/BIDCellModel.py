@@ -1,6 +1,6 @@
 """BIDCellModel class module"""
+
 import importlib.resources
-import os
 from pathlib import Path
 from shutil import copyfile, copytree
 from typing import Literal
@@ -9,7 +9,7 @@ from .config import load_config
 from .model.postprocess_predictions import postprocess_predictions
 from .model.predict import fill_grid, predict
 from .model.train import train
-from .model.utils.utils import get_newest_id
+from .model.utils.utils import get_model_outputs_root, get_newest_id
 from .processing.cell_gene_matrix import make_cell_gene_mat
 from .processing.nuclei_segmentation import segment_nuclei
 from .processing.nuclei_stitch_fov import stitch_nuclei
@@ -33,8 +33,7 @@ class BIDCellModel:
         self.config = load_config(config_file)
 
     def run_pipeline(self):
-        """Runs the entire BIDCell pipeline using the settings defined in the configuration.
-        """
+        """Runs the entire BIDCell pipeline using the settings defined in the configuration."""
         print("### Preprocessing ###")
         print()
         self.preprocess()
@@ -50,8 +49,7 @@ class BIDCellModel:
         print("### Done ###")
 
     def preprocess(self) -> None:
-        """Preprocess the dataset for training.
-        """
+        """Preprocess the dataset for training."""
         if self.config.nuclei_fovs.stitch_nuclei_fovs:
             stitch_nuclei(self.config)
         if self.config.nuclei.crop_nuclei_to_ts:
@@ -71,18 +69,15 @@ class BIDCellModel:
         stitch_nuclei(self.config)
 
     def segment_nuclei(self):
-        """Run the nucleus segmentation algorythm. Runs inside preprocess by default.
-        """
+        """Run the nucleus segmentation algorythm. Runs inside preprocess by default."""
         segment_nuclei(self.config)
 
     def generate_expression_maps(self):
-        """Generate the expression maps. Runs inside preprocess by default.
-        """
+        """Generate the expression maps. Runs inside preprocess by default."""
         generate_expression_maps(self.config)
 
     def generate_patches(self):
-        """Generate patches for training. Runs inside preprocess by default.
-        """
+        """Generate patches for training. Runs inside preprocess by default."""
         generate_patches(self.config)
 
     def make_cell_gene_mat(self, is_cell: bool, timestamp: str = "last"):
@@ -96,32 +91,25 @@ class BIDCellModel:
             The timestamp corrisponding to the name of a directory in the data directory under `model_outputs`, by default "last", in which case it uses the folder with the most recent timestamp.
         """
         if is_cell and timestamp == "last":
-            timestamp = get_newest_id(
-                os.path.join(self.config.files.data_dir, "model_outputs")
-            )
+            timestamp = get_newest_id(get_model_outputs_root(self.config))
         elif is_cell:
             self.__check_valid_timestamp(timestamp)
         make_cell_gene_mat(self.config, is_cell, timestamp=timestamp)
 
     def preannotate(self):
-        """Preannotate the cells. Runs inside preprocess by default.
-        """
+        """Preannotate the cells. Runs inside preprocess by default."""
         preannotate(self.config)
 
     def train(self) -> None:
-        """Train the model.
-        """
+        """Train the model."""
         train(self.config)
 
     def predict(self) -> None:
-        """Segment and annotate the cells.
-        """
+        """Segment and annotate the cells."""
         predict(self.config)
 
         if self.config.experiment_dirs.dir_id == "last":
-            timestamp = get_newest_id(
-                os.path.join(self.config.files.data_dir, "model_outputs")
-            )
+            timestamp = get_newest_id(get_model_outputs_root(self.config))
         else:
             timestamp = self.config.experiment_dirs.dir_id
             self.__check_valid_timestamp(timestamp)
@@ -133,7 +121,9 @@ class BIDCellModel:
         make_cell_gene_mat(self.config, is_cell=True, timestamp=timestamp)
 
     @staticmethod
-    def get_example_config(vendor: Literal["cosmx", "merscope", "stereoseq", "xenium"]) -> None:
+    def get_example_config(
+        vendor: Literal["cosmx", "merscope", "stereoseq", "xenium"]
+    ) -> None:
         """Gets an example configuration for a given vendor and places it in the working directory.
 
         Parameters
@@ -160,28 +150,24 @@ class BIDCellModel:
             Whether to get the configuration for the example data, by default True
         """
         root: Path = importlib.resources.files("bidcell")
-        data_path = (
-            root.parent / "data"
-        )
+        data_path = root.parent / "data"
         cwd = Path().cwd()
         if not (cwd / "example_data").exists():
             copytree(data_path, cwd / "example_data")
         if with_config and not (cwd / "params_small_example.yaml").exists():
             copyfile(
                 root / "example_params" / "small_example.yaml",
-                cwd / "params_small_example.yaml"
+                cwd / "params_small_example.yaml",
             )
 
     def __check_valid_timestamp(self, timestamp: str) -> None:
-        outputs_path = Path(self.config.files.data_dir / "model_outputs")
+        outputs_path = Path(get_model_outputs_root(self.config))
         outputs = list(outputs_path.iterdir())
         if len(outputs) == 0:
             raise ValueError(
                 f"There are no outputs yet under {str(outputs_path)}. Run BIDCell at least once with this dataset to get some."
             )
-        if not any(
-            [timestamp == x for x in outputs if x.is_dir()]
-        ):
+        if not any([timestamp == x.name for x in outputs if x.is_dir()]):
             valid_dirs = "\n".join(["\t" + str(x) for x in outputs])
             raise ValueError(
                 f"{timestamp} is not a valid model output directory (set in configuration YAML under `experiment_dirs.dir_id`). Choose one of the following:\n{valid_dirs}"

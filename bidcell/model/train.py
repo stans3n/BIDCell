@@ -1,10 +1,11 @@
 import argparse
+import json
 import logging
 import math
 import sys
 import os
+import time
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import segmentation_models_pytorch as smp
 import torch
@@ -18,14 +19,17 @@ from .model.losses import (
     OverlapLoss,
     Oversegmentation,
     PosNegMarkerLoss,
+    build_ambiguity_weights,
 )
 from .model.model import SegmentationModel as Network
 from .utils.utils import (
     get_experiment_id,
+    get_model_outputs_root,
     make_dir,
     save_fig_outputs,
 )
 from ..config import load_config, Config
+from ..utils.resource_monitor import ResourceMonitor, update_resource_summary
 
 
 def train(config: Config):
@@ -46,12 +50,18 @@ def train(config: Config):
     else:
         make_new = False
 
+    model_outputs_root = get_model_outputs_root(config)
     timestamp = get_experiment_id(
         make_new,
         config.experiment_dirs.dir_id,
         config.files.data_dir,
+        output_root=(
+            model_outputs_root
+            if config.experiment_dirs.output_root is not None
+            else None
+        ),
     )
-    experiment_path = os.path.join(config.files.data_dir, "model_outputs", timestamp)
+    experiment_path = os.path.join(model_outputs_root, timestamp)
     make_dir(experiment_path + "/" + config.experiment_dirs.model_dir)
     make_dir(experiment_path + "/" + config.experiment_dirs.samples_dir)
 
@@ -87,8 +97,16 @@ def train(config: Config):
         isTraining=True,
         total_steps=config.training_params.total_steps,
     )
+    loader_generator = None
+    if config.v1.patch_manifest is not None:
+        loader_generator = torch.Generator().manual_seed(config.v1.manifest_seed)
     train_loader = DataLoader(
-        dataset=train_dataset, batch_size=1, shuffle=True, num_workers=0, drop_last=True
+        dataset=train_dataset,
+        batch_size=1,
+        shuffle=True,
+        num_workers=0,
+        drop_last=True,
+        generator=loader_generator,
     )
 
     n_train_examples = len(train_loader)
@@ -162,22 +180,46 @@ def train(config: Config):
     model = model.train()
 
     lrs = []
+    training_monitor = ResourceMonitor("training", model=model)
+    training_monitor.start()
+    loss_diagnostics_path = os.path.join(
+        experiment_path, "evaluation", "tier4", "loss_diagnostics.jsonl"
+    )
+    geometry_diagnostics_path = os.path.join(
+        experiment_path, "evaluation", "tier4", "geometry_diagnostics.jsonl"
+    )
 
     for epoch in range(initial_epoch, config.training_params.total_epochs):
         cur_lr = optimizer.param_groups[0]["lr"]
         print("\nEpoch =", (epoch + 1), " lr =", cur_lr)
 
-        for step_epoch, (
-            batch_x313,
-            batch_n,
-            batch_sa,
-            batch_pos,
-            batch_neg,
-            coords_h1,
-            coords_w1,
-            nucl_aug,
-            expr_aug_sum,
-        ) in enumerate(train_loader):
+        for step_epoch, batch in enumerate(train_loader):
+            if len(batch) == 10:
+                (
+                    batch_x313,
+                    batch_n,
+                    batch_sa,
+                    batch_pos,
+                    batch_neg,
+                    coords_h1,
+                    coords_w1,
+                    nucl_aug,
+                    expr_aug_sum,
+                    v1_data,
+                ) = batch
+            else:
+                (
+                    batch_x313,
+                    batch_n,
+                    batch_sa,
+                    batch_pos,
+                    batch_neg,
+                    coords_h1,
+                    coords_w1,
+                    nucl_aug,
+                    expr_aug_sum,
+                ) = batch
+                v1_data = None
             # Permute channels axis to batch axis
             # torch.Size([1, patch_size, patch_size, 313, n_cells]) to [n_cells, 313, patch_size, patch_size]
             batch_x313 = batch_x313[0, :, :, :, :].permute(3, 2, 0, 1)
@@ -185,6 +227,14 @@ def train(config: Config):
             batch_pos = batch_pos.permute(3, 0, 1, 2)
             batch_neg = batch_neg.permute(3, 0, 1, 2)
             batch_n = batch_n.permute(3, 0, 1, 2)
+
+            ambiguity_global = None
+            ambiguity_candidate = None
+            if config.v1.enabled and v1_data is not None:
+                ambiguity_global = v1_data["ambiguity_global"][0].to(device)
+                ambiguity_candidate = (
+                    v1_data["ambiguity_candidate"][0].permute(2, 0, 1).to(device)
+                )
 
             if batch_x313.shape[0] == 0:
                 if (step_epoch % model_freq) == 0:
@@ -219,9 +269,41 @@ def train(config: Config):
             # Compute losses
             loss_ne = criterion_ne(seg_pred, batch_n)
             loss_os = criterion_os(seg_pred, batch_n)
-            loss_cc = criterion_cc(seg_pred, batch_sa)
-            loss_ov = criterion_ov(seg_pred, batch_n)
-            loss_pn = criterion_pn(seg_pred, batch_pos, batch_neg)
+            v1_kwargs = {
+                "lambda_boundary": config.v1.lambda_boundary,
+                "mean_normalize": config.v1.mean_normalize_weights,
+                "eps": config.v1.eps,
+            }
+            loss_cc = criterion_cc(
+                seg_pred,
+                batch_sa,
+                ambiguity_mask=(
+                    ambiguity_candidate
+                    if config.v1.enabled and config.v1.weight_cellcalling
+                    else None
+                ),
+                **v1_kwargs,
+            )
+            loss_ov = criterion_ov(
+                seg_pred,
+                batch_n,
+                ambiguity_mask=(
+                    ambiguity_global
+                    if config.v1.enabled and config.v1.weight_overlap
+                    else None
+                ),
+                **v1_kwargs,
+            )
+            loss_pn, marker_details = criterion_pn(
+                seg_pred,
+                batch_pos,
+                batch_neg,
+                ambiguity_mask=(ambiguity_candidate if config.v1.enabled else None),
+                weight_positive=config.v1.weight_positive_marker,
+                weight_negative=config.v1.weight_negative_marker,
+                return_diagnostics=True,
+                **v1_kwargs,
+            )
 
             loss_ne = loss_ne.squeeze()
             loss_os = loss_os.squeeze()
@@ -244,6 +326,15 @@ def train(config: Config):
             step_train_loss = loss.detach().cpu().numpy()
 
             if (global_step % config.training_params.sample_freq) == 0:
+                with torch.no_grad():
+                    loss_cc_unweighted = criterion_cc(seg_pred.detach(), batch_sa)
+                    loss_ov_unweighted = criterion_ov(seg_pred.detach(), batch_n)
+                    _, marker_unweighted = criterion_pn(
+                        seg_pred.detach(),
+                        batch_pos,
+                        batch_neg,
+                        return_diagnostics=True,
+                    )
                 coords_h1 = coords_h1.detach().cpu().squeeze().numpy()
                 coords_w1 = coords_w1.detach().cpu().squeeze().numpy()
                 sample_seg = seg_pred.detach().cpu().numpy()
@@ -260,14 +351,113 @@ def train(config: Config):
 
                 save_fig_outputs(sample_seg, sample_n, sample_sa, sample_expr, patch_fp)
 
-                print(
-                    "Epoch[{}/{}], Step[{}], Loss:{:.4f}".format(
-                        epoch + 1,
-                        config.training_params.total_epochs,
-                        step_epoch,
-                        step_train_loss,
+                diagnostics = {
+                    "epoch": epoch + 1,
+                    "epoch_step": step_epoch,
+                    "global_step": global_step,
+                    "total_loss": float(step_train_loss),
+                    "nucleus_encapsulation_loss": float(loss_ne.detach().cpu()),
+                    "oversegmentation_loss": float(loss_os.detach().cpu()),
+                    "cellcalling_loss": float(loss_cc.detach().cpu()),
+                    "cellcalling_loss_unweighted": float(
+                        loss_cc_unweighted.detach().cpu()
+                    ),
+                    "overlap_loss": float(loss_ov.detach().cpu()),
+                    "overlap_loss_unweighted": float(loss_ov_unweighted.detach().cpu()),
+                    "positive_marker_loss": float(
+                        marker_details["loss_positive_marker"].detach().cpu()
+                    ),
+                    "positive_marker_loss_unweighted": float(
+                        marker_unweighted["loss_positive_marker"].detach().cpu()
+                    ),
+                    "negative_marker_loss": float(
+                        marker_details["loss_negative_marker"].detach().cpu()
+                    ),
+                    "negative_marker_loss_unweighted": float(
+                        marker_unweighted["loss_negative_marker"].detach().cpu()
+                    ),
+                    "training_steps_per_second": float(
+                        (global_step + 1)
+                        / max(time.perf_counter() - training_monitor.started_at, 1e-12)
+                    ),
+                }
+                if v1_data is not None:
+                    for key in (
+                        "ambiguous_transcript_fraction",
+                        "ambiguous_pixel_fraction",
+                        "selected_candidate_pair_count",
+                    ):
+                        diagnostics[key] = float(v1_data[key].item())
+                    global_weights = build_ambiguity_weights(
+                        ambiguity_global,
+                        config.v1.lambda_boundary,
+                        mean_normalize=config.v1.mean_normalize_weights,
+                        eps=config.v1.eps,
                     )
+                    diagnostics["mean_v1_weight"] = float(
+                        global_weights.mean().detach().cpu()
+                    )
+                    diagnostics["max_v1_weight"] = float(
+                        global_weights.max().detach().cpu()
+                    )
+                logging.info(
+                    "Epoch[%d/%d] Step[%d] total=%.4f NE=%.4f OS=%.4f "
+                    "CC=%.4f OV=%.4f POS=%.4f NEG=%.4f steps/s=%.3f",
+                    epoch + 1,
+                    config.training_params.total_epochs,
+                    step_epoch,
+                    diagnostics["total_loss"],
+                    diagnostics["nucleus_encapsulation_loss"],
+                    diagnostics["oversegmentation_loss"],
+                    diagnostics["cellcalling_loss"],
+                    diagnostics["overlap_loss"],
+                    diagnostics["positive_marker_loss"],
+                    diagnostics["negative_marker_loss"],
+                    diagnostics["training_steps_per_second"],
                 )
+                if config.v1.enabled and config.v1.save_loss_diagnostics:
+                    make_dir(os.path.dirname(loss_diagnostics_path))
+                    with open(loss_diagnostics_path, "a") as handle:
+                        handle.write(json.dumps(diagnostics, sort_keys=True) + "\n")
+                if (
+                    config.v1.enabled
+                    and config.v1.save_geometry_diagnostics
+                    and v1_data is not None
+                ):
+                    margins = v1_data["geometry_margin"][0]
+                    finite_margins = margins[torch.isfinite(margins)]
+                    geometry_diagnostics = {
+                        "epoch": epoch + 1,
+                        "epoch_step": step_epoch,
+                        "global_step": global_step,
+                        "row_start": int(coords_h1),
+                        "column_start": int(coords_w1),
+                        "candidate_overlap_pixel_count": int(
+                            v1_data["candidate_overlap_pixel_count"].item()
+                        ),
+                        "ambiguous_transcript_count": float(
+                            v1_data["ambiguous_transcript_count"].item()
+                        ),
+                        "ambiguous_transcript_fraction": float(
+                            v1_data["ambiguous_transcript_fraction"].item()
+                        ),
+                        "ambiguous_pixel_count": int(
+                            v1_data["ambiguous_pixel_count"].item()
+                        ),
+                        "selected_candidate_pair_count": int(
+                            v1_data["selected_candidate_pair_count"].item()
+                        ),
+                        "mean_overlap_margin": (
+                            float(finite_margins.mean())
+                            if finite_margins.numel()
+                            else None
+                        ),
+                    }
+                    make_dir(os.path.dirname(geometry_diagnostics_path))
+                    with open(geometry_diagnostics_path, "a") as handle:
+                        handle.write(
+                            json.dumps(geometry_diagnostics, sort_keys=True) + "\n"
+                        )
                 # print('NE:{:.4f}, TC:{:.4f}, CC:{:.4f}, OV:{:.4f}, PN:{:.4f}'.format(step_ne_loss,
                 #                                                                     step_os_loss,
                 #                                                                     step_cc_loss,
@@ -297,6 +487,13 @@ def train(config: Config):
         # Update and append current LR
         scheduler.step()
         lrs.append(cur_lr)
+
+    resource_metrics = training_monitor.stop(steps=global_step)
+    update_resource_summary(
+        os.path.join(experiment_path, "evaluation", "tier4", "resource_summary.json"),
+        resource_metrics,
+        model=model,
+    )
 
     # Plot lr scheduler
     # plt.plot(lrs, ".-", label="LambdaLR")
