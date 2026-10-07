@@ -1,0 +1,14 @@
+{
+  "reference": "/home/zwan0726/work/projects/BIDCell/example_data/sc_references/sc_breast.csv",
+  "positive_markers": "/home/zwan0726/work/projects/BIDCell/example_data/sc_references/sc_breast_markers_pos.csv",
+  "negative_markers": "/home/zwan0726/work/projects/BIDCell/example_data/sc_references/sc_breast_markers_neg.csv",
+  "rscript": "/home/zwan0726/work/envs/bidcell_eval_r_v1/bin/Rscript",
+  "official_sources": "/home/zwan0726/work/outputs/remote_prep_20261007T122955/evidence",
+  "revision": "1e892c470177fcea351c9175a9153e5480e93646",
+  "normalization": "raw counts, no cell QC; engineering only",
+  "annotation_profiles": [
+    "remote_nuclear_annotation_raw",
+    "windows_style_maxpearson_raw"
+  ],
+  "reference_role": "same pooled training prior; not independent matched scRNA reference"
+}

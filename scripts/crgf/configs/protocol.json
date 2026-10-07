@@ -1,0 +1,62 @@
+{
+  "version": "MA-EVAL-1.0-draft+remote-engineering-1.0",
+  "paper_protocol_complete": false,
+  "profiles_preserved": [
+    "EP-SMOKE",
+    "EP-CORE",
+    "EP-FINAL",
+    "EP-COST",
+    "EP-EXT"
+  ],
+  "additional_profile": "EP-FAST-DEV",
+  "blocked_metrics": {
+    "7": {
+      "name": "Non-zero expression Pearson",
+      "status": "missing_input",
+      "reason": "No cell-level matched reference/detection proportions on remote; pooled signature CSV cannot replace it"
+    },
+    "10": {
+      "name": "Purity F1",
+      "status": "missing_definition",
+      "reason": "Cross-method scaling cohort, ranges, degenerate values and class eligibility not frozen; no proxy"
+    },
+    "19": {
+      "name": "Extreme-area outlier fraction",
+      "status": "missing_definition",
+      "reason": "Predeclared train/dev area thresholds and edge rules absent"
+    },
+    "38": {
+      "name": "Inference overhead vs BIDCell",
+      "status": "missing_input",
+      "reason": "No paired method timing"
+    },
+    "39": {
+      "name": "Sparse speed-up",
+      "status": "deferred",
+      "reason": "C deferred"
+    },
+    "40": {
+      "name": "Rep1-Rep2 consistency",
+      "status": "not_run",
+      "reason": "Rep2 excluded this phase"
+    },
+    "41": {
+      "name": "Independent Rep2 performance",
+      "status": "not_run",
+      "reason": "Rep2 excluded this phase"
+    },
+    "42": {
+      "name": "95% CI",
+      "status": "missing_definition",
+      "reason": "Independent spatial/specimen groups not frozen"
+    },
+    "43": {
+      "name": "Seed stability",
+      "status": "not_run",
+      "reason": "Additional seeds excluded this phase"
+    }
+  },
+  "primary_selection": "official Purity F1; blocked; FAST never selects",
+  "research_guardrails": null,
+  "split": null
+}

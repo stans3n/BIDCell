@@ -1,0 +1,20 @@
+{
+  "baseline_root": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920",
+  "baseline_config": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/configs/xenium_breast_official_step4000.yaml",
+  "final_mask": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/model_outputs/2026_07_23_04_18_24/test_output/epoch_1_step_4000_connected.tif",
+  "pre_mask": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/model_outputs/2026_07_23_04_18_24/test_output/epoch_1_step_4000.tif",
+  "nuclei_mask": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/nuclei.tif",
+  "final_matrix": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/cell_gene_matrices/2026_07_23_04_18_24/expr_mat.csv",
+  "nuclear_matrix": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/cell_gene_matrices/nuclei/expr_mat.csv",
+  "transcripts": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/transcripts_processed.csv",
+  "genes": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/all_gene_names.txt",
+  "checkpoint": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/model_outputs/2026_07_23_04_18_24/models/epoch_1_step_4000.pth",
+  "preannotation": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/nuclei_cell_type.h5",
+  "reference": "/home/zwan0726/work/projects/BIDCell/example_data/sc_references/sc_breast.csv",
+  "positive_markers": "/home/zwan0726/work/projects/BIDCell/example_data/sc_references/sc_breast_markers_pos.csv",
+  "negative_markers": "/home/zwan0726/work/projects/BIDCell/example_data/sc_references/sc_breast_markers_neg.csv",
+  "scale_x": 0.2125,
+  "scale_y": 0.2125,
+  "pixel_um": 1.0,
+  "chunksize": 500000
+}

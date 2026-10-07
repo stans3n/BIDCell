@@ -15,6 +15,7 @@ class SegmentationModel(nn.Module):
         feature_scale=4,
         is_deconv=True,
         is_batchnorm=True,
+        fusion=False,
     ):
         super(SegmentationModel, self).__init__()
         self.n_channels = n_channels
@@ -226,12 +227,22 @@ class SegmentationModel(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 init_weights(m, init_type="kaiming")
 
-    def forward(self, inputs):
+        # Create after legacy initialization to preserve Xavier initialization.
+        if fusion:
+            from .relation_geometry import RelationGeometry
+            self.relation_geometry = RelationGeometry()
+
+    def forward(self, inputs, geometry=None, search_area=None):
         ## -------------Encoder-------------
         h1 = self.conv1(inputs)  # h1->320*320*64
 
         h2 = self.maxpool1(h1)
         h2 = self.conv2(h2)  # h2->160*160*128
+
+        if hasattr(self, "relation_geometry"):
+            if geometry is None or search_area is None:
+                raise ValueError("CRGF requires geometry and search_area")
+            h2 = self.relation_geometry(h2, geometry, search_area)
 
         h3 = self.maxpool2(h2)
         h3 = self.conv3(h3)  # h3->80*80*256

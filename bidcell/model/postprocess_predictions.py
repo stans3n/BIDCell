@@ -42,7 +42,7 @@ def get_exp_dir(config):
 
 def postprocess_connect(img, nuclei):
     cell_ids = np.unique(img)
-    cell_ids = cell_ids[1:]
+    cell_ids = cell_ids[cell_ids > 0]
 
     random.shuffle(cell_ids)
 
@@ -103,7 +103,7 @@ def postprocess_connect(img, nuclei):
 
 def remove_islands(img, nuclei):
     cell_ids = np.unique(img)
-    cell_ids = cell_ids[1:]
+    cell_ids = cell_ids[cell_ids > 0]
 
     random.shuffle(cell_ids)
 
@@ -282,6 +282,8 @@ def process_check_splits(config, dir_id, nuclei_img, seg_final, chunk_ids):
     Check and fix cells split by windowing
     """
 
+    if len(chunk_ids) == 0:
+        return
     chunk_seg = np.zeros(seg_final.shape, dtype=np.uint32)
 
     # Touch diagonally = same object

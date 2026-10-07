@@ -27,7 +27,12 @@ class DataProcessing(data.Dataset):
         all_patches=True,
         shift_patches=0,
         total_steps=None,
+        structured=False,
+        geometry_provider=None,
     ):
+        self.structured = structured
+        self.geometry_provider = geometry_provider
+        self.view_transform = None
         self.patch_size = config.model_params.patch_size
         self.isTraining = isTraining
 
@@ -96,11 +101,11 @@ class DataProcessing(data.Dataset):
         # coords_starts = [(x, y) for x in h_starts for y in w_starts]
 
         # Randomly select train/test samples
-        random.seed(1234)
+        split_rng = random.Random(1234)
         n_coords = len(fp_patches_all)
         sample_ids = range(n_coords)
         sample_k = int(80 * n_coords / 100)
-        train_ids = random.sample(sample_ids, k=sample_k)
+        train_ids = split_rng.sample(sample_ids, k=sample_k)
 
         if self.isTraining:
             self.fp_patches = [fp_patches_all[x] for x in train_ids]
@@ -129,6 +134,7 @@ class DataProcessing(data.Dataset):
         h5f = h5py.File(self.nuclei_types_fp, "r")
         self.nuclei_types_idx = list(h5f["data"][:])
         self.nuclei_types_ids = list(h5f["ids"][:])
+        self.type_by_id = dict(zip(self.nuclei_types_ids, self.nuclei_types_idx))
         h5f.close()
 
         # Get order of cell-types from sc reference
@@ -166,9 +172,11 @@ class DataProcessing(data.Dataset):
         batch_raw = np.expand_dims(batch_raw, 0)
 
         # Original, horizontal
-        random_flip = np.random.randint(2, size=1)[0]
+        random_flip = (self.view_transform[0] if self.view_transform is not None
+                       else np.random.randint(2, size=1)[0])
         # 0, 90, 180, 270
-        random_rotate = np.random.randint(4, size=1)[0]
+        random_rotate = (self.view_transform[1] if self.view_transform is not None
+                         else np.random.randint(4, size=1)[0])
 
         # Flips
         if random_flip == 0:
@@ -219,8 +227,9 @@ class DataProcessing(data.Dataset):
 
         img = np.concatenate((expr, np.expand_dims(nucl, -1)), -1)
 
+        flip, rotation = 0, 0
         if self.isTraining:
-            img, _, _ = self.augment_data(img)
+            img, flip, rotation = self.augment_data(img)
             img = img[0, :, :, :]
 
         expr_aug = img[:, :, :-1]
@@ -294,7 +303,7 @@ class DataProcessing(data.Dataset):
                         nucl_split[:, :, i_cell], kernel, iterations=1
                     )
 
-            ct_nucleus = int(self.nuclei_types_idx[self.nuclei_types_ids.index(c_id)])
+            ct_nucleus = int(self.type_by_id[c_id])
             ct_nucleus_name = self.type_names[ct_nucleus]
 
             # Markers with dilation
@@ -337,6 +346,25 @@ class DataProcessing(data.Dataset):
         search_areas_torch = torch.from_numpy(search_areas).long()
         search_pos_torch = torch.from_numpy(search_pos).long()
         search_neg_torch = torch.from_numpy(search_neg).long()
+
+        if self.structured:
+            from .candidate_geometry import CandidateGeometry
+            if self.geometry_provider is None:
+                self.geometry_provider = CandidateGeometry(self.nuclei)
+            geometry, areas = self.geometry_provider.maps(
+                cell_ids, coords_h1, coords_w1, self.patch_size, flip, rotation,
+                nucl_split, search_areas)
+            ids = cell_ids.astype(np.int64)
+            assert np.array_equal(ids, np.unique(nucl_aug)[np.unique(nucl_aug) > 0])
+            return dict(x=expr_torch.permute(3, 2, 0, 1).contiguous(),
+                        n=nucl_torch.permute(2, 0, 1).unsqueeze(1),
+                        s=search_areas_torch.permute(2, 0, 1).unsqueeze(1),
+                        p=search_pos_torch.permute(2, 0, 1).unsqueeze(1),
+                        q=search_neg_torch.permute(2, 0, 1).unsqueeze(1),
+                        geometry=torch.from_numpy(geometry), cell_ids=ids,
+                        full_areas=areas, nuclei=nucl_aug.astype(np.int32),
+                        row=coords_h1, col=coords_w1, flip=int(flip), rotation=int(rotation),
+                        patch=patch_fp)
 
         if self.isTraining:
             return (
