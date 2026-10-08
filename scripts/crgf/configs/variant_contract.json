@@ -1,0 +1,10 @@
+{
+  "variant": "R",
+  "common_parent": "55beb3018db81ca67076c7d115c351b86fbdb793",
+  "added_parameters": 10528,
+  "template": "historical GR initialization, Wm slice first32 for E/G",
+  "has_geometry": false,
+  "has_relation": true,
+  "updates": 4000,
+  "configuration": "egr_R.json"
+}

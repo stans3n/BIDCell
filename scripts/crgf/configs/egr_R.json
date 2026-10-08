@@ -1,0 +1,42 @@
+{
+  "variant": "R",
+  "run_id": "20261008T121953+1100",
+  "output_root": "/home/zwan0726/work/outputs/crgf_egr_20261008T121953+1100/R",
+  "baseline_config": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/configs/xenium_breast_official_step4000.yaml",
+  "checkpoint": "/home/zwan0726/work/baseline/runs/bidcell_xenium_breast_official_step4000_20260723_013920/model_outputs/2026_07_23_04_18_24/models/epoch_1_step_4000.pth",
+  "seed": 20261008,
+  "updates": 4000,
+  "checkpoint_every": 500,
+  "early_checkpoint": 100,
+  "learning_rate": 1e-05,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "eps": 1e-08,
+  "weight_decay": 0.0001,
+  "schedule": "constant",
+  "precision": "fp32",
+  "workers": 0,
+  "cpu_workers": 4,
+  "batch_groups": 1,
+  "shifts": [
+    0,
+    24
+  ],
+  "patch_size": 48,
+  "postprocess_size": 1024,
+  "distance_cap": 4.0,
+  "hidden_dim": 32,
+  "residual_scale": 0.1,
+  "method_version": "CRGF-EGR-1.1",
+  "stage_timeouts": {
+    "train": 21600,
+    "predict": 43200,
+    "postprocess": 28800,
+    "matrix": 3600,
+    "evaluate": 14400,
+    "report": 1800
+  },
+  "minimum_free_gb": 12.0
+}
