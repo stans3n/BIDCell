@@ -8,6 +8,7 @@ from bidcell.config import load_config
 
 class RunConfig(BaseModel):
     model_config = ConfigDict(extra='forbid')
+    variant: Literal["E", "G", "R", "GR", "B1"] | None = None
     run_id: str
     output_root: str
     baseline_config: str
@@ -31,7 +32,7 @@ class RunConfig(BaseModel):
     distance_cap: Literal[4.0] = 4.
     hidden_dim: Literal[32] = 32
     residual_scale: Literal[0.1] = .1
-    method_version: Literal['CRGF-1008-v1.1'] = 'CRGF-1008-v1.1'
+    method_version: Literal['CRGF-1008-v1.1', 'CRGF-EGR-1.1'] = 'CRGF-1008-v1.1'
     stage_timeouts: dict[str,int] = Field(default_factory=lambda: dict(train=21600,predict=43200,postprocess=28800,matrix=3600,evaluate=14400,report=1800))
     minimum_free_gb: float = 8.
 

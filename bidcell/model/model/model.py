@@ -16,6 +16,7 @@ class SegmentationModel(nn.Module):
         is_deconv=True,
         is_batchnorm=True,
         fusion=False,
+        variant="GR",
     ):
         super(SegmentationModel, self).__init__()
         self.n_channels = n_channels
@@ -230,7 +231,7 @@ class SegmentationModel(nn.Module):
         # Create after legacy initialization to preserve Xavier initialization.
         if fusion:
             from .relation_geometry import RelationGeometry
-            self.relation_geometry = RelationGeometry()
+            self.relation_geometry = RelationGeometry(variant=variant)
 
     def forward(self, inputs, geometry=None, search_area=None):
         ## -------------Encoder-------------

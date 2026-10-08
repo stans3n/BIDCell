@@ -43,7 +43,7 @@ def predict(cfg,method):
               'bidcell/model/model/relation_geometry.py','bidcell/model/dataio/dataset_input.py',
               'bidcell/model/dataio/candidate_geometry.py','bidcell/model/utils/utils.py','bidcell/model/predict.py']))
     seed_all(cfg.seed);torch.set_num_threads(cfg.cpu_workers)
-    genes=state['gene_order'];model=SegmentationModel(n_channels=len(genes),fusion=method=='F1').cuda()
+    genes=state['gene_order'];model=SegmentationModel(n_channels=len(genes),fusion=method!='B1',variant='GR' if method=='F1' else method if method!='B1' else 'GR').cuda()
     model.load_state_dict(state['model_state_dict'],strict=True);del state;model.eval()
     all_manifests=[];provider=None;started=time.monotonic();completed_total=0
     for shift in cfg.shifts:

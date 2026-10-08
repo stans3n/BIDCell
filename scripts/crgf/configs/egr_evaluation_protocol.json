@@ -1,0 +1,134 @@
+{
+  "version": "CRGF-EGR-paper-aligned-v1.1",
+  "execution_package": "EP-CORE",
+  "annotation_profile": "paper_aligned_v1",
+  "rscript": "/home/zwan0726/work/envs/bidcell_egr_r/bin/Rscript",
+  "reference": "/home/zwan0726/work/outputs/bidcell_metric_protocol_review_20261008/sce_FFPE_full.rds",
+  "reference_sha256": "0e62d554797f45fd228d97d3609f508eabf7a271dfbc7bef6f22e42750d2067a",
+  "official_processing": "/home/zwan0726/work/outputs/bidcell_metric_protocol_review_20261008/publish_processing.R",
+  "official_expression": "/home/zwan0726/work/outputs/bidcell_metric_protocol_review_20261008/publish_expression_metrics.R",
+  "qc": {
+    "min_transcripts": 20,
+    "max_transcripts": 2000,
+    "min_genes": 20
+  },
+  "normalization": "scater::logNormCounts on all 313 genes after QC; then reference 307 in reference order",
+  "seed": 20261008,
+  "training": {
+    "tree": "HOPACH",
+    "selectFeatures": "limma",
+    "topN": 50,
+    "hopach_kmax": 5,
+    "pSig": 0.05,
+    "weightsCal": false,
+    "parallel": false,
+    "verbose": false,
+    "returnList": true
+  },
+  "prediction": {
+    "k": 10,
+    "prob_threshold": 0.7,
+    "cor_threshold_static": 0.5,
+    "cor_threshold_high": 0.7,
+    "features": "limma",
+    "algorithm": "WKNN",
+    "similarity": "pearson",
+    "cutoff_method": "static",
+    "weighted_ensemble": false,
+    "parallel": false,
+    "verbose": false
+  },
+  "prediction_batch_size": 256,
+  "annotation_parameters_evidence": "Local reproduction settings, not author historical settings. Static cutoff permits bounded-memory prediction; no method-specific tuning.",
+  "label_mapping": {
+    "Firoblast": "Fibroblast"
+  },
+  "mapping_version": "reference-leaves-exact-v1",
+  "nonleaf_mapping": "unassigned; retain original hierarchical label and rejection reason",
+  "confidence": "scClassify public single-classifier API does not return per-cell probability; export NA and reason, preserve hierarchy and rejection. Thresholds recorded above.",
+  "markers": {
+    "quantile_type": 7,
+    "q": 0.9,
+    "positive_t": 0.25,
+    "negative_t": 1.0
+  },
+  "comparison_set": [
+    "B1",
+    "E",
+    "G",
+    "R",
+    "GR"
+  ],
+  "comparisons": [
+    [
+      "E",
+      "B1"
+    ],
+    [
+      "G",
+      "B1"
+    ],
+    [
+      "R",
+      "B1"
+    ],
+    [
+      "GR",
+      "B1"
+    ],
+    [
+      "G",
+      "E"
+    ],
+    [
+      "R",
+      "E"
+    ],
+    [
+      "GR",
+      "G"
+    ],
+    [
+      "GR",
+      "R"
+    ]
+  ],
+  "purity_zero_range": "not_identifiable_zero_range",
+  "purity_zero_harmonic_denominator": 0,
+  "neighbour": {
+    "source_type": "B Cells",
+    "target_types": [
+      "CD4 T",
+      "CD8 T"
+    ],
+    "markers": [
+      "CD4",
+      "CD8A",
+      "CD8B"
+    ],
+    "breaks_um": [
+      0,
+      10,
+      20,
+      30,
+      40,
+      50,
+      100
+    ],
+    "threshold": 0,
+    "centroid": "own final raster cell centroid",
+    "endpoint_rule": "If observed max>100 append max (official). If max<=100 retain prespecified bins through100 and report empty last interval; avoids official duplicate/nonmonotone appended edge error. Explicit local boundary handling."
+  },
+  "scope": {
+    "19": "pending_project_threshold",
+    "30": "not_applicable",
+    "39": "not_applicable",
+    "40": "not_run_scope",
+    "41": "not_run_scope",
+    "42": "pending_uncertainty_design",
+    "43": "not_run_scope"
+  },
+  "scClassify_version": "1.5.1",
+  "scClassify_commit": "74fe32784b401492da0fd203736f39bcd6f2a2c5",
+  "CellSPA": "source functions from pinned publish evidence; package is not installed; source hashes in prepared receipt"
+}

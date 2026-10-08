@@ -41,10 +41,14 @@ def restore_rng(s):
 
 def make_model(cfg, method, genes):
     seed_all(cfg.seed)
-    model = SegmentationModel(n_channels=genes, fusion=method=='F1')
+    if method not in ('B1', 'F1', 'E', 'G', 'R', 'GR'):
+        raise ValueError('unknown method ' + method)
+    if cfg.variant is not None and cfg.variant != method:
+        raise ValueError('variant/config mismatch')
+    model = SegmentationModel(n_channels=genes, fusion=method!='B1', variant='GR' if method=='F1' else method if method!='B1' else 'GR')
     old = torch.load(cfg.checkpoint, map_location='cpu')['model_state_dict']
     result = model.load_state_dict(old, strict=method=='B1')
-    if method=='F1':
+    if method!='B1':
         expected = {'relation_geometry.'+k for k in model.relation_geometry.state_dict()}
         if set(result.missing_keys) != expected or result.unexpected_keys:
             raise ValueError(f'warm start backbone mismatch {result}')
@@ -129,6 +133,30 @@ def train(cfg,method):
     deps=dependencies(cfg,method);model=make_model(cfg,method,len(ds.gene_names));opt=optimizer(model,cfg)
     latest=out/'latest.pth';step=cursor=0;seen=set()
     if latest.exists(): step,cursor,seen=load(latest,model,opt,deps)
+    # A crash may leave log lines newer than the durable checkpoint. Preserve
+    # the attempt, then restore one authoritative entry per committed update.
+    logpath=out/'updates.jsonl'
+    if logpath.exists():
+        original=logpath.read_text(); rows=[json.loads(x) for x in original.splitlines() if x.strip()]
+        valid={r['update']:r for r in rows if r['update']<=step}
+        if len(valid)!=step or sorted(valid)!=list(range(1,step+1)):
+            raise ValueError('checkpoint/log committed update coverage mismatch')
+        if len(rows)!=len(valid):
+            archive=out/'attempt_history';archive.mkdir(exist_ok=True)
+            (archive/f'updates_{time.time_ns()}.jsonl').write_text(original)
+            tmp=logpath.with_suffix('.tmp');tmp.write_text(''.join(json.dumps(valid[i])+'\n' for i in sorted(valid)));os.replace(tmp,logpath)
+    import hashlib
+    initialization=dict(variant=method,parameters=sum(p.numel() for p in model.parameters()),
+        added_parameters=sum(p.numel() for p in model.relation_geometry.parameters()) if hasattr(model,'relation_geometry') else 0,
+        tensor_hashes={k:hashlib.sha256(v.detach().cpu().numpy().tobytes()).hexdigest() for k,v in model.state_dict().items()} if step==0 else {},
+        resumed_at=step,model_import=__import__('bidcell.model.model.model',fromlist=['x']).__file__,training_import=__file__)
+    if step==0:
+        if (out/'initialization.json').exists() and json.loads((out/'initialization.json').read_text())!=initialization:
+            raise ValueError('initialization identity changed')
+        atomic_json(out/'initialization.json',initialization)
+    else:
+        if not (out/'initialization.json').exists():raise ValueError('missing original initialization evidence')
+        atomic_json(out/f'resume_{time.time_ns()}.json',initialization)
     model.train();stop=[]
     for sig in (signal.SIGTERM,signal.SIGINT): signal.signal(sig,lambda s,f:stop.append(s))
     started=time.monotonic();initial_step=step;attempt_identity=f'{os.getpid()}-{time.time_ns()}'
@@ -155,6 +183,7 @@ def train(cfg,method):
             atomic_json(out/'progress.json',dict(**entry,elapsed_seconds=time.monotonic()-started,
                         measured_updates=step-initial_step,remaining_updates=cfg.updates-step))
             if step%cfg.checkpoint_every==0 or step in (cfg.early_checkpoint,cfg.updates) or stop:
+                log.flush();os.fsync(log.fileno())
                 save(latest,model,opt,deps,step,cursor,seen)
                 # Retain fixed milestones without duplicating bytes (atomic source is replaced next save).
                 checkpoint=out/f'update_{step:06d}.pth'
@@ -164,5 +193,5 @@ def train(cfg,method):
     final=out/'final.pth'
     if not final.exists(): os.link(latest,final)
     atomic_json(out/'complete.json',dict(status='succeeded',updates=step,visited_views=cursor,unique_patches=len(seen),pool_size=len(ds),
-                dependencies=deps,outputs={'checkpoint':identity(final)},wall_seconds=time.monotonic()-started,
+                parameters=sum(p.numel() for p in model.parameters()),added_parameters=sum(p.numel() for p in model.relation_geometry.parameters()) if hasattr(model,'relation_geometry') else 0,dependencies=deps,outputs={'checkpoint':identity(final)},wall_seconds=time.monotonic()-started,
                 peak_vram_bytes=torch.cuda.max_memory_allocated()))
