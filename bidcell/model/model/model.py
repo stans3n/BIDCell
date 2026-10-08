@@ -17,6 +17,7 @@ class SegmentationModel(nn.Module):
         is_batchnorm=True,
         fusion=False,
         variant="GR",
+        cos_enabled=False,
     ):
         super(SegmentationModel, self).__init__()
         self.n_channels = n_channels
@@ -233,7 +234,12 @@ class SegmentationModel(nn.Module):
             from .relation_geometry import RelationGeometry
             self.relation_geometry = RelationGeometry(variant=variant)
 
-    def forward(self, inputs, geometry=None, search_area=None):
+        if cos_enabled:
+            self.cos_residual = nn.Conv2d(self.UpChannels, 1, 1)
+            nn.init.zeros_(self.cos_residual.weight)
+            nn.init.zeros_(self.cos_residual.bias)
+
+    def forward(self, inputs, geometry=None, search_area=None, return_details=False):
         ## -------------Encoder-------------
         h1 = self.conv1(inputs)  # h1->320*320*64
 
@@ -349,4 +355,6 @@ class SegmentationModel(nn.Module):
 
         seg = self.outconv_seg(hd1)  # d1->320*320*2
 
-        return seg
+        residual = 0.1 * self.cos_residual(hd1) if hasattr(self, "cos_residual") else torch.zeros_like(seg[:, :1])
+        corrected = torch.cat((seg[:, :1], seg[:, 1:2] + residual), dim=1)
+        return (corrected, seg, residual) if return_details else corrected

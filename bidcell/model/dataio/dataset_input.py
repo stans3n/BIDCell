@@ -29,8 +29,10 @@ class DataProcessing(data.Dataset):
         total_steps=None,
         structured=False,
         geometry_provider=None,
+        mask_unknown_markers=False,
     ):
         self.structured = structured
+        self.mask_unknown_markers = mask_unknown_markers
         self.geometry_provider = geometry_provider
         self.view_transform = None
         self.patch_size = config.model_params.patch_size
@@ -168,7 +170,19 @@ class DataProcessing(data.Dataset):
         with open(self.gene_names_fp) as file:
             self.gene_names = [line.rstrip() for line in file]
 
+        if self.mask_unknown_markers:
+            for name, table in (("positive", self.pos_markers), ("negative", self.neg_markers)):
+                if not table.index.is_unique or not table.columns.is_unique:
+                    raise ValueError("duplicate marker table identity: " + name)
+                if not set(self.type_names).issubset(table.index) or not set(self.gene_names).issubset(table.columns):
+                    raise ValueError("known reference type/gene absent from marker table: " + name)
+
     def augment_data(self, batch_raw):
+        if self.view_transform is not None and self.mask_unknown_markers:
+            # Exact frozen imgaug flip/clockwise rot90; no hidden lazy RNG state.
+            from .candidate_geometry import transform
+            flip, rotation = self.view_transform
+            return transform(batch_raw, flip, rotation)[None], flip, rotation
         batch_raw = np.expand_dims(batch_raw, 0)
 
         # Original, horizontal
@@ -256,6 +270,9 @@ class DataProcessing(data.Dataset):
         search_neg = np.zeros((self.patch_size, self.patch_size, n_cells))
         kernel_posneg = np.ones((3, 3), dtype=np.uint8)
 
+        valid_types = np.ones(n_cells, dtype=bool)
+        type_reasons = []
+        type_indices = []
         for i_cell, c_id in enumerate(cell_ids):
             nucl_split[:, :, i_cell] = np.where(nucl_aug == c_id, 1, 0)
 
@@ -303,7 +320,18 @@ class DataProcessing(data.Dataset):
                         nucl_split[:, :, i_cell], kernel, iterations=1
                     )
 
-            ct_nucleus = int(self.type_by_id[c_id])
+            raw_type = self.type_by_id.get(c_id)
+            # Historical HDF5 stores integer indices as float64; losslessly canonicalize.
+            if isinstance(raw_type, (float, np.floating)) and np.isfinite(raw_type) and float(raw_type).is_integer():
+                raw_type = int(raw_type)
+            if self.mask_unknown_markers:
+                reason = ("missing" if raw_type is None else "non_integer" if not isinstance(raw_type, (int, np.integer)) else "unknown" if raw_type == -1 else "out_of_range" if not 0 <= raw_type < len(self.type_names) else "known")
+                valid_types[i_cell] = reason == "known"
+                type_reasons.append(reason)
+                type_indices.append(int(raw_type) if isinstance(raw_type, (int, np.integer)) else None)
+                if not valid_types[i_cell]:
+                    continue
+            ct_nucleus = int(raw_type)
             ct_nucleus_name = self.type_names[ct_nucleus]
 
             # Markers with dilation
@@ -362,6 +390,8 @@ class DataProcessing(data.Dataset):
                         p=search_pos_torch.permute(2, 0, 1).unsqueeze(1),
                         q=search_neg_torch.permute(2, 0, 1).unsqueeze(1),
                         geometry=torch.from_numpy(geometry), cell_ids=ids,
+                        candidate_valid=torch.ones(n_cells, dtype=torch.bool),
+                        type_valid=torch.from_numpy(valid_types), type_reasons=type_reasons, type_indices=type_indices,
                         full_areas=areas, nuclei=nucl_aug.astype(np.int32),
                         row=coords_h1, col=coords_w1, flip=int(flip), rotation=int(rotation),
                         patch=patch_fp)
