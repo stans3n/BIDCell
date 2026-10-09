@@ -37,7 +37,7 @@ def aggregate(labels, genes, ids, ng):
     keys,n=np.unique(flat,return_counts=True)
     return keys,n
 
-def build(cfg,out,kind='final',cache=None):
+def build(cfg,out,kind='final',cache=None,space_guard=None):
     setup_start=time.monotonic()
     out=Path(out); out.mkdir(parents=True,exist_ok=True)
     lock=(out/'run.lock').open('a'); fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -76,6 +76,7 @@ def build(cfg,out,kind='final',cache=None):
     receipts=[]; cr=[]; tids=[]; totals=dict(eligible=0,assigned=0,unassigned=0,out_of_bounds=0)
     with Monitor(out/'resources.json'):
         for i,chunk in enumerate(iterator):
+            if space_guard is not None:space_guard()
             t=time.monotonic()
             if cached: arr=chunk
             else:
@@ -111,6 +112,7 @@ def build(cfg,out,kind='final',cache=None):
         if not cached: atomic_json(cdir/'complete.json',dict(dependencies=cdeps,chunks=cr,duplicate_ids=duplicates))
         if totals['eligible']!=totals['assigned']+totals['unassigned'] or int(counts.sum())!=totals['assigned']: raise ValueError('conservation failure')
         totals['background_valid']=totals['unassigned']-totals['out_of_bounds']
+        if space_guard is not None:space_guard()
         atomic_npy(out/'counts.npy',counts);pd.DataFrame(dict(matrix_row=np.arange(len(ids)),mask_label=ids,canonical_cell_id=ids)).to_csv(out/'cell_mapping.csv',index=False)
         pd.DataFrame(dict(gene_column=np.arange(len(genes)),gene=genes)).to_csv(out/'gene_mapping.csv',index=False)
         before_csv=time.monotonic()

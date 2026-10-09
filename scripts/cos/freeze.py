@@ -1,4 +1,4 @@
-"""Freeze the shared implementation and four config-only branches/worktrees."""
+"""Freeze the shared implementation and three config-only branches/worktrees."""
 import argparse,json,subprocess
 from pathlib import Path
 from scripts.crgf.common import atomic_json,identity
@@ -11,12 +11,12 @@ def freeze(queuepath):
     if git(common,'status','--porcelain'):raise ValueError('commit shared source before freezing')
     common_commit=git(common,'rev-parse','HEAD');records={}
     for arm in ARMS:
-        worktree=common.parent/('BIDCell_cos_'+arm+'_'+q['run_id'].split('+')[0]);branch='feature/cos-'+arm.lower().replace('_','-')+'-'+q['run_id'].split('+')[0]
+        worktree=common.parent/('BIDCell_cos_loss_'+arm+'_'+q['run_id'].split('+')[0]);branch='feature/cos-loss-'+arm.lower().replace('_','-')+'-'+q['run_id'].split('+')[0]
         if worktree.exists():raise FileExistsError(worktree)
         git(common,'worktree','add','-b',branch,str(worktree),common_commit)
         p=worktree/'scripts/cos/configs/arm.json';p.parent.mkdir(exist_ok=True)
         cfg=json.loads(Path(q['methods'][arm]['config']).read_text());atomic_json(p,cfg)
-        git(worktree,'add','scripts/cos/configs/arm.json');git(worktree,'commit','-m','Freeze '+arm+' COS-min-v1 continuation configuration')
+        git(worktree,'add','scripts/cos/configs/arm.json');git(worktree,'commit','-m','Freeze '+arm+' COS-LOSS-ABC-v2.0 configuration')
         commit=git(worktree,'rev-parse','HEAD');binding=dict(arm_id=arm,worktree=str(worktree),branch=branch,commit=commit)
         atomic_json(Path(q['methods'][arm]['cost_root'])/'source/binding.json',binding)
         q['methods'][arm].update(worktree=str(worktree),commit=commit);records[arm]=dict(**binding,config=identity(q['methods'][arm]['config']))

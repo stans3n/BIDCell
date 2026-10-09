@@ -11,11 +11,13 @@ import subprocess
 import sys
 import time
 import traceback
+from datetime import datetime,timezone
+from zoneinfo import ZoneInfo
 from .evaluation import ARMS,read,times
 from scripts.crgf.common import atomic_json,identity,sha256,digest,verify_outputs,process_identity
 from scripts.crgf.run_egr import is_alive,process_group_memory
 
-TIMEOUTS={'train':7200,'predict':14400,'postprocess':14400,'matrix':3600,'evaluate':18000,'pair':18000,'four':21600}
+TIMEOUTS={'train':21600,'predict':43200,'postprocess':28800,'matrix':3600,'evaluate':14400,'report':1800}
 
 
 def validate_queue(cfg):
@@ -25,7 +27,7 @@ def validate_queue(cfg):
     if set(cfg['methods'])!=set(ARMS) or set(cfg['anchors'])!={'B1','E','G','R','GR'}:raise ValueError('queue arm/anchor identity set mismatch')
     if set(cfg['stage_timeouts'])!=set(TIMEOUTS) or any(v<=0 for v in cfg['stage_timeouts'].values()):raise ValueError('explicit conservative stage watchdogs required')
     if cfg.get('testing_poll_fast') and not cfg.get('mini_test'):raise ValueError('testing poll override forbidden in formal queue')
-    if cfg['minimum_free_gb']<0 or cfg['cpu_workers']<1 or cfg['retry_backoff_seconds']<0:raise ValueError('invalid runner resource settings')
+    if cfg['minimum_free_gb']<(0 if cfg.get('mini_test') else 15) or not 1<=cfg['cpu_workers']<=4 or cfg['retry_backoff_seconds']<0:raise ValueError('invalid runner resource settings')
     for name,spec in cfg['methods'].items():
         required_method={'config','worktree','commit','machine','matrix','evaluation','cost_root'}
         if not required_method<=set(spec) or set(spec)-required_method-{'endpoints','base_variant','run_status'}:raise ValueError('method schema mismatch '+name)
@@ -34,16 +36,12 @@ def validate_queue(cfg):
 
 def stage_specs(cfg):
     root=Path(cfg['output_root']);specs=[]
-    for base in ('B1','G'):
-        pairdeps=[]
-        for suffix in ('CONT','COS'):
-            arm=base+'_'+suffix;s=cfg['methods'][arm];r=Path(s['cost_root']);previous=[]
-            paths={'train':r/'checkpoints'/arm/'complete.json','predict':r/'predictions'/arm/'complete.json','postprocess':r/'predictions'/arm/'postprocess/complete.json','matrix':Path(s['matrix'])/'complete.json','evaluate':Path(s['evaluation'])/'complete.json'}
-            for stage,path in paths.items():
-                name=arm+'_'+stage;specs.append(dict(name=name,method=arm,stage=stage,dependencies=previous,receipt=str(path)));previous=[name]
-            pairdeps+=previous
-        specs.append(dict(name='pair_'+base,method=None,stage='pair',comparison=base,dependencies=pairdeps,receipt=str(root/('pair_'+base)/'complete.json')))
-    specs.append(dict(name='four',method=None,stage='four',comparison='four',dependencies=['pair_B1','pair_G'],receipt=str(root/'four_arm/complete.json')))
+    for arm in ARMS:
+        s=cfg['methods'][arm];r=Path(s['cost_root']);previous=[]
+        paths={'train':r/'checkpoints'/arm/'complete.json','predict':r/'predictions'/arm/'complete.json','postprocess':r/'predictions'/arm/'postprocess/complete.json','matrix':Path(s['matrix'])/'complete.json','evaluate':Path(s['evaluation'])/'complete.json'}
+        for stage,path in paths.items():
+            name=arm+'_'+stage;specs.append(dict(name=name,method=arm,stage=stage,dependencies=previous,receipt=str(path)));previous=[name]
+    specs.append(dict(name='report',method=None,stage='report',comparison='ABC',dependencies=[a+'_evaluate' for a in ARMS],receipt=str(root/'comparison/complete.json')))
     return specs
 
 
@@ -73,8 +71,14 @@ def preflight(config,cfg):
     if admission.get('run_id')!=cfg['run_id']:raise ValueError('admission run identity mismatch')
     if not cfg.get('mini_test') and not isinstance(admission.get('resources',{}).get('estimated_peak_gpu_allocator_bytes'),(int,float)):raise ValueError('admission missing GPU capacity estimate')
     frozen=read(root/'source/frozen.json')
+    if not cfg.get('mini_test'):
+        if admission['frozen_source']['sha256']!=sha256(root/'source/frozen.json') or admission['queue']['sha256']!=sha256(config):raise ValueError('admission source/queue identity mismatch')
+        for arm,spec in cfg['methods'].items():
+            if read(spec['config'])!=admission['resolved_configs'][arm]:raise ValueError('arm config changed after admission '+arm)
+            for obj in read(Path(spec['cost_root'])/'configs/frozen.json')['identities'].values():
+                if sha256(obj['path'])!=obj['sha256']:raise ValueError('frozen scientific input changed '+obj['path'])
     if sha256(config)!=frozen['queue']['sha256']:raise ValueError('queue configuration changed after freeze')
-    if set(cfg['methods'])!=set(ARMS):raise ValueError('four arm set mismatch')
+    if set(cfg['methods'])!=set(ARMS):raise ValueError('ABC arm set mismatch')
     for arm,s in cfg['methods'].items():
         actual=subprocess.check_output(['git','rev-parse','HEAD'],cwd=s['worktree'],text=True).strip()
         if actual!=s['commit'] or actual!=frozen['worktrees'][s['worktree']]['commit']:raise ValueError('worktree commit mismatch '+arm)
@@ -89,7 +93,7 @@ def command_for(cfg,spec,config):
     if spec['method']:
         record=cfg['methods'][spec['method']]
         return [python,'-u','-m','scripts.cos.stage','--config',record['config'],'--stage',spec['stage']],record['worktree']
-    checkout=cfg['methods'][(spec['comparison']+'_CONT') if spec['stage']=='pair' else ARMS[0]]['worktree']
+    checkout=cfg['methods'][ARMS[0]]['worktree']
     return [python,'-u','-m','scripts.cos.evaluation','--config',str(config),'--comparison',spec['comparison']],checkout
 
 
@@ -98,8 +102,8 @@ def accept(stage,artifact):
     if not artifact.get('outputs'):raise ValueError('stage receipt has no hashed outputs')
     verify_outputs(artifact)
     if stage=='evaluate' and (not artifact.get('evaluation_executed') or not artifact.get('paper_method_complete') or len(artifact.get('profiles',[]))!=3):raise ValueError('three profiles not complete')
-    if stage in ('pair','four') and not artifact.get('ready'):raise ValueError('comparison not ready')
-    if stage=='four' and not artifact.get('paper_protocol_complete'):raise ValueError('four-arm protocol incomplete')
+    if stage == 'report' and not artifact.get('ready'):raise ValueError('comparison not ready')
+    if stage=='report' and not artifact.get('paper_protocol_complete'):raise ValueError('ABC protocol incomplete')
 
 
 def recoverable(returncode,text):
@@ -111,7 +115,7 @@ def recoverable(returncode,text):
 def signature(cfg,spec,state,config):
     frozen=read(Path(cfg['output_root'])/'source/frozen.json')
     if frozen.get('queue') and sha256(config)!=frozen['queue']['sha256']:raise ValueError('global queue configuration changed after admission')
-    names=[spec['method']] if spec['method'] else ([spec['comparison']+'_CONT',spec['comparison']+'_COS'] if spec['stage']=='pair' else ARMS)
+    names=[spec['method']] if spec['method'] else ARMS
     selected={m:cfg['methods'][m] for m in names};selected_worktrees={v['worktree'] for v in selected.values()}
     for worktree in selected_worktrees:
         if source_map(worktree)!=frozen['worktrees'][worktree]['files']:raise ValueError('source changed during run; explicit new version required')
@@ -121,11 +125,11 @@ def signature(cfg,spec,state,config):
 
 
 def blocked_receipt(cfg,spec,reason,status='blocked_dependency'):
-    if spec['stage'] not in ('pair','four'):return
+    if spec['stage'] != 'report':return
     path=Path(spec['receipt']);path.parent.mkdir(parents=True,exist_ok=True)
     value=dict(status=status,ready=False,run_id=cfg['run_id'],reason=reason,**times())
     atomic_json(path,value)
-    atomic_json(path.parent/('pair_ready.json' if spec['stage']=='pair' else 'compute_summary.json'),value)
+    atomic_json(path.parent/'compute_summary.json',value)
 
 
 def complete_receipt(cfg,state):
@@ -149,10 +153,28 @@ def complete_receipt(cfg,state):
     missing=[k for k,v in state['stages'].items() if v['status']!='succeeded']
     artifacts={k:identity(v['receipt']) for k,v in state['stages'].items() if v['status']=='succeeded'}
     result=dict(version='COS-compute-receipt-v1',run_id=cfg['run_id'],storage=storage,status='succeeded' if not missing else 'partial',next_state='awaiting_user_analysis' if not missing else 'requires_repair',required_missing=missing,artifacts=artifacts,failed_attempts=[dict(stage=k,attempt=a) for k,v in state['stages'].items() for a in v['attempts'] if a.get('exit_code',0)!=0 or a.get('artifact_failure')],total_stage_wall_seconds=sum(a.get('wall_seconds',0) for v in state['stages'].values() for a in v['attempts']),wall_time_lower_bound_attempts=[dict(stage=k,attempt=i+1) for k,v in state['stages'].items() for i,a in enumerate(v['attempts']) if a.get('wall_seconds_is_lower_bound')],total_stage_wall_scope='sum of observed stage elapsed times; interrupted attempts use last persisted heartbeat lower bounds, with unknown tails explicitly listed',ai_call_time='not recorded by compute runner',**times())
+    if not missing:
+        shutil.copyfile(root/'comparison/metric_coverage.csv',root/'metric_coverage.csv') if (root/'comparison/metric_coverage.csv').exists() else None
     atomic_json(root/'compute_complete.json',result)
     (root/'artifact_index.md').write_text('# COS artifacts\n\n'+'\n'.join(f'- [{k}]({v["receipt"]}) — {v["status"]}' for k,v in state['stages'].items())+'\n')
     (root/'remaining_issues.md').write_text('# Remaining issues\n\n'+('\n'.join('- '+k+': '+state['stages'][k].get('failure',state['stages'][k].get('reason','unfinished')) for k in missing) if missing else 'Compute complete. Independent scientific analysis awaits the user resume.')+'\n')
     return not missing
+
+
+def update_eta(state):
+    defaults={'train':19*60,'predict':68*60,'postprocess':55*60,'matrix':60,'evaluate':36*60,'report':15*60}
+    observed={}
+    for rec in state['stages'].values():
+        if rec['status']=='succeeded':
+            observed.setdefault(rec['stage'],[]).append(sum(a.get('wall_seconds',0) for a in rec.get('attempts',[])))
+    remaining=0
+    for rec in state['stages'].values():
+        if rec['status'] not in ('pending','running','paused_resource','interrupted'):continue
+        values=observed.get(rec['stage']);estimate=sum(values)/len(values) if values else defaults[rec['stage']]
+        remaining+=max(0,estimate-(rec.get('wall_seconds_current_attempt',0) if rec['status']=='running' else 0))
+    state['eta_sydney']=datetime.fromtimestamp(time.time()+remaining,timezone.utc).astimezone(ZoneInfo('Australia/Sydney')).isoformat()
+    state['eta_basis']='remaining stages using completed-arm observed means where available, otherwise historical serial estimates; probe overhead included in observed train time'
+    state['estimated_remaining_seconds']=remaining
 
 
 def run(config):
@@ -171,6 +193,7 @@ def run(config):
                 if 'end' not in attempt:
                     attempt.update(end=times(),end_observation='recovery observed process absent; actual exit time unknown',exit_code=None,termination_reason='interrupted_process',recoverable=True,wall_seconds=float(r.get('wall_seconds_current_attempt',0)),wall_seconds_is_lower_bound=True,wall_scope='last persisted heartbeat elapsed only; unobserved tail not counted')
                 r.update(status='interrupted',child_identity=None,reason='previous process disappeared; resume only from validated artifacts/checkpoint')
+        state.setdefault('first_started_epoch',time.time())
         state.update(runner=process_identity(),status='preflight',config=config,heartbeat=times());atomic_json(path,state);atomic_json(root/'runner_identity.json',state['runner'])
         preflight(config,cfg)
         specs=stage_specs(cfg)
@@ -222,7 +245,8 @@ def run(config):
                     attempt=dict(attempt=number,start=times(),command=cmd,log=str(logpath),sampled_peak_rss_bytes_sum=0,sampled_peak_pss_bytes_sum=0,memory_sampling_scope='stage process group sampled every 5s; RSS sums shared pages; transients may be missed')
                     record['attempts'].append(attempt);record.update(status='running',log=str(logpath));start=time.monotonic()
                     with logpath.open('w') as log:
-                        env=dict(os.environ,PYTHONPATH=cwd,OMP_NUM_THREADS=str(cfg['cpu_workers']),OPENBLAS_NUM_THREADS=str(cfg['cpu_workers']),MKL_NUM_THREADS=str(cfg['cpu_workers']))
+                        threads=2 if spec['stage'] in ('train','predict') else 1 if spec['stage']=='postprocess' else min(4,cfg['cpu_workers'])
+                        env=dict(os.environ,PYTHONPATH=cwd,OMP_NUM_THREADS=str(threads),OPENBLAS_NUM_THREADS=str(threads),MKL_NUM_THREADS=str(threads),NUMEXPR_NUM_THREADS=str(threads))
                         child=subprocess.Popen(cmd,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,pass_fds=tuple(s.fileno() for s in locks))
                         record['child_identity']=process_identity(child.pid);atomic_json(path,state);terminated=None
                         while child.poll() is None:
@@ -236,6 +260,9 @@ def run(config):
                             if progress.exists():
                                 try:record['progress']=read(progress)
                                 except (OSError,json.JSONDecodeError):pass
+                            state['target_missed']=time.time()-state['first_started_epoch']>9*3600
+                            update_eta(state)
+                            state['execution_mode']='serial_A_then_B_then_C'
                             state['heartbeat']=times();record['wall_seconds_current_attempt']=elapsed;atomic_json(path,state);time.sleep(0.05 if cfg.get('testing_poll_fast') else 5)
                         rc=child.wait()
                     attempt.update(end=times(),exit_code=rc,wall_seconds=time.monotonic()-start);record.update(child_identity=None,exit_code=rc)
@@ -244,6 +271,8 @@ def run(config):
                         except Exception:attempt['artifact_failure']=traceback.format_exc()
                         else:record.update(status='succeeded',receipt_sha256=sha256(receipt));record.pop('failure',None);break
                     failure=attempt.get('artifact_failure',logpath.read_text()[-12000:]);record.update(status='failed',failure=failure);atomic_json(path,state)
+                    if 'PAUSED_RESOURCE' in failure:
+                        record['status']='paused_resource';state['status']='paused_resource';attempt['recoverable']=True;atomic_json(path,state);break
                     blocked_receipt(cfg,spec,failure,status='failed')
                     if attempt.get('termination_reason')=='runner_signal':
                         record['status']='interrupted';attempt['recoverable']=True;atomic_json(path,state);break
@@ -253,7 +282,7 @@ def run(config):
                     backoff=float(cfg['retry_backoff_seconds']);attempt['retry_backoff_seconds']=backoff;atomic_json(path,state);time.sleep(backoff)
                 if remaining<=0 and record['status']!='succeeded':record.update(status='failed',failure='automatic attempts exhausted; explicit repair/new attempt required')
                 atomic_json(path,state)
-                if shutdown:break
+                if shutdown or state.get('status')=='paused_resource':break
             succeeded=complete_receipt(cfg,state);state.update(status='awaiting_user_analysis' if succeeded else ('paused_resource' if state.get('status')=='paused_resource' else 'partial_failed'),current_stage=None,heartbeat=times(),computation_finished=succeeded)
             atomic_json(path,state);return 0 if succeeded else 1
         finally:

@@ -18,7 +18,7 @@ from .ownership import anchor_loss, compact_sample
 TRAIN_SOURCES = ['bidcell/model/model/model.py','bidcell/model/model/relation_geometry.py',
  'bidcell/model/dataio/dataset_input.py','bidcell/model/dataio/candidate_geometry.py',
  'bidcell/model/model/losses.py','bidcell/model/model/layers.py','bidcell/model/model/intialisation.py',
- 'scripts/cos/training.py','scripts/cos/config.py','scripts/cos/ownership.py','scripts/crgf/common.py']
+ 'scripts/cos/training.py','scripts/cos/loss_diagnostics.py','scripts/cos/config.py','scripts/cos/ownership.py','scripts/crgf/common.py']
 
 
 def seed_all(seed):
@@ -65,7 +65,22 @@ def optimizer(model,cfg):
     return torch.optim.Adam(model.parameters(),lr=cfg.learning_rate,betas=cfg.betas,eps=cfg.eps,weight_decay=cfg.weight_decay)
 
 
-def losses(logits, sample, cos_enabled=False):
+def pos_components(logits, sample, rho=1.):
+    """Partition valid-masked POS, always reduced by the real candidate K."""
+    k=len(logits)
+    if k==0: raise ValueError('K=0 has no POS update')
+    p=sample['p'][:,0]; valid=sample['type_valid'].to(logits.device).bool()[:,None,None]
+    nu=torch.as_tensor(sample['nuclei'],device=logits.device)
+    u=(nu[None]==0)&(sample['s'][:,0]>0)&(p==0)
+    masks={'positive':p>0,'u_background':u,'other_background':(p==0)&~u}
+    ce=F.cross_entropy(logits,p,reduction='none')
+    unweighted={name:(ce*mask*valid).sum()/k for name,mask in masks.items()}
+    weighted={name:value*(rho if name=='u_background' else 1.) for name,value in unweighted.items()}
+    counts={name:dict(valid_pixels=int((mask&valid).sum()),unknown_pixels=int((mask&~valid).sum()),all_pixels=int(mask.sum())) for name,mask in masks.items()}
+    return unweighted,weighted,dict(K=k,total_candidate_pixels=p.numel(),valid_candidates=int(valid.sum()),unknown_candidates=k-int(valid.sum()),U_pixels=int(u.sum()),U_fraction=float(u.float().mean()),regions=counts)
+
+
+def losses(logits, sample, cos_enabled=False, anchor_weight=1., pos_background_rho=1.):
     n,s,p,q = [sample[k] for k in ('n','s','p','q')]
     if len(logits)==0: raise ValueError('K=0 must skip optimizer update')
     valid=sample['type_valid'].to(device=logits.device,dtype=logits.dtype)
@@ -74,10 +89,13 @@ def losses(logits, sample, cos_enabled=False):
     cc=CellCallingLoss(1,logits.device)(logits,s)
     ov=OverlapLoss(1,logits.device)(logits,n)
     pos=(F.cross_entropy(logits,p[:,0],reduction='sum') if bool(valid.all()) else (F.cross_entropy(logits,p[:,0],reduction='none')*valid[:,None,None]).sum())/len(logits)
+    if pos_background_rho != 1.:
+        _,weighted,_=pos_components(logits,sample,pos_background_rho)
+        pos=sum(weighted.values())
     neg=(torch.sigmoid(F.softmax(logits,1)[:,1]-.5)*q[:,0]*valid[:,None,None]).sum()/len(logits)
     parts=dict(ne=ne,os=os_,cc=cc,ov=ov,pos=pos,neg=neg)
     if cos_enabled: parts['anchor']=anchor_loss(logits,sample['nuclei'],sample['cell_ids'])
-    return sum(parts.values()),parts
+    return sum(v for k,v in parts.items() if k!='anchor') + (anchor_weight*parts['anchor'] if cos_enabled else 0),parts
 
 
 def to_device(sample):
@@ -194,7 +212,7 @@ def recover_checkpoint(out,deps):
 
 def train(cfg,method):
     root=Path(cfg.output_root);out=root/'checkpoints'/method;out.mkdir(parents=True,exist_ok=True)
-    torch.set_num_threads(cfg.cpu_workers)
+    torch.set_num_threads(min(2,cfg.cpu_workers))
     ds=DataProcessing(cfg.native(),isTraining=True,total_steps=None,structured=True,mask_unknown_markers=True)
     manifest=json.loads((root/'configs/views.json').read_text())
     if ds.fp_patches!=manifest['train_pool']: raise ValueError('train pool changed')
@@ -243,25 +261,37 @@ def train(cfg,method):
             if view['k']==0: continue
             sample=to_device(sample);opt.zero_grad(set_to_none=True)
             logits,base_logits,residual=model(sample['x'],sample['geometry'],sample['s'],return_details=True)
-            total,parts=losses(logits,sample,cfg.cos_enabled)
+            total,parts=losses(logits,sample,cfg.cos_enabled,cfg.anchor_weight,cfg.pos_background_rho)
             if not torch.isfinite(total): raise FloatingPointError('nonfinite loss')
             total.backward()
             for name,p in model.named_parameters():
                 if p.grad is None or not torch.isfinite(p.grad).all(): raise FloatingPointError('missing/nonfinite gradient '+name)
             gradient_norms={group:float(torch.sqrt(sum((p.grad.detach().float().square().sum() for name,p in model.named_parameters() if (name.startswith('cos_residual.'))==is_residual),torch.tensor(0.,device=logits.device)))) for group,is_residual in [('backbone',False),('residual',True)]}
+            milestone=(step+1) in (100,1000,2000,4000)
+            full_before={n:p.detach().clone() for n,p in model.named_parameters()} if milestone else None
             before=model.outconv_seg.weight.detach().clone()
             opt.step()
             if torch.equal(before,model.outconv_seg.weight): raise FloatingPointError('optimizer made no actual parameter update')
             step+=1;seen.add(view['index']);torch.cuda.synchronize()
-            entry=dict(attempt_identity=attempt_identity,resumed_from_update=initial_step,update=step,visited_views=cursor,k=view['k'],patch=view['patch'],flip=view['flip'],rotation=view['rotation'],
+            if milestone:
+                from .loss_diagnostics import record_update, training_probe
+                record_update(root,method,step,model,full_before)
+                del full_before
+                training_probe(root,method,step,model,ds,cfg)
+            with torch.no_grad():
+                pu,pw,pden=pos_components(logits,sample,cfg.pos_background_rho)
+                pos_partition=dict(unweighted={k:float(v) for k,v in pu.items()},weighted={k:float(v) for k,v in pw.items()},denominators=pden)
+            entry=dict(pos_partition=pos_partition,anchor_weight=cfg.anchor_weight,pos_background_rho=cfg.pos_background_rho,attempt_identity=attempt_identity,resumed_from_update=initial_step,update=step,visited_views=cursor,k=view['k'],patch=view['patch'],flip=view['flip'],rotation=view['rotation'],
                        unique_patches=len(seen),pool_size=len(ds),loss=float(total),losses={k:float(v.detach()) for k,v in parts.items()},
                        residual_abs_mean=float(residual.detach().abs().mean()),residual_abs_max=float(residual.detach().abs().max()),gradient_norms=gradient_norms,valid_candidates=int(sample['type_valid'].sum()),unknown_candidates=int((~sample['type_valid']).sum()),type_reasons=dict(__import__('collections').Counter(sample['type_reasons'])),type_indices=dict(__import__('collections').Counter(map(str,sample['type_indices']))),marker_supervised_pixels=int(sample['type_valid'].sum())*48*48,marker_masked_pixels=int((~sample['type_valid']).sum())*48*48,masked_marker_contribution=0.,seconds=time.monotonic()-t,data_and_geometry_seconds=geometry_seconds,peak_vram_bytes=torch.cuda.max_memory_allocated())
             log.write(json.dumps(entry)+'\n')
             if step%10==0 or step==1: print(json.dumps(entry),flush=True)
             atomic_json(out/'progress.json',dict(**entry,elapsed_seconds=time.monotonic()-started,
                         measured_updates=step-initial_step,remaining_updates=cfg.updates-step))
-            if step%cfg.checkpoint_every==0 or step in (cfg.early_checkpoint,cfg.updates) or stop:
+            if step in (100,1000,2000,4000,cfg.updates) or stop:
                 log.flush();os.fsync(log.fileno())
+                from .resources import require_space
+                require_space(root,cfg.mini_test,reserve_bytes=400*1024**2)
                 publish_checkpoint(out,model,opt,deps,step,cursor,seen)
             if stop: raise SystemExit(128+stop[-1])
     final=out/'final.pth'

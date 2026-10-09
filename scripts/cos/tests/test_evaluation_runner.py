@@ -14,10 +14,11 @@ from scripts.cos import runner as r
 
 
 class EvaluationTests(unittest.TestCase):
-    def test_purity_requires_exact_four_set(self):
+    def test_purity_requires_exact_abc_set(self):
         raw={m:dict(positive_F1=i+1,negative_F1=4-i) for i,m in enumerate(e.ARMS)}
         self.assertEqual(purity(dict(list(raw.items())[:2]),e.ARMS)['status'],'incomplete_comparison_set')
         self.assertEqual(purity(raw,e.ARMS)['status'],'computed')
+        self.assertEqual(purity(raw,e.ARMS)['methods']['A']['purity'],0)
         raw={m:dict(positive_F1=1,negative_F1=1) for m in e.ARMS}
         result=purity(raw,e.ARMS);self.assertEqual(result['status'],'not_identifiable_zero_range');self.assertNotIn('methods',result)
 
@@ -69,7 +70,7 @@ class EvaluationTests(unittest.TestCase):
     def test_schedule_and_retry_whitelist(self):
         with tempfile.TemporaryDirectory() as tmp:
             cfg=fixture(Path(tmp));stages=r.stage_specs(cfg);names=[s['name'] for s in stages]
-            self.assertEqual(names[10],'pair_B1');self.assertEqual(names[11],'G_CONT_train');self.assertEqual(names[-2:],[ 'pair_G','four'])
+            self.assertEqual(names[5],'B_train');self.assertEqual(names[10],'C_train');self.assertEqual(names[-1],'report')
         self.assertTrue(r.recoverable(1,'[Errno 5] Input/output error'))
         self.assertFalse(r.recoverable(1,'NaN [Errno 5] Input/output error'))
         self.assertFalse(r.recoverable(1,'CUDA out of memory'))
@@ -88,16 +89,16 @@ class EvaluationTests(unittest.TestCase):
     def test_actual_run_source_drift_isolates_arm_and_pair(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);cfg,path,script=isolated_fixture(root)
-            bad=Path(cfg['methods']['B1_CONT']['worktree'])/'scripts/cos/example.py'
-            def command(cfg,spec,config):return [__import__('sys').executable,str(script),spec['name'],spec['stage'],spec['receipt']],cfg['methods'][spec['method'] or ('G_CONT' if spec.get('comparison')=='G' else 'B1_CONT')]['worktree']
+            bad=Path(cfg['methods']['A']['worktree'])/'scripts/cos/example.py'
+            def command(cfg,spec,config):return [__import__('sys').executable,str(script),spec['name'],spec['stage'],spec['receipt']],cfg['methods'][spec['method'] or 'A']['worktree']
             with patch.object(r,'preflight',side_effect=lambda *a:bad.write_text('drift after global admission')),patch.object(r,'command_for',side_effect=command):self.assertEqual(r.run(path),1)
             state=e.read(root/'run_status.json')
-            self.assertEqual(state['stages']['B1_CONT_train']['status'],'failed')
-            self.assertIn('source changed',state['stages']['B1_CONT_train']['failure'])
-            self.assertEqual(state['stages']['pair_B1']['status'],'blocked_dependency')
-            self.assertEqual(state['stages']['G_COS_evaluate']['status'],'succeeded');self.assertEqual(state['stages']['pair_G']['status'],'succeeded')
-            gpair=next(s for s in r.stage_specs(cfg) if s['name']=='pair_G')
-            self.assertEqual(r.command_for(cfg,gpair,path)[1],cfg['methods']['G_CONT']['worktree'])
+            self.assertEqual(state['stages']['A_train']['status'],'failed')
+            self.assertIn('source changed',state['stages']['A_train']['failure'])
+            self.assertEqual(state['stages']['report']['status'],'blocked_dependency')
+            self.assertEqual(state['stages']['C_evaluate']['status'],'succeeded');self.assertEqual(state['stages']['report']['status'],'blocked_dependency')
+            gpair=next(s for s in r.stage_specs(cfg) if s['name']=='report')
+            self.assertEqual(r.command_for(cfg,gpair,path)[1],cfg['methods']['A']['worktree'])
 
     def test_actual_run_corrupt_receipt_isolates_resume(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -105,11 +106,11 @@ class EvaluationTests(unittest.TestCase):
             def command(cfg,spec,config):return [__import__('sys').executable,str(script),spec['name'],spec['stage'],spec['receipt']],str(root)
             with patch.object(r,'preflight'),patch.object(r,'command_for',side_effect=command):
                 self.assertEqual(r.run(path),0)
-                state=e.read(root/'run_status.json');artifact=Path(state['stages']['B1_CONT_train']['receipt']).parent/'artifact';artifact.write_text('corruption')
+                state=e.read(root/'run_status.json');artifact=Path(state['stages']['A_train']['receipt']).parent/'artifact';artifact.write_text('corruption')
                 self.assertEqual(r.run(path),1)
-            state=e.read(root/'run_status.json');self.assertEqual(state['stages']['B1_CONT_train']['status'],'failed')
-            self.assertEqual(state['stages']['pair_B1']['status'],'blocked_dependency');self.assertEqual(state['stages']['pair_G']['status'],'succeeded')
-            self.assertEqual(len(state['stages']['G_CONT_train']['attempts']),1)
+            state=e.read(root/'run_status.json');self.assertEqual(state['stages']['A_train']['status'],'failed')
+            self.assertEqual(state['stages']['report']['status'],'blocked_dependency');self.assertEqual(state['stages']['report']['status'],'blocked_dependency')
+            self.assertEqual(len(state['stages']['C_train']['attempts']),1)
             with patch.object(r,'preflight'),patch.object(r,'command_for',side_effect=command) as called:self.assertEqual(r.run(path),1);self.assertEqual(called.call_count,0)
 
     def test_gpu_capacity_guard_pauses_before_child(self):
@@ -118,8 +119,8 @@ class EvaluationTests(unittest.TestCase):
             atomic_json(root/'admission.json',dict(resources=dict(estimated_peak_gpu_allocator_bytes=2*1024**2)))
             with patch.object(r,'preflight'),patch.object(r.subprocess,'check_output',return_value='1'),patch.object(r,'command_for') as command:
                 self.assertEqual(r.run(path),1);self.assertEqual(command.call_count,0)
-            state=e.read(root/'run_status.json');self.assertEqual(state['status'],'paused_resource');self.assertEqual(state['stages']['B1_CONT_train']['attempts'],[])
-            self.assertEqual(state['stages']['B1_CONT_train']['gpu_capacity_check']['free_bytes'],1024**2)
+            state=e.read(root/'run_status.json');self.assertEqual(state['status'],'paused_resource');self.assertEqual(state['stages']['A_train']['attempts'],[])
+            self.assertEqual(state['stages']['A_train']['gpu_capacity_check']['free_bytes'],1024**2)
 
     def test_interrupted_process_records_observed_lower_bound(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -153,7 +154,7 @@ class EvaluationTests(unittest.TestCase):
             root=Path(tmp);cfg=fixture(root);path=root/'queue.json';atomic_json(path,cfg)
             script=root/'fake.py';script.write_text('''import sys,json,pathlib,hashlib,os
 name,stage,receipt=sys.argv[1:];p=pathlib.Path(receipt);p.parent.mkdir(parents=True,exist_ok=True)
-if name=='B1_CONT_train':
+if name=='A_train':
  print('schema mismatch injected',flush=True);sys.exit(2)
 a=p.parent/'artifact';a.write_text(name)
 r=dict(status='succeeded',outputs={'artifact':dict(path=str(a),sha256=hashlib.sha256(a.read_bytes()).hexdigest())},profiles=['engineering_nuclear_v1','engineering_pearson_v1','paper_aligned_v1'],paper_method_complete=True,evaluation_executed=True,ready=True,paper_protocol_complete=True)
@@ -163,15 +164,49 @@ p.write_text(json.dumps(r))
             with patch.object(r,'preflight'),patch.object(r,'signature',return_value='fixed-signature'),patch.object(r,'command_for',side_effect=command):
                 self.assertEqual(r.run(path),1)
                 state=e.read(root/'run_status.json')
-                self.assertEqual(state['stages']['B1_CONT_train']['status'],'failed');self.assertEqual(len(state['stages']['B1_CONT_train']['attempts']),1)
-                self.assertEqual(state['stages']['pair_B1']['status'],'blocked_dependency')
-                self.assertEqual(state['stages']['G_COS_evaluate']['status'],'succeeded');self.assertEqual(state['stages']['pair_G']['status'],'succeeded')
-                self.assertEqual(state['stages']['four']['status'],'blocked_dependency')
-                self.assertFalse(e.read(root/'pair_B1/pair_ready.json')['ready'])
+                self.assertEqual(state['stages']['A_train']['status'],'failed');self.assertEqual(len(state['stages']['A_train']['attempts']),1)
+                self.assertEqual(state['stages']['report']['status'],'blocked_dependency')
+                self.assertEqual(state['stages']['C_evaluate']['status'],'succeeded');self.assertEqual(state['stages']['report']['status'],'blocked_dependency')
+                self.assertEqual(state['stages']['report']['status'],'blocked_dependency')
+                self.assertFalse(e.read(root/'comparison/compute_summary.json')['ready'])
                 self.assertEqual(e.read(root/'compute_complete.json')['status'],'partial')
-                before=len(state['stages']['G_COS_evaluate']['attempts'])
+                before=len(state['stages']['C_evaluate']['attempts'])
                 self.assertEqual(r.run(path),1)
-                self.assertEqual(len(e.read(root/'run_status.json')['stages']['G_COS_evaluate']['attempts']),before)
+                self.assertEqual(len(e.read(root/'run_status.json')['stages']['C_evaluate']['attempts']),before)
+
+
+    def test_admission_config_binding_refuses_mutation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);cfg,path,_=isolated_fixture(root);cfg.update(mini_test=False,admission=str(root/'admission.json'));atomic_json(path,cfg)
+            admission=dict(approved_to_launch=True,required_failures=[],run_id=cfg['run_id'],resources=dict(estimated_peak_gpu_allocator_bytes=1),frozen_source=identity(root/'source/frozen.json'),queue=identity(path),resolved_configs={arm:{} for arm in e.ARMS})
+            atomic_json(root/'admission.json',admission)
+            atomic_json(cfg['methods']['A']['config'],dict(anchor_weight=999))
+            with patch.object(r,'validate_queue'),self.assertRaisesRegex(ValueError,'arm config changed after admission'):r.preflight(path,cfg)
+
+    def test_watchdog_actual_children_no_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);cfg,path,script=isolated_fixture(root)
+            cfg['stage_timeouts']={k:.1 for k in r.TIMEOUTS};atomic_json(path,cfg)
+            script.write_text("import time; time.sleep(30)\n")
+            def command(cfg,spec,config):return [__import__('sys').executable,str(script)],str(root)
+            with patch.object(r,'preflight'),patch.object(r,'command_for',side_effect=command):self.assertEqual(r.run(path),1)
+            state=e.read(root/'run_status.json')
+            for arm in e.ARMS:
+                attempt=state['stages'][arm+'_train']['attempts']
+                self.assertEqual(len(attempt),1);self.assertEqual(attempt[0]['termination_reason'],'watchdog_timeout')
+
+    def test_prior_active_child_rejects_resume(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);cfg,path,_=isolated_fixture(root);first=r.stage_specs(cfg)[0]
+            atomic_json(root/'run_status.json',dict(run_id=cfg['run_id'],stages={first['name']:dict(**first,status='running',child_identity=process_identity(),attempts=[])}))
+            with self.assertRaisesRegex(RuntimeError,'still alive'):r.run(path)
+
+    def test_space_pause_prevents_child(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);cfg,path,_=isolated_fixture(root);cfg['minimum_free_gb']=10**12;atomic_json(path,cfg)
+            with patch.object(r,'preflight'),patch.object(r,'command_for') as cmd:
+                self.assertEqual(r.run(path),1);self.assertEqual(cmd.call_count,0)
+            self.assertEqual(e.read(root/'run_status.json')['status'],'paused_resource')
 
 
 def isolated_fixture(root):

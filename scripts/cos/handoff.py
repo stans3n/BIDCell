@@ -1,37 +1,32 @@
-"""Create a real launch handoff only after a stable formal early checkpoint."""
-import argparse,json,os,shlex,socket,time
+"""Publish a real ABC handoff after independent early-run acceptance."""
+import argparse,json,os,shlex,socket
 from datetime import datetime,timedelta,timezone
 from zoneinfo import ZoneInfo
 from pathlib import Path
-from scripts.crgf.common import atomic_json,identity,sha256
+from scripts.crgf.common import atomic_json,identity
 from scripts.crgf.run_egr import is_alive
-from .config import ARMS
+from .evaluation import ARMS,read
 
-
-def read(p):return json.loads(Path(p).read_text())
 def create(config):
-    config=Path(config);q=read(config);root=Path(q['output_root']);state=read(root/'run_status.json');launch=read(root/'launch.json');runner=state['runner']
+    config=Path(config).resolve();q=read(config);root=Path(q['output_root']);state=read(root/'run_status.json');launch=read(root/'launch.json');runner=state['runner']
     if not is_alive(runner):raise ValueError('formal runner is not alive')
-    if state['current_stage']!='B1_CONT_train':raise ValueError('handoff expects initial formal train stage; independently inspect advanced state')
-    arm=Path(q['methods']['B1_CONT']['cost_root']);progress=read(arm/'checkpoints/B1_CONT/progress.json')
-    if progress['update']<100 or progress['elapsed_seconds']<180:raise ValueError('not yet stable for several minutes and 100 actual updates')
+    arm=Path(q['methods']['A']['cost_root']);progress=read(arm/'checkpoints/A/progress.json')
+    if progress['update']<100:raise ValueError('A has fewer than 100 actual updates')
     validation=read(root/'early_checkpoint_validation.json')
     if validation['status']!='succeeded' or validation['actual_updates']<100:raise ValueError('early checkpoint not independently readable')
-    if not read(root/'admission.json')['approved_to_launch']:raise ValueError('admission not approved')
-    wd=q['methods']['B1_CONT']['worktree'];python=q['python'];prefix='cd '+shlex.quote(wd)+' && '+shlex.quote(python)
+    observation=read(root/'tests/launch_observations.json')
+    if not observation.get('passed') or len(observation.get('observations',[]))<2 or not observation.get('independent_shell_verified') or not observation.get('first_probe_passed'):raise ValueError('independent progress/lock/probe acceptance missing')
+    if not read(root/'tests/admission.json')['approved_to_launch']:raise ValueError('admission not approved')
+    wd=q['methods']['A']['worktree'];prefix='cd '+shlex.quote(wd)+' && '+shlex.quote(q['python']);suffix=' --config '+shlex.quote(str(config))
     current=state['stages'][state['current_stage']]['log']
-    commands=dict(status=prefix+' -m scripts.cos.status --config '+shlex.quote(str(config)),tail='tail -n 50 -F '+shlex.quote(current),attach='tail -F '+shlex.quote(current)+' '+shlex.quote(launch['log']),resume=shlex.quote(str(Path(wd)/'scripts/cos/resume.sh'))+' --config '+shlex.quote(str(config)),launch=shlex.quote(str(Path(wd)/'scripts/cos/launch.sh'))+' --config '+shlex.quote(str(config)))
-    started=datetime.fromisoformat(launch['time_utc']);now=datetime.now(timezone.utc)
-    # Historical base 170 minutes/arm excludes new diagnostics. The interval is
-    # deliberately a planning range, not a deadline or a sampled confidence band.
-    eta={name:dict(earliest_sydney=(started+timedelta(hours=lo)).astimezone(ZoneInfo('Australia/Sydney')).isoformat(),latest_sydney=(started+timedelta(hours=hi)).astimezone(ZoneInfo('Australia/Sydney')).isoformat()) for name,lo,hi in [('B1_pair',6,8),('G_pair_four',12,16)]}
-    receipt=dict(version='COS-launch-handoff-v1',run_id=q['run_id'],host=socket.gethostname(),time_utc=now.isoformat(),time_sydney=now.astimezone(ZoneInfo('Australia/Sydney')).isoformat(),output_root=str(root),interpreter=python,runner=runner,runner_session_id=os.getsid(runner['pid']),launcher_receipt=identity(root/'launch.json'),launch_utc=launch['time_utc'],launch_sydney=launch['time_sydney'],locks=[str(root/'runner.lock'),q['gpu_lock']],four_worktrees={a:{k:q['methods'][a][k] for k in ('worktree','commit','config')} for a in ARMS},source=identity(root/'source/frozen.json'),admission=identity(root/'admission.json'),progress=progress,checkpoint_validation=identity(root/'early_checkpoint_validation.json'),latest_checkpoint=read(arm/'checkpoints/B1_CONT/latest.json'),commands=commands,ready_paths=dict(B1=str(root/'pair_B1/pair_ready.json'),G=str(root/'pair_G/pair_ready.json'),compute_complete=str(root/'compute_complete.json')),eta=eta,eta_basis='Historical measured 170 min/arm plus explicit allowance for new diagnostics and observed initial throughput; 12:00 Sydney is a target, not a promise.',observed_training_seconds_per_update=progress['elapsed_seconds']/progress['measured_updates'],limitations=['CPU peaks sampled, not guaranteed maxima','Storage uses measured compression extrapolation with safety factors and runtime 8 GiB guard','Detached OS session survives the launching shell; machine shutdown is not tested or guaranteed','Scientific analysis and final goal completion remain pending user resume'],ai_goal_action='controller may pause only after independent host shell acceptance; background continues')
-    atomic_json(root/'launch_handoff.json',receipt)
-    text=f'''# COS four-arm launch handoff\n\nRun `{q['run_id']}` on `{receipt['host']}` is running in detached session `{receipt['runner_session_id']}`, PID `{runner['pid']}` (start ticks `{runner['start_ticks']}`).\n\nStarted UTC {receipt['launch_utc']}; Sydney {receipt['launch_sydney']}. At this handoff B1_CONT has {progress['update']} actual new updates and {progress['elapsed_seconds']:.1f} measured training seconds. Its formal update-100 checkpoint passed full model/optimizer/BN/RNG/dependency and log/cursor validation.\n\nOutput: `{root}`. Full source, four worktree/commit/config identities, locks and hashes are in [launch_handoff.json]({root/'launch_handoff.json'}).\n\n'''
-    for name,command in commands.items():text+=f'## {name}\n\n```bash\n{command}\n```\n\n'
-    text+='## Expected results\n\n'+f"B1 ready: `{receipt['ready_paths']['B1']}`\n\nG ready: `{receipt['ready_paths']['G']}`\n\nCompute receipt: `{receipt['ready_paths']['compute_complete']}`\n\n"
-    text+=f"Planning ranges in Sydney: B1 {eta['B1_pair']['earliest_sydney']} to {eta['B1_pair']['latest_sydney']}; G/four {eta['G_pair_four']['earliest_sydney']} to {eta['G_pair_four']['latest_sydney']}. New full-field diagnostics are unmeasured at launch; these are estimates, not confidence intervals. Noon remains a target and is likely exceeded.\n\n"
-    text+='The queue automatically proceeds past B1 ready into G. It requires no LLM or user resume to compute. Pause the AI goal only after independent host-shell acceptance; do not signal or close the background runner. Scientific final analysis awaits the user resume.\n'
-    (root/'launch_handoff.md').write_text(text);print(root/'launch_handoff.md')
+    commands=dict(status=prefix+' -m scripts.cos.status'+suffix,tail='tail -n 50 -F '+shlex.quote(current),process='ps -o pid,ppid,pgid,lstart,etime,args -p '+str(runner['pid']),resume=shlex.quote(str(Path(wd)/'scripts/cos/resume.sh'))+suffix,launch=shlex.quote(str(Path(wd)/'scripts/cos/launch.sh'))+suffix)
+    started=datetime.fromisoformat(launch['time_utc']);now=datetime.now(timezone.utc);eta=(started+timedelta(hours=9)).astimezone(ZoneInfo('Australia/Sydney')).isoformat()
+    ready={a:str(Path(q['methods'][a]['evaluation'])/'complete.json') for a in ARMS};ready.update(comparison=str(root/'comparison/compute_summary.json'),compute_complete=str(root/'compute_complete.json'))
+    result=dict(version='COS-LOSS-ABC-launch-handoff-v2.0',run_id=q['run_id'],host=socket.gethostname(),output_root=str(root),execution_mode='serial_A_then_B_then_C',time_utc=now.isoformat(),time_sydney=now.astimezone(ZoneInfo('Australia/Sydney')).isoformat(),runner=runner,runner_session_id=os.getsid(runner['pid']),launch=launch,source=identity(root/'source/frozen.json'),admission=identity(root/'tests/admission.json'),early_checkpoint=identity(root/'early_checkpoint_validation.json'),observations=identity(root/'tests/launch_observations.json'),progress=progress,locks=[str(root/'runner.lock'),q['gpu_lock']],commands=commands,ready_paths=ready,target_sydney=eta,latest_eta_sydney=state.get('eta_sydney'),eta_basis=state.get('eta_basis','remaining-stage estimate unavailable'),target_missed=now>started+timedelta(hours=9),ai_goal_action='controller may pause after checking this receipt; detached computation continues; independent final analysis requires manual user resume')
+    atomic_json(root/'launch_handoff.json',result)
+    lines=['# A/B/C 后台交接','',f"输出：`{root}`。PID {runner['pid']}，PGID {result['runner_session_id']}，串行 A完整链→B→C。",'',f"A已完成{progress['update']}实际更新；100步checkpoint、首个轻量probe及两次独立进度观察已通过。",'',f"九小时目标（Sydney）：{eta}。最新剩余阶段估计：{state.get('eta_sydney')}。额外probe与诊断耗时另计，超过目标继续运行。",'']
+    for name,command in commands.items():lines.extend([name,'','```bash',command,'```',''])
+    lines.extend(['结果路径','',*[f'- {a}: `{path}`' for a,path in ready.items()],'','AI goal暂停不停止后台。用户手动 /goal resume 后才独立科学分析与最终验收。'])
+    (root/'launch_handoff.md').write_text('\n'.join(lines)+'\n');print(root/'launch_handoff.md');return result
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--config',required=True);a=p.parse_args();create(a.config)

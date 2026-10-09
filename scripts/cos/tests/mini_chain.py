@@ -1,10 +1,10 @@
 """Real regional input fixture; never confused with a production full-field run."""
-import argparse,json,shutil,re,sys,subprocess
+import argparse,json,shutil,re,sys,subprocess,os
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import tifffile,yaml
-from scripts.crgf.common import atomic_json,identity
+from scripts.crgf.common import atomic_json,identity,verify_outputs,sha256
 from scripts.crgf.matrix import lookup_axes
 from scripts.cos.config import read,ARMS
 from bidcell.model.dataio.dataset_input import DataProcessing
@@ -13,7 +13,7 @@ def prepare(queuepath,root):
     queue=json.loads(Path(queuepath).read_text());formal=Path(queue['output_root']);root=Path(root)
     if root.exists():raise FileExistsError(root)
     data=root/'data';data.mkdir(parents=True);(root/'configs').mkdir()
-    cfg=read(queue['methods']['B1_CONT']['config']);native=cfg.native();olddata=Path(native.files.data_dir)
+    cfg=read(queue['methods']['A']['config']);native=cfg.native();olddata=Path(native.files.data_dir)
     source_views=json.loads((formal/'configs/views.json').read_text())['views']
     chosen=next(v for v in source_views if v['k']>=5 and all(int(n)<107900 for n in v['cell_ids']))
     y0,x0=map(int,re.findall(r'\d+',Path(chosen['patch']).name)[:2]);size=192
@@ -45,7 +45,7 @@ def prepare(queuepath,root):
         a=np.load(cache/entry['file']);keep=(a['x']>=x0)&(a['x']<x0+size)&(a['y']>=y0)&(a['y']<y0+size);a=a[keep]
         if len(a):pieces.append(pd.DataFrame(dict(transcript_id=a['transcript_id'],x_location=ix[a['x']-x0],y_location=iy[a['y']-y0],feature_name=np.asarray(genes)[a['gene']],qv=20)))
     pd.concat(pieces,ignore_index=True).to_csv(data/'transcripts_processed.csv',index=False)
-    baseline_mask=json.loads(Path(queue['methods']['B1_CONT']['machine']).read_text())['baseline_final_mask']
+    baseline_mask=json.loads(Path(queue['methods']['A']['machine']).read_text())['baseline_final_mask']
     tifffile.imwrite(data/'historical_baseline_final.tif',tifffile.imread(baseline_mask)[y0:y0+size,x0:x0+size])
     mini=dict(queue);mini.update(run_id=root.name,output_root=str(root),admission=str(root/'admission.json'),mini_test=True,methods={})
     for filename in ('reference.json','protocol.json','anchors.json','probes.json'):
@@ -75,7 +75,7 @@ def prepare(queuepath,root):
         atomic_json(armroot/'configs/inputs.json',inputs)
         for filename in ('reference.json','protocol.json','anchors.json'):shutil.copyfile(formal/'configs'/filename,armroot/'configs'/filename)
         atomic_json(armroot/'configs/frozen.json',dict(identities={p.name:identity(p) for p in (armroot/'configs').glob('*.json')}))
-        mini['methods'][arm]=dict(config=str(armroot/'configs/run.json'),worktree=str(Path(__file__).resolve().parents[3]),commit='mini-unfrozen',machine=str(armroot/f'configs/{arm}_machine.json'),matrix=str(armroot/'matrix'/arm),evaluation=str(armroot/'evaluation'/arm),cost_root=str(armroot))
+        mini['methods'][arm]=dict(config=str(armroot/'configs/run.json'),worktree=str(Path(__file__).resolve().parents[3]),commit='mini-unfrozen',machine=str(armroot/f'configs/{arm}_machine.json'),matrix=str(armroot/'matrix'/arm),evaluation=str(armroot/'evaluation'/arm),cost_root=str(armroot),base_variant='B1')
     atomic_json(root/'configs/queue.json',mini);atomic_json(root/'fixture.json',dict(mini_test=True,origin=[y0,x0],size=size,cell_count=int((np.unique(crop)>0).sum()),transcript_count=sum(len(p) for p in pieces),source_coordinate_manifest=identity(manifests[0]),purpose='full real regional pipeline admission; not scientific whole-field evidence'))
     print(root/'configs/queue.json',flush=True)
 
@@ -83,7 +83,17 @@ def stages(queuepath):
     queue=json.loads(Path(queuepath).read_text())
     for arm,item in queue['methods'].items():
         for stage in ('train','predict','postprocess','matrix'):
-            subprocess.run([sys.executable,'-u','-m','scripts.cos.stage','--config',item['config'],'--stage',stage],check=True)
+            base=Path(item['cost_root']);receipt={'train':base/'checkpoints'/arm/'complete.json','predict':base/'predictions'/arm/'complete.json','postprocess':base/'predictions'/arm/'postprocess/complete.json','matrix':Path(item['matrix'])/'complete.json'}[stage]
+            if receipt.exists():
+                previous=json.loads(receipt.read_text())
+                if previous.get('status')=='succeeded':
+                    verify_outputs(previous)
+                    for file,expected in previous.get('dependencies',{}).get('source',{}).items():
+                        if sha256(Path(__file__).resolve().parents[3]/file)!=expected:raise ValueError('completed mini stage source changed '+file)
+                    print('Validated existing mini receipt',arm,stage,flush=True);continue
+            threads=1 if stage=='postprocess' else 2 if stage in ('train','predict') else 4
+            env=dict(os.environ,OMP_NUM_THREADS=str(threads),OPENBLAS_NUM_THREADS=str(threads),MKL_NUM_THREADS=str(threads),NUMEXPR_NUM_THREADS=str(threads))
+            subprocess.run([sys.executable,'-u','-m','scripts.cos.stage','--config',item['config'],'--stage',stage],check=True,env=env)
     atomic_json(Path(queue['output_root'])/'first_four_stages.json',dict(status='succeeded',arms=list(queue['methods'])))
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--queue',required=True);p.add_argument('--output');p.add_argument('--stages',action='store_true');a=p.parse_args()

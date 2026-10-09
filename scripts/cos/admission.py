@@ -1,47 +1,45 @@
-"""Assemble machine-readable admission from completed evidence, never a plan."""
+"""Fail-closed ABC launch admission assembled only from executable evidence."""
 import argparse,json,subprocess
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from scripts.crgf.common import atomic_json,identity,sha256
-from .evaluation import ARMS,times
+from scripts.crgf.common import atomic_json,identity,sha256,verify_outputs
+from .evaluation import ARMS,times,read
 
-
-def read(p):return json.loads(Path(p).read_text())
-def assemble(config,independent=None,fault_receipt=None):
+def assemble(config,independent=None):
     q=read(config);root=Path(q['output_root']);failures=[];evidence={}
-    required={
-        'real_models_and_resume':root/'tests/real_model_frozen/complete.json',
-        'mini_front_four_stages':root/'tests/mini_chain_v2/first_four_stages.json',
-        'mini_three_profiles_pair_four':root/'tests/mini_chain_v2/mini_evaluation_receipt.json',
-        'mini_compute':root/'tests/mini_chain_v2/compute_complete.json',
-        'storage_resources':root/'tests/resources.json',
-        'historical_inputs':Path('/home/zwan0726/work/outputs/cos_admission_audit_20261009/historical_patch_identity_audit.json'),
-        'failure_injection':Path(fault_receipt) if fault_receipt else root/'tests/fault_receipt_required.json',
-    }
+    required={'calibration':root/'diagnostics/calibration.json','numeric_admission':root/'diagnostics/numeric_admission.json','real_mini_front':root/'tests/mini_chain_abc/first_four_stages.json','real_mini_profiles':root/'tests/mini_chain_abc/mini_evaluation_receipt.json','real_mini_compute':root/'tests/mini_chain_abc/compute_complete.json','storage_resources':root/'tests/resources.json','pipeline_test_execution':root/'tests/pipeline_pytest_receipt.json','loss_test_execution':root/'tests/loss_pytest_receipt.json'}
     for name,path in required.items():
         if not path.exists():failures.append(name+':missing');continue
         data=read(path);evidence[name]=identity(path)
-        if name=='storage_resources':
-            if not data.get('sufficient'):failures.append(name+':insufficient')
-        elif name=='failure_injection':
-            if not data.get('all_passed') or len(data.get('results',[]))<24 or not all(r.get('passed') for r in data['results']):failures.append(name+':not_passed')
-        elif name not in ('historical_inputs',) and data.get('status')!='succeeded':failures.append(name+':not_succeeded')
-    unit=root/'tests/final_pytest.xml'
-    if not unit.exists():failures.append('final_pytest:missing')
+        good=data.get('sufficient') if name=='storage_resources' else data.get('status') in ('succeeded','passed')
+        if not good:failures.append(name+':not_passed')
+        if name.endswith('_test_execution'):
+            checkout=Path(__file__).resolve().parents[2]
+            for file,expected in data.get('source',{}).items():
+                if sha256(checkout/file)!=expected:failures.append(name+':tested_source_changed:'+file)
+            xml=root/'tests'/('pipeline_pytest.xml' if name.startswith('pipeline') else 'loss_pytest.xml')
+            if data.get('xml_sha256')!=sha256(xml):failures.append(name+':xml_changed')
+    for name in ('pipeline_pytest.xml','loss_pytest.xml'):
+        path=root/'tests'/name
+        if not path.exists():failures.append(name+':missing');continue
+        suites=list(ET.parse(path).getroot().iter('testsuite'))
+        if not suites or sum(int(s.get('tests',0)) for s in suites)<(19 if name.startswith('pipeline') else 9) or any(int(s.get('errors',0))+int(s.get('failures',0)) for s in suites):failures.append(name+':not_passed')
+        evidence[name]=identity(path)
+    configs={a:read(q['methods'][a]['config']) for a in ARMS}
+    for a,c in configs.items():
+        if c['arm_id']!=a or c['updates']!=4000 or c['mini_test'] or not c['cos_enabled'] or c['base_variant']!='B1':failures.append(a+':invalid_formal_config')
+    if configs['A']['anchor_weight']!=0 or configs['A']['pos_background_rho']!=1 or configs['B']['pos_background_rho']!=1 or configs['C']['pos_background_rho']!=.5:failures.append('arm_intervention_mismatch')
+    if configs['B']['anchor_weight']!=configs['C']['anchor_weight'] or configs['B']['calibration_identity']!=configs['C']['calibration_identity']:failures.append('BC_calibration_mismatch')
+    if required['calibration'].exists() and configs['B']['anchor_weight']!=read(required['calibration'])['lambda_cal']:failures.append('calibrated_weight_mismatch')
+    if required['calibration'].exists() and any(c['calibration_identity']!=sha256(required['calibration']) for c in configs.values()):failures.append('calibration_identity_mismatch')
+    branch=read(root/'source/branches.json');frozen=read(root/'source/frozen.json')
+    for a,s in q['methods'].items():
+        if subprocess.check_output(['git','rev-parse','HEAD'],cwd=s['worktree'],text=True).strip()!=s['commit']:failures.append(a+':source_commit_mismatch')
+    if independent is None:failures.append('independent_admission_review:missing')
     else:
-        xml=ET.parse(unit).getroot();suites=list(xml.iter('testsuite'))
-        if not suites or sum(int(s.get('tests',0)) for s in suites)<17 or any(int(s.get('errors',0))+int(s.get('failures',0)) for s in suites):failures.append('final_pytest:failure_or_missing_cases')
-        evidence['final_pytest']=identity(unit)
-    branches=read(root/'source/branches.json');frozen=read(root/'source/frozen.json')
-    for arm,item in q['methods'].items():
-        if subprocess.check_output(['git','rev-parse','HEAD'],cwd=item['worktree'],text=True).strip()!=item['commit']:failures.append(arm+':commit_mismatch')
-        cfg=read(item['config'])
-        if cfg['updates']!=4000 or cfg['mini_test']:failures.append(arm+':formal_budget')
-    if independent is None:failures.append('independent_final_review:pending')
-    else:
-        review=read(independent);evidence['independent_final_review']=identity(independent)
-        if not review.get('approved_to_launch'):failures.append('independent_final_review:not_approved')
-    result=dict(schema='COS-admission-v1',version='COS-4ARM-PLAN-1.0',run_id=q['run_id'],timezone='Australia/Sydney',**times(),resolved_configs={a:read(v['config']) for a,v in q['methods'].items()},commits={a:v['commit'] for a,v in q['methods'].items()},common_commit=branches['common_commit'],frozen_source=identity(root/'source/frozen.json'),queue=identity(config),inputs={a:identity(Path(v['cost_root'])/'configs/frozen.json') for a,v in q['methods'].items()},parent_view_label_probe_provenance=identity(root/'source/prepare.json'),tests=evidence,resources=read(root/'tests/resources.json') if (root/'tests/resources.json').exists() else None,required_failures=failures,approved_to_launch=not failures,model_assignment=dict(controller='gpt-6.1-sol/high',implementer='gpt-6-astra/high',evaluation_runner='gpt-6-astra/high',independent_admission_auditor='gpt-6-astra/high'),scientific_final_analysis='pending user resume; separate analyst required',initial_checkpoint_load_validation=evidence.get('real_models_and_resume'))
-    atomic_json(root/'admission.json',result);print(json.dumps(dict(approved_to_launch=result['approved_to_launch'],required_failures=failures),indent=2));return result
+        review=read(independent);evidence['independent_admission_review']=identity(independent)
+        if not review.get('approved_to_launch'):failures.append('independent_admission_review:not_approved')
+    result=dict(schema='COS-LOSS-ABC-admission-v2.0',run_id=q['run_id'],**times(),resolved_configs=configs,common_commit=branch['common_commit'],frozen_source=identity(root/'source/frozen.json'),queue=identity(config),tests=evidence,resources=read(required['storage_resources']) if required['storage_resources'].exists() else None,required_failures=failures,approved_to_launch=not failures,model_assignment=dict(requested_controller_setting='gpt-6.1-sol/high',actual_controller_setting='not_independently_observable',implementer_actual_override='gpt-6-astra/high',evaluation_runner_actual_override='gpt-6-astra/high',independent_admission_auditor_actual_override='gpt-6-astra/high',subagent_setting_evidence='controller_journal records confirmed spawn-tool overrides'),scientific_final_analysis='pending manual user resume and separate analyst')
+    atomic_json(root/'tests/admission.json',result);print(json.dumps(dict(approved_to_launch=result['approved_to_launch'],required_failures=failures),indent=2));return result
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--config',required=True);p.add_argument('--independent-review');p.add_argument('--fault-receipt',required=True);a=p.parse_args();assemble(a.config,a.independent_review,a.fault_receipt)
+    p=argparse.ArgumentParser();p.add_argument('--config',required=True);p.add_argument('--independent-review');a=p.parse_args();assemble(a.config,a.independent_review)

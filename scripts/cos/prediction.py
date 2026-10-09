@@ -11,6 +11,7 @@ from bidcell.model.predict import gap_coords
 from scripts.crgf.common import atomic_json, atomic_npy, atomic_tiff, identity, sha256, source_identity, verify_outputs
 from .training import to_device, seed_all, dependencies, make_model
 from .ownership import decode, compact_sample, log_ownership
+from .resources import require_space
 
 
 def merge_native(pred, shifted, paths, patch_size=48):
@@ -36,7 +37,7 @@ def predict(cfg,method):
               source=source_identity(['scripts/cos/prediction.py','scripts/cos/ownership.py','bidcell/model/model/model.py',
               'bidcell/model/model/relation_geometry.py','bidcell/model/dataio/dataset_input.py',
               'bidcell/model/dataio/candidate_geometry.py','bidcell/model/utils/utils.py','bidcell/model/predict.py']))
-    seed_all(cfg.seed);torch.set_num_threads(cfg.cpu_workers)
+    seed_all(cfg.seed);torch.set_num_threads(min(2,cfg.cpu_workers))
     genes=state['gene_order'];model=make_model(cfg,method,len(genes))
     model.load_state_dict(state['model_state_dict'],strict=True);del state;model.eval()
     all_manifests=[];provider=None;started=time.monotonic();completed_total=0
@@ -51,6 +52,7 @@ def predict(cfg,method):
         probe_indices={p['index'] for p in probes if p['shift']==shift}
         probe_dir=out/'probes';probe_dir.mkdir(exist_ok=True)
         for start in range(0,len(ds),128):
+            require_space(root, cfg.mini_test)
             stop=min(start+128,len(ds));rawpath=chunks/f'{start:06d}_raw.npy';rec=chunks/f'{start:06d}.json';arrpath=chunks/f'{start:06d}.npy'
             for item in expected[start:stop]:
                 if sha256(item['path'])!=item['sha256']:raise ValueError('prediction patch content hash mismatch')

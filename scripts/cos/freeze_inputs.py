@@ -8,12 +8,16 @@ def freeze(root):
     root=Path(root);queue=json.loads((root/'configs/queue.json').read_text())
     if (root/'runner_identity.json').exists():raise ValueError('cannot refreeze launched run')
     protocol=json.loads(Path(queue['paper_protocol']).read_text())
-    protocol.update(version='COS-four-arm-paper-aligned-v1',comparison_set=list(ARMS),comparisons=[['B1_COS','B1_CONT'],['G_COS','G_CONT']])
+    protocol.update(version='COS-LOSS-ABC-v2.0',comparison_set=list(ARMS),comparisons=[['B','A'],['C','B'],['C','A']])
     atomic_json(root/'configs/evaluation_protocol.json',protocol);queue['paper_protocol']=str(root/'configs/evaluation_protocol.json')
     atomic_json(root/'configs/queue.json',queue)
     for arm,item in queue['methods'].items():
         ar=Path(item['cost_root']);f=ar/'configs/frozen.json';frozen=json.loads(f.read_text())
+        frozen['version']='COS-LOSS-ABC-frozen-input-v2.0'
+        frozen['identities']['config']=identity(item['config'])
         frozen['identities']['protocol']=identity(queue['paper_protocol'])
+        for key,path in {'calibration':root/'diagnostics/calibration.json','gradient_samples':root/'diagnostics/gradient_samples.json','training_probes':root/'configs/training_probes.json'}.items():frozen['identities'][key]=identity(path)
+        for stale in ('config','views','parent_complete'):frozen.pop(stale,None)
         for p in (ar/'configs').glob('*.json'):
             if p.name not in ('frozen.json','queue.json'):frozen['identities']['arm_'+p.name]=identity(p)
         inputs=json.loads((ar/'configs/inputs.json').read_text())

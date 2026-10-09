@@ -11,10 +11,10 @@ from scripts.crgf import evaluate_egr as accepted
 from scripts.crgf.common import atomic_json, identity, sha256, verify_outputs, Monitor, digest
 from . import diagnostics
 
-ARMS=['B1_CONT','B1_COS','G_CONT','G_COS']
-PAIRS=[('B1_COS','B1_CONT'),('G_COS','G_CONT')]
+ARMS=['A','B','C']
+PAIRS=[('B','A'),('C','B'),('C','A')]
 PROFILES=['engineering_nuclear_v1','engineering_pearson_v1','paper_aligned_v1']
-VERSION='COS-four-arm-evaluation-v1'
+VERSION='COS-LOSS-ABC-v2.0'
 SCOPE={19:'pending_project_threshold',30:'not_applicable',39:'not_applicable',40:'not_run_scope',41:'not_run_scope',42:'pending_uncertainty_design',43:'not_run_scope'}
 
 
@@ -35,7 +35,7 @@ def publish(out, **fields):
 def _evaluate(config):
     armcfg=read(config) if isinstance(config,(str,Path)) else (config.model_dump(mode='json') if hasattr(config,'model_dump') else dict(config))
     queue=read(armcfg['queue_config']);arm=armcfg['arm_id'];spec=queue['methods'][arm]
-    if arm not in ARMS or armcfg['base_variant']!=arm.split('_')[0]:raise ValueError('arm/base identity mismatch')
+    if arm not in ARMS or armcfg['base_variant']!='B1':raise ValueError('arm/base identity mismatch')
     out=Path(spec['evaluation']);out.mkdir(parents=True,exist_ok=True)
     atomic_json(out/'complete.json',dict(status='running',paper_method_complete=False,**times()))
     # The accepted method argument is a provenance label only. All scientific
@@ -57,9 +57,9 @@ def _evaluate(config):
     else:
         result=run_profiles(spec,queue,original_protocol,out,arm)
         atomic_json(cached,dict(status='succeeded',dependencies=profile_dependencies,summary=result,outputs={str(file.relative_to(out)):identity(file) for folder in ['engineering','paper_aligned_v1'] for file in (out/folder).rglob('*') if file.is_file()}))
-    result['method']=arm;result['protocol_version']=new_protocol['version'];atomic_json(out/'summary.json',result)
+    result['method']=arm;result['protocol_version']=new_protocol['version'];result['intervention']={k:armcfg[k] for k in ('anchor_weight','pos_background_rho','pos_region_version','calibration_identity','cos_enabled')};result['arm_config']=identity(spec['config']);atomic_json(out/'summary.json',result)
     atomic_json(out/'reference_reuse.json',dict(status='succeeded',allowed_identity_only_changes=sorted(allowed),scientific_settings_exactly_equal=True,prepared=identity(Path(queue['prepared'])/'complete.json'),original_protocol=identity(original_protocol),cos_protocol=identity(queue['paper_protocol']),model=prep['model']))
-    diagnostics.stage_diagnostics(spec,queue['anchors'],queue['prepared'],out/'diagnostics/stages')
+    diagnostics.stage_diagnostics(dict(spec,base_variant='B1'),queue['anchors'],queue['prepared'],out/'diagnostics/stages')
     probe_manifest=read(Path(read(spec['machine'])['final_mask']).parent/'endpoints.json').get('probes')
     if not probe_manifest:raise ValueError('required frozen probe output absent')
     diagnostics.probe_diagnostics(probe_manifest,out/'diagnostics/probes')
@@ -71,7 +71,7 @@ def _evaluate(config):
     if failures:raise ValueError('required method coverage failed: '+str(failures))
     publish(out,method=arm,evaluation_executed=True,paper_method_complete=True,paper_protocol_complete=False,
         profiles=PROFILES,purity_status='incomplete_comparison_set',protocol_version=read(queue['paper_protocol'])['version'],
-        dependencies={'queue_config':identity(armcfg['queue_config']),'matrix':identity(Path(spec['matrix'])/'complete.json'),'accepted_protocol':identity(queue['paper_protocol'])})
+        dependencies={'arm_config':identity(spec['config']),'intervention':result['intervention'],'queue_config':identity(armcfg['queue_config']),'matrix':identity(Path(spec['matrix'])/'complete.json'),'accepted_protocol':identity(queue['paper_protocol'])})
     return result
 
 
@@ -193,8 +193,9 @@ def validate_arm(queue,arm):
 
 
 def aggregate(config,comparison):
-    queue=read(config);root=Path(queue['output_root']);four=comparison=='four';names=ARMS if four else [comparison+'_CONT',comparison+'_COS'];pairs=PAIRS if four else [(comparison+'_COS',comparison+'_CONT')]
-    out=root/('four_arm' if four else 'pair_'+comparison);out.mkdir(parents=True,exist_ok=True);start=time.monotonic()
+    queue=read(config);root=Path(queue['output_root']);four=True;names=ARMS;pairs=PAIRS
+    if comparison!='ABC':raise ValueError('only frozen ABC comparison is allowed')
+    out=root/'comparison';out.mkdir(parents=True,exist_ok=True);start=time.monotonic()
     atomic_json(out/'complete.json',dict(status='running',ready=False,**times()))
     atomic_json(out/('compute_summary.json' if four else 'pair_ready.json'),dict(status='running',ready=False,run_id=queue['run_id'],comparison=comparison,**times()))
     cost_snapshot=out/'resource_cost_snapshot.json';atomic_json(cost_snapshot,read(root/'run_status.json'))
@@ -205,19 +206,24 @@ def aggregate(config,comparison):
     if failures:
         result=dict(status='blocked_dependency',ready=False,run_id=queue['run_id'],comparison=comparison,failures=failures,**times());atomic_json(out/('pair_ready.json' if not four else 'compute_summary.json'),result);atomic_json(out/'complete.json',result);return False
     methods={a:queue['methods'][a] for a in names};raw_purity={a:{k:read(Path(s['evaluation'])/'summary.json')[k] for k in ['positive_F1','negative_F1']} for a,s in methods.items()}
-    pur=accepted.purity(raw_purity,methods=ARMS);atomic_json(out/'purity.json',pur)
+    pur=accepted.purity(raw_purity,methods=ARMS);pur.update(formula='2*P_scaled*(1-N_scaled)/(P_scaled+1-N_scaled)',zero_denominator_endpoint=0,zero_denominator_endpoint_reason='nondegenerate minmax P_scaled=0,N_scaled=1 uses accepted zero convention',historical_sets_not_comparable=True);atomic_json(out/'purity.json',pur)
     model_hashes={read(Path(spec['evaluation'])/'summary.json')['model_sha256'] for spec in methods.values()}
     if len(model_hashes)!=1:raise ValueError('arms use different fixed reference models')
-    fixed=diagnostics.fixed_comparison(methods,queue['anchors'],queue['prepared'],out/'fixed_anchor',pairs,{pair:pair[0].split('_')[0] for pair in pairs})
+    # All three QC sets define the frozen primary population; B1 labels remain NA when unavailable.
+    fixed=diagnostics.fixed_comparison(methods,queue['anchors'],queue['prepared'],out/'fixed_anchor',pairs,{pair:'B1' for pair in pairs})
+    for a,b in pairs:
+        diagnostics.fixed_comparison({a:methods[a],b:methods[b]}, {'B1':queue['anchors']['B1']},queue['prepared'],out/'sensitivity'/f'{a}_minus_{b}',[(a,b)],{(a,b):'B1'})
+    for arm,spec in methods.items():
+        diagnostics.fixed_comparison({arm:spec},{'B1':queue['anchors']['B1']},queue['prepared'],out/'sensitivity'/('own_'+arm),[],{})
     diagnostics.postprocess_increment(methods,queue['anchors'],pairs,pd.read_csv(out/'fixed_anchor/common_qc_cell_ids.csv').cell_id.tolist(),out/'diagnostics')
     coverage=[];raw=[];comparison_metrics=[]
     for arm in names:
         c,r=method_coverage(queue,arm,cost_snapshot=cost_snapshot);coverage+=c;raw+=r
-        coverage.append(row(10,'paper_aligned_v1',arm,out/'purity.json',status=pur['status'],required=four,reason='fixed scaling set B1_CONT/B1_COS/G_CONT/G_COS only'))
+        coverage.append(row(10,'paper_aligned_v1',arm,out/'purity.json',status=pur['status'],required=four,reason='fixed scaling set A/B/C only'))
         if four and pur['status']=='computed':raw.append(dict(method=arm,profile='paper_aligned_v1',metric_id='10',metric_name='Purity',value=pur['methods'][arm]['purity'],status='computed'))
     for a,b in pairs:
         dest=out/'diagnostics'/f'{a}_minus_{b}'
-        diagnostics.ownership_pair(methods[a],methods[b],dest,queue['anchors'][a.split('_')[0]],queue['prepared'],a+'-'+b)
+        diagnostics.ownership_pair(methods[a],methods[b],dest,queue['anchors']['B1'],queue['prepared'],a+'-'+b)
         ac=read(methods[a]['machine']);bc=read(methods[b]['machine'])
         change=accepted.changes(ac['final_mask'],bc['final_mask'],dest/'mask_changes',a+'-'+b,ac['pixel_um'])
         for metric,key in [(22,'changed_fraction'),(23,'changed_cell_fraction'),(29,'interior_preservation')]:comparison_metrics.append(dict(comparison=a+'-'+b,metric_id=metric,subitem=key,value=change[key],n_eligible=change['n_cells'] if metric==23 else change['interior_pixels'] if metric==29 else change['n_pixels']))
@@ -239,20 +245,23 @@ def aggregate(config,comparison):
     for a,b in pairs:
         aa=frame[frame.method==a];bb=frame[frame.method==b];joined=aa.merge(bb,on=['profile','metric_id','metric_name'],suffixes=('_new','_old'))
         for r in joined.to_dict('records'):deltas.append(dict(comparison=a+'-'+b,profile=r['profile'],metric_id=r['metric_id'],metric_name=r['metric_name'],delta=r['value_new']-r['value_old'] if pd.notna(r['value_new']) and pd.notna(r['value_old']) else None))
+    for delta in deltas:delta['contrast_role']='auxiliary' if delta['comparison']=='C-A' else 'primary'
     pd.DataFrame(deltas).to_csv(out/'raw_deltas.csv',index=False,na_rep='NA');pd.DataFrame(coverage).to_csv(out/'metric_coverage.csv',index=False,na_rep='NA')
     bad=[c for c in coverage if c['required_this_run'] and c['status'] not in ['computed','computed_distribution','not_identifiable_zero_range','partial_domain_NA']]
     primary_rows=pd.read_csv(out/'fixed_anchor/fixed_anchor_summary.csv')
-    evaluable_n=primary_rows[(primary_rows['role']=='primary')&(primary_rows['type']=='__all__')][['comparison','anchor','metric','n_evaluable','n_unavailable']].to_dict('records')
-    result=dict(version=VERSION,run_id=queue['run_id'],evaluable_n=evaluable_n,coverage_artifact=identity(out/'metric_coverage.csv'),pair=comparison,status='succeeded' if not bad else 'failed',ready=not bad,**times(),arm_identities=receipts,required_stage_validation=True,three_profile_coverage=PROFILES,primary_anchor=None if four else queue['anchors'][comparison],common_qc_n=fixed['common_qc_n'],diagnostic_artifacts=str(out/'diagnostics'),raw_delta_table=identity(out/'raw_deltas.csv'),purity_status=pur['status'],failed_missing_items=bad,next_queue_stage='G_CONT_train' if comparison=='B1' else 'four' if comparison=='G' else 'awaiting_user_analysis',runner_identity=read(root/'run_status.json').get('runner'),wall_seconds=time.monotonic()-start)
+    primary_rows['contrast_role']=primary_rows.comparison.map({'B-A':'primary','C-B':'primary','C-A':'auxiliary'})
+    primary_rows.to_csv(out/'fixed_anchor/fixed_anchor_summary.csv',index=False,na_rep='NA')
+    evaluable_n=primary_rows[(primary_rows['role']=='primary')&(primary_rows['type']=='__all__')][['comparison','contrast_role','anchor','metric','n_evaluable','n_unavailable']].to_dict('records')
+    result=dict(version=VERSION,run_id=queue['run_id'],primary_comparisons=['B-A','C-B'],auxiliary_comparisons=['C-A'],evaluable_n=evaluable_n,coverage_artifact=identity(out/'metric_coverage.csv'),pair=comparison,status='succeeded' if not bad else 'failed',ready=not bad,**times(),arm_identities=receipts,required_stage_validation=True,three_profile_coverage=PROFILES,primary_anchor=queue['anchors']['B1'],common_qc_n=fixed['common_qc_n'],diagnostic_artifacts=str(out/'diagnostics'),raw_delta_table=identity(out/'raw_deltas.csv'),purity_status=pur['status'],failed_missing_items=bad,next_queue_stage='awaiting_user_analysis',runner_identity=read(root/'run_status.json').get('runner'),wall_seconds=time.monotonic()-start)
     atomic_json(out/('compute_summary.json' if four else 'pair_ready.json'),result)
-    (out/'pair_summary.md').write_text(f"# {comparison} technical readout\n\nScript-generated; independent scientific analysis remains pending.\n\nStatus: {result['status']}. Common QC: {fixed['common_qc_n']}. Purity: {pur['status']}.\n\nRaw deltas and all five frozen-label anchors are in the accompanying CSVs.\n")
+    (out/'pair_summary.md').write_text(f"# {comparison} technical readout\n\nScript-generated; independent scientific analysis remains pending.\n\nStatus: {result['status']}. Common QC: {fixed['common_qc_n']}. Purity: {pur['status']}.\n\nPrimary B-A and C-B, auxiliary C-A, use the fixed historical B1 labels on ABC common QC. Own and pairwise QC sensitivities and explicitly exploratory historical anchors are in the accompanying CSVs.\n")
     if bad:atomic_json(out/'complete.json',result)
     else:publish(out,comparison=comparison,ready=True,paper_protocol_complete=four,purity_status=pur['status'],dependencies={'config':identity(config)},arm_receipts=receipts)
     return not bad
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--config',required=True);parser.add_argument('--comparison',choices=['B1','G','four']);args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--config',required=True);parser.add_argument('--comparison',choices=['ABC']);args=parser.parse_args()
     if args.comparison:
         if not aggregate(args.config,args.comparison):raise SystemExit(2)
     else:evaluate(args.config)

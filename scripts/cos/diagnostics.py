@@ -82,7 +82,7 @@ def fixed_comparison(methods, anchors, prepared, out, pairs, primary, population
         if t.index.has_duplicates: raise ValueError('duplicate QC cell ID')
     common=sorted(set.intersection(*(set(t.index) for t in tables.values()))) if population is None else sorted(population)
     pd.DataFrame({'cell_id':common}).to_csv(out/'common_qc_cell_ids.csv',index=False)
-    values={}; summary=[]; availability=[]
+    values={}; summary=[]; availability=[]; own_means=[]
     for anchor_name, anchor_spec in anchors.items():
         labels=load_anchor(anchor_spec); values[anchor_name]={}
         for m,spec in methods.items():
@@ -92,6 +92,9 @@ def fixed_comparison(methods, anchors, prepared, out, pairs, primary, population
             frame=fixed_scores(np.load(matrix/'counts.npy',mmap_mode='r')[positions],common,genes,labels,markers,refgenes)
             values[anchor_name][m]=frame
             frame.to_csv(out/f'fixed_{anchor_name}_{m}.csv',na_rep='NA')
+            for metric in METRICS:
+                finite=np.isfinite(frame[metric]);count=int(finite.sum())
+                own_means.append(dict(anchor=anchor_name,method=m,metric=metric,n_eligible=len(frame),n_evaluable=count,n_unavailable=len(frame)-count,mean=float(frame.loc[finite,metric].mean()) if count else None,population='common_qc_of_'+','.join(methods)))
             for state,n in frame.label_availability.value_counts().items(): availability.append(dict(anchor=anchor_name,method=m,status=state,n_cells=int(n),n_common_qc=len(common)))
         for a,b in pairs:
             delta=values[anchor_name][a][METRICS]-values[anchor_name][b][METRICS]
@@ -103,6 +106,7 @@ def fixed_comparison(methods, anchors, prepared, out, pairs, primary, population
                     summary.append(dict(comparison=a+'-'+b,anchor=anchor_name,role='primary' if primary.get((a,b))==anchor_name else 'exploratory_all_anchor',population='common_qc_of_'+','.join(methods),type=label,metric=metric,n_eligible=len(part),n_evaluable=n,n_unavailable=len(part)-n,mean_delta=float(part.loc[finite,metric].mean()) if n else None,status='computed' if n else 'empty_evaluable_domain'))
     pd.DataFrame(summary).to_csv(out/'fixed_anchor_summary.csv',index=False,na_rep='NA')
     pd.DataFrame(availability).to_csv(out/'label_availability.csv',index=False)
+    pd.DataFrame(own_means).to_csv(out/'fixed_population_metric_summary.csv',index=False,na_rep='NA')
     return dict(common_qc_n=len(common),anchors={k:identity(v['path']) for k,v in anchors.items()},summary=str(out/'fixed_anchor_summary.csv'))
 
 
