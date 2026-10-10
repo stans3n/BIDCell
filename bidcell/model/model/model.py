@@ -18,6 +18,7 @@ class SegmentationModel(nn.Module):
         fusion=False,
         variant="GR",
         cos_enabled=False,
+        prototype_projection=None,
     ):
         super(SegmentationModel, self).__init__()
         self.n_channels = n_channels
@@ -239,7 +240,11 @@ class SegmentationModel(nn.Module):
             nn.init.zeros_(self.cos_residual.weight)
             nn.init.zeros_(self.cos_residual.bias)
 
-    def forward(self, inputs, geometry=None, search_area=None, return_details=False):
+        if prototype_projection is not None:
+            from scripts.ssp.method import PrototypeResidual
+            self.prototype_residual = PrototypeResidual(prototype_projection)
+
+    def forward(self, inputs, geometry=None, search_area=None, return_details=False, local_expression=None, prototype_r=None, prototype_confidence=None):
         ## -------------Encoder-------------
         h1 = self.conv1(inputs)  # h1->320*320*64
 
@@ -356,5 +361,9 @@ class SegmentationModel(nn.Module):
         seg = self.outconv_seg(hd1)  # d1->320*320*2
 
         residual = 0.1 * self.cos_residual(hd1) if hasattr(self, "cos_residual") else torch.zeros_like(seg[:, :1])
+        if hasattr(self, "prototype_residual"):
+            if any(v is None for v in (local_expression, prototype_r, prototype_confidence, geometry, search_area)):
+                raise ValueError("SP requires complete expression/prototype/geometry/group inputs")
+            residual = residual + self.prototype_residual(hd1, local_expression, prototype_r, prototype_confidence, geometry, search_area)
         corrected = torch.cat((seg[:, :1], seg[:, 1:2] + residual), dim=1)
         return (corrected, seg, residual) if return_details else corrected

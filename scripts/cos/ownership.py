@@ -36,7 +36,7 @@ def compact_sample(sample):
     if not np.array_equal(np.asarray(sample['cell_ids'])[indices], np.unique(sample['nuclei'][sample['nuclei']>0])):
         raise ValueError('candidate order differs from input')
     result=dict(sample)
-    for name in ('x','n','s','p','q','geometry','type_valid','candidate_valid'):
+    for name in ('x','n','s','p','q','geometry','type_valid','candidate_valid','exclusive_positive','prototype_r','prototype_confidence'):
         if name in result:
             result[name]=result[name][torch.as_tensor(indices,device=result[name].device)]
     for name in ('cell_ids','full_areas'):

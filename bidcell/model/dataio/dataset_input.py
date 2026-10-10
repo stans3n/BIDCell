@@ -384,7 +384,8 @@ class DataProcessing(data.Dataset):
                 nucl_split, search_areas)
             ids = cell_ids.astype(np.int64)
             assert np.array_equal(ids, np.unique(nucl_aug)[np.unique(nucl_aug) > 0])
-            return dict(x=expr_torch.permute(3, 2, 0, 1).contiguous(),
+            return dict(local_expression=torch.from_numpy(np.ascontiguousarray(expr_aug)).float(),
+                        x=expr_torch.permute(3, 2, 0, 1).contiguous(),
                         n=nucl_torch.permute(2, 0, 1).unsqueeze(1),
                         s=search_areas_torch.permute(2, 0, 1).unsqueeze(1),
                         p=search_pos_torch.permute(2, 0, 1).unsqueeze(1),
