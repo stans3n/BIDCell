@@ -7,6 +7,7 @@ from scripts.cos import diagnostics
 from scripts.crgf import evaluate_egr as accepted
 from scripts.crgf.common import atomic_json,identity,sha256,verify_outputs
 from .evaluation import read,PAIRS,PROFILES,publish,validate_arm,method_coverage
+from .stage_population import postprocess_increment,load_population
 
 def population_scores(methods,queue,out,population,label):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);labels=diagnostics.load_anchor(queue['anchors']['B1'])
@@ -40,15 +41,14 @@ def population_scores(methods,queue,out,population,label):
     pd.DataFrame(summary).to_csv(out/'paired_metrics.csv',index=False,na_rep='NA');pd.DataFrame(counts_summary).to_csv(out/'metric_summary.csv',index=False,na_rep='NA')
     return summary
 
-def aggregate(config):
-    q=read(config);root=Path(q['output_root']);out=root/'comparison';out.mkdir(exist_ok=True);start=time.monotonic()
+def aggregate(config,output_dir=None):
+    q=read(config);root=Path(q['output_root']);out=Path(output_dir) if output_dir else root/'comparison';out.mkdir(parents=True,exist_ok=True);start=time.monotonic()
     receipts={a:validate_arm(q,a) for a in ('S','SP')};methods={**q['historical_methods'],**q['methods']}
     oldq=read(Path(q['historical_root'])/'configs/queue.json')
     for a in ('A','B'):receipts[a]=validate_arm(oldq,a)
     verify_outputs(read(Path(oldq['methods']['C']['evaluation'])/'complete.json'))
     if set(methods)!={'A','B','S','SP'}:raise ValueError('fixed purity set mismatch')
-    if sha256(q['population']['path'])!=q['population']['sha256']:raise ValueError('frozen B1 population drift')
-    population=pd.read_csv(q['population']['path']).cell_id.astype(int).tolist()
+    population=load_population(q['population']).tolist()
     population_scores(methods,q,out/'fixed_B1QC',population,'historical_B1QC')
     qc={a:set(pd.read_csv(Path(s['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id) for a,s in methods.items()}
     oldq=read(Path(q['historical_root'])/'configs/queue.json');qc_c=set(pd.read_csv(Path(oldq['methods']['C']['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id)
@@ -65,7 +65,7 @@ def aggregate(config):
         dest=out/'diagnostics'/f'{a}_minus_{b}'
         diagnostics.ownership_pair(methods[a],methods[b],dest,q['anchors']['B1'],q['prepared'],a+'-'+b)
         ac=read(methods[a]['machine']);bc=read(methods[b]['machine']);accepted.changes(ac['final_mask'],bc['final_mask'],dest/'mask_changes',a+'-'+b,ac['pixel_um'])
-    diagnostics.postprocess_increment(methods,q['anchors'],PAIRS,population,out/'diagnostics')
+    postprocess_increment(methods,q['anchors'],PAIRS,population,out/'diagnostics')
     coverage.extend(dict(metric_id=k,profile='SSP',comparison='A/B/S/SP',required_this_run=True,status='computed',artifact_path=str(p)) for k,p in [('fixed_B1QC',out/'fixed_B1QC/paired_metrics.csv'),('purity_fixed_set',out/'purity.json'),('B_cost',root/'b_cost/facts.json')])
     pd.DataFrame(coverage).to_csv(out/'metric_coverage.csv',index=False,na_rep='NA');pd.DataFrame(raw).to_csv(out/'raw_metrics.csv',index=False,na_rep='NA')
     bad=[x for x in coverage if x['required_this_run'] and x['status'] not in ('computed','computed_distribution','partial_domain_NA','not_identifiable_zero_range')]
