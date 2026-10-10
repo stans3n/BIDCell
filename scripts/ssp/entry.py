@@ -86,6 +86,26 @@ def status(q):
     s['observer_pid_namespace']=actual_namespace
     return s
 
+def prepare_launch(root):
+    """Bring a fresh reviewed deployment to the independent approval gate."""
+    root=Path(root);config=root/'configs/queue.json'
+    from .bootstrap import prepare as setup
+    from .admission import execute_missing,collect
+    from .runner import freeze
+    if (root/'source/frozen.json').exists():
+        q=read(config);admission=Path(q['admission'])
+        if not admission.exists() or read(admission).get('status')!='passed':
+            result=collect(root)
+            if result['required_failures']:raise ValueError('required admission failures: '+str(result['required_failures']))
+        return config
+    setup(root)
+    execute_missing(root)
+    freeze_inputs(config)
+    freeze(config)
+    result=collect(root)
+    if result['required_failures']:raise ValueError('required admission failures: '+str(result['required_failures']))
+    return config
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('command',choices=['prepare','freeze','launch','resume','status','tail','process','evaluate','complete','deploy','export','admission']);p.add_argument('--root',required=True);p.add_argument('--arm',choices=['S','SP']);p.add_argument('--deployment');a=p.parse_args();root=Path(a.root).resolve();config=root/'configs/queue.json'
     if a.command=='export':print(export_deployment(root));return
@@ -103,6 +123,18 @@ def main():
         from .bootstrap import provisional_freeze
         provisional_freeze(root)
         print(config);return
+    if a.command in ('launch','resume'):
+        deployment=Path(a.deployment) if a.deployment else root/'source/deployment.json'
+        target=deploy(deployment)
+        if target!=Path(__file__).resolve().parents[2]:
+            # Execute the deployed implementation, including its bootstrap paths.
+            env=dict(os.environ,PYTHONPATH=str(target))
+            subprocess.run([sys.executable,'-m','scripts.ssp.entry',a.command,'--root',str(root),'--deployment',str(deployment.resolve())],cwd=target,env=env,check=True);return
+        config=prepare_launch(root)
+        q=read(config)
+        if not Path(q['review_receipt']).exists():raise ValueError('Preparation and admission are concrete; independent reviewer approval receipt is required before formal launch')
+        from .launch import launch
+        launch(config);return
     q=read(config)
     if a.command=='admission':
         from .admission import execute_missing,collect
@@ -113,16 +145,6 @@ def main():
         freeze_inputs(config)
         from .runner import freeze
         freeze(config);return
-    if a.command in ('launch','resume'):
-        deployment=Path(a.deployment) if a.deployment else root/'source/deployment.json'
-        deploy(deployment)
-        # Preparation is idempotent and is performed before every initial launch.
-        if not (root/'source/frozen.json').exists():
-            from .prepare import prepare
-            prepare(root)
-            raise ValueError('source freeze and independently approved admission required before launch')
-        from .launch import launch
-        launch(config);return
     if a.command=='status':print(json.dumps(status(q),indent=2));return
     if a.command=='process':
         s=status(q)

@@ -5,6 +5,16 @@ from scripts.crgf.common import atomic_json,identity,sha256,verify_outputs
 from .evaluation import read
 REQUIRED=['tests/math_edges.json','tests/checkpoint_faults.json','tests/cpu_equivalence.json','tests/data_contracts.json','prepared/coverage.json','tests/prototype_audit.json','tests/equivalence.json','diagnostics/numeric_admission.json','diagnostics/gradient_diagnostics.json','tests/independent_review/independent_method_cpu.json','tests/runner_engineering.json','tests/mini/mini_complete.json','b_cost/complete.json','tests/resources.json']
 
+def capture_method_sources(root):
+    from .training import TRAIN_SOURCES
+    from scripts.crgf.common import source_identity
+    paths=TRAIN_SOURCES+['scripts/ssp/tests/equivalence.py','scripts/ssp/tests/historical_reference.py','scripts/ssp/tests/cpu_equivalence.py','scripts/ssp/tests/cpu_reference.py','scripts/ssp/tests/numeric.py']
+    current=source_identity(paths);path=Path(root)/'tests/method_execution_sources.json'
+    if path.exists():
+        if read(path)['source']!=current:raise ValueError('method execution source changed; preserve prior attempt and explicitly review a new version')
+    else:atomic_json(path,dict(status='captured_before_admission_test_invocation',source=current,note='Captured before missing method tests execute; existing evidence is preserved byte-for-byte.'))
+    return path
+
 def collect(root):
     root=Path(root);qpath=root/'configs/queue.json';q=read(qpath);failures=[];evidence={}
     for name in REQUIRED:
@@ -31,6 +41,7 @@ def collect(root):
 
 def execute_missing(root):
     root=Path(root);qpath=root/'configs/queue.json';q=read(qpath);python=q['python'];cwd=q['methods']['S']['worktree']
+    capture_method_sources(root)
     from .prepare import prepare
     from .bootstrap import provisional_freeze
     if not (root/'source/frozen.json').exists():

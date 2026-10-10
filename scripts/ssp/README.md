@@ -13,7 +13,7 @@ PID in a sandbox is unknown and must never be treated as a dead runner.
 - `admission`: execute missing real method/runner/mini tests and collect required evidence.
 - `freeze`: finalize commit bindings and freeze every source/input hash before independent approval.
 - `export`: export a complete committed Git bundle and source map (including all new files).
-- `launch` / `resume`: verify reviewed deployment, frozen inputs, tests, independent reviewer receipt and current resources, then detach the serial S→SP queue. Existing complete computation refuses restart; a running process or held lock refuses duplicate launch.
+- `launch` / `resume`: deploy reviewed code; for a fresh run bootstrap and prepare data, execute missing admission, freeze inputs/source and collect evidence. Stop at the independent approval gate if its receipt is missing. For an admitted run only verify hashes/receipts and current resources, then detach the serial S→SP queue. Existing complete computation refuses restart; a running process or held lock refuses duplicate launch.
 - `status`, `process`, `tail`: read actual machine status, identity, and logs.
 - `evaluate --arm S|SP`: validate an existing completed evaluation or execute the missing evaluation under run/global locks; refuses concurrent runner/child execution.
 - `complete [--arm S|SP]`: inspect validated full-run or arm evaluation receipts.

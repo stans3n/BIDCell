@@ -19,6 +19,44 @@ p.write_text(json.dumps(dict(status='succeeded',outputs={'artifact':dict(path=st
     return q,p,script
 
 class Tests(unittest.TestCase):
+    def test_fresh_method_provenance_and_real_input_freeze(self):
+        from .admission import capture_method_sources
+        from .entry import freeze_inputs
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);config=root/'configs/queue.json';payload=root/'input';payload.write_text('fixture')
+            prepared=root/'prepared/manifest.json';atomic_json(prepared,{'outputs':{},'global_blocks':[]})
+            for rel in ('prepared/coverage.json','prepared/coverage_views.json','diagnostics/calibration.json','configs/training_probes.json'):atomic_json(root/rel,{})
+            source=capture_method_sources(root);before=source.read_bytes();capture_method_sources(root);self.assertEqual(before,source.read_bytes())
+            methods={}
+            for arm in ('S','SP'):
+                ar=root/arm;run=ar/'configs/run.json';machine=ar/'configs/machine.json'
+                atomic_json(run,{'prepared_manifest':str(prepared)});atomic_json(ar/'configs/inputs.json',{})
+                atomic_json(machine,{k:str(payload) for k in ('baseline_final_mask','nuclei_mask','preannotation','genes','transcripts','reference','positive_markers','negative_markers')})
+                methods[arm]={'worktree':str(Path(__file__).resolve().parents[2]),'cost_root':str(ar),'machine':str(machine),'config':str(run)}
+            atomic_json(config,{'output_root':str(root),'methods':methods,'population':identity(payload)})
+            freeze_inputs(config)
+            for arm in methods:self.assertEqual(read(root/arm/'configs/frozen.json')['identities']['method_execution_sources']['sha256'],sha256(source))
+            changed=read(source);changed['source'][next(iter(changed['source']))]='tampered';atomic_json(source,changed)
+            with self.assertRaisesRegex(ValueError,'method execution source changed'):capture_method_sources(root)
+    def test_one_command_preparation_and_idempotency(self):
+        from .entry import prepare_launch
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);calls=[];config=root/'configs/queue.json';admission=root/'admission.json'
+            def setup(_):calls.append('bootstrap');atomic_json(config,{'admission':str(admission)})
+            def tests(_):calls.append('missing_tests')
+            def inputs(_):calls.append('input_freeze')
+            def freeze(_):calls.append('source_freeze');atomic_json(root/'source/frozen.json',{'fixture':'frozen'})
+            def collect(_):calls.append('collect');atomic_json(admission,{'status':'passed'});return {'required_failures':[]}
+            with patch('scripts.ssp.bootstrap.prepare',side_effect=setup),patch('scripts.ssp.admission.execute_missing',side_effect=tests),patch('scripts.ssp.entry.freeze_inputs',side_effect=inputs),patch('scripts.ssp.runner.freeze',side_effect=freeze),patch('scripts.ssp.admission.collect',side_effect=collect):
+                self.assertEqual(prepare_launch(root),config)
+                self.assertEqual(calls,['bootstrap','missing_tests','input_freeze','source_freeze','collect'])
+                snapshots={p:p.read_bytes() for p in (config,admission,root/'source/frozen.json')};calls.clear()
+                self.assertEqual(prepare_launch(root),config);self.assertEqual(calls,[])
+                self.assertTrue(all(p.read_bytes()==b for p,b in snapshots.items()))
+                self.assertFalse((root/'tests/independent_review/approval.json').exists())
+                atomic_json(admission,{'status':'failed'})
+                with patch('scripts.ssp.admission.collect',return_value={'required_failures':['independent review missing']}):
+                    with self.assertRaisesRegex(ValueError,'required admission failures'):prepare_launch(root)
     def invoke(self,q,p,script):
         def command(c,s,cf):return [sys.executable,str(script),s['name'],s['stage'],s['receipt']],q['output_root']
         with patch.object(r,'preflight'),patch.object(r,'command_for',side_effect=command):return r.run(p)
