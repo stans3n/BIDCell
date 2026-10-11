@@ -19,7 +19,7 @@ def prepare(root,mini):
     config=mini/'configs/queue.json';q=read(config);validate_queue(q)
     from scripts.bs4.tests.population_missing import run as missing_population_test
     from scripts.bs4.admission import validate_sources
-    missing_receipt=root/'tests/population_missing_v2.json'
+    missing_receipt=root/'tests/population_missing_v3.json'
     if missing_receipt.exists():verify_outputs(validate_sources(read(missing_receipt)))
     else:missing_population_test(root,mini)
     aggregate(config)

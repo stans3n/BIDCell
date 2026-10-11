@@ -8,7 +8,7 @@ from scripts.bs4.tables import read_table
 from scripts.cos.diagnostics import METRICS
 from scripts.crgf.common import atomic_json,identity,source_identity
 
-SOURCES=['scripts/bs4/comparison.py','scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/cos/diagnostics.py','scripts/bs4/tests/population_missing.py']
+SOURCES=['scripts/bs4/comparison.py','scripts/bs4/diagnostics.py','scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/cos/diagnostics.py','scripts/bs4/tests/population_missing.py']
 
 def verify(methods,population,out):
     frames={};missing={}
@@ -64,11 +64,11 @@ def run(root,mini):
     root=Path(root);execution=source_identity(SOURCES);small=synthetic()
     mini=Path(mini);q=json.loads((mini/'configs/queue.json').read_text())
     methods={**q['historical_methods'],**q['methods']};population=pd.read_csv(q['population']['path']).cell_id.tolist();assert len(population)==130
-    out=root/'tests/population_missing_v2';population_scores(methods,q,out,population,'historical_B1QC');missing=verify(methods,population,out)
+    out=root/'tests/population_missing_v3';population_scores(methods,q,out,population,'historical_B1QC');missing=verify(methods,population,out)
     assert missing['S']==[13970,15908] and len(missing['T1'])==len(missing['T2'])==8
     if execution!=source_identity(SOURCES):raise ValueError('population missing execution source drift')
     failure=root/'tests/deployment/context_b64.log'
-    atomic_json(root/'tests/population_missing_v2.json',dict(status='passed',execution_source=execution,synthetic=small,population_count=len(population),missing_ids=missing,fixture_queue=identity(mini/'configs/queue.json'),failed_original_attempt=identity(failure) if failure.exists() else None,outputs={p.name:identity(p) for p in out.iterdir() if p.is_file()}))
+    atomic_json(root/'tests/population_missing_v3.json',dict(status='passed',execution_source=execution,synthetic=small,population_count=len(population),missing_ids=missing,fixture_queue=identity(mini/'configs/queue.json'),failed_original_attempt=identity(failure) if failure.exists() else None,outputs={p.name:identity(p) for p in out.iterdir() if p.is_file()}))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',required=True);p.add_argument('--mini',required=True);a=p.parse_args();run(a.root,a.mini)

@@ -6,7 +6,7 @@ from .validation import validate_stage
 REQUIRED=('tests/post_math.json','tests/post_resume_v2/complete.json','tests/post_real_v2/complete.json','diagnostics/B_native_replay/complete.json',
     'prepared/coverage.json','prepared/exposure/complete.json','tests/equivalence_shared_v1.json','tests/shared_loss_v1.json','tests/cpu_equivalence_shared_v1.json',
     'diagnostics/numeric_admission_v2.json','tests/checkpoint_faults_v2.json','diagnostics/gradient_diagnostics_shared_v1.json',
-    'tests/report_population_gzip_v2.json','tests/population_missing_v2.json','tests/aggregate_deployed_v2.json','tests/runner_engineering_final_v2.json',
+    'tests/report_population_gzip_v2.json','tests/population_missing_v3.json','tests/aggregate_deployed_v2.json','tests/runner_engineering_final_v2.json',
     'tests/mini_v5/mini_complete.json','tests/deployment_test.json','tests/resources.json')
 
 def read(path):return json.loads(Path(path).read_text())
