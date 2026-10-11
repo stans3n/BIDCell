@@ -17,9 +17,15 @@ def prepare(root,mini):
     execution=source_identity(SOURCES+['scripts/bs4/tests/deployment_context.py'])
     verify_outputs(read(mini/'source/baseline_preparation.json'))
     config=mini/'configs/queue.json';q=read(config);validate_queue(q)
+    from scripts.bs4.tests.population_missing import run as missing_population_test
+    from scripts.bs4.admission import validate_sources
+    missing_receipt=root/'tests/population_missing_v2.json'
+    if missing_receipt.exists():verify_outputs(validate_sources(read(missing_receipt)))
+    else:missing_population_test(root,mini)
     aggregate(config)
     if source_identity(SOURCES+['scripts/bs4/tests/deployment_context.py'])!=execution:raise ValueError('deployed aggregate source drift')
     atomic_json(mini/'aggregate_test.json',dict(status='passed',execution_source=execution,outputs={'comparison':identity(mini/'comparison/complete.json')}))
+    atomic_json(root/'tests/aggregate_deployed_v2.json',dict(status='passed',execution_source=execution,scope='actual deployed full six-method report on immutable regional historical B1QC population including unavailable own-matrix IDs',outputs={'comparison':identity(mini/'comparison/complete.json'),'queue':identity(config),'deployed_aggregate':identity(mini/'aggregate_test.json')}))
     freeze(config)
     original_status=read(mini/'run_status.json');atomic_json(mini/'source/biological_run_status.json',original_status)
     state=dict(run_id=q['run_id'],status='prepared_recovery_fixture',stages={})

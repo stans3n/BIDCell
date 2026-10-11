@@ -52,6 +52,12 @@ def validate_stage(stage,r,q,spec):
         for a in ('B','S','P1','P2','T1','T2'):
             table=read_table(out/'fixed_B1QC'/f'{a}.csv')
             if not np.array_equal(table.cell_id.to_numpy(),population) or table.cell_id.duplicated().any():raise ValueError('report fixed population order')
+            item={**q['historical_methods'],**q['methods']}[a]
+            own_ids=pd.read_csv(Path(item['matrix'])/'cell_mapping.csv').canonical_cell_id.to_numpy()
+            present=np.isin(population,own_ids)
+            if not np.array_equal(table.stage_row_present.to_numpy(bool),present):raise ValueError('report own-matrix presence domain')
+            for metric in ('positive_F1','negative_F1','positive_Precision','negative_Precision','positive_Recall','negative_Recall'):
+                if not table.loc[~present,metric].isna().all() or not table.loc[~present,metric+'_reason'].eq('missing_stage_id').all():raise ValueError('report missing own IDs must remain explicit NA')
         pairs={'P1-B','P2-B','T1-B','T2-B','T2-T1','T1-S','T2-S'}
         table=pd.read_csv(out/'fixed_B1QC/paired_metrics.csv')
         if set(table.comparison)!=pairs or not {'positive_F1','negative_F1','positive_Precision','negative_Precision','positive_Recall','negative_Recall'}<=set(table.metric):raise ValueError('report contrasts/metrics incomplete')

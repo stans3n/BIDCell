@@ -6,7 +6,7 @@ from .validation import validate_stage
 REQUIRED=('tests/post_math.json','tests/post_resume_v2/complete.json','tests/post_real_v2/complete.json','diagnostics/B_native_replay/complete.json',
     'prepared/coverage.json','prepared/exposure/complete.json','tests/equivalence_shared_v1.json','tests/shared_loss_v1.json','tests/cpu_equivalence_shared_v1.json',
     'diagnostics/numeric_admission_v2.json','tests/checkpoint_faults_v2.json','diagnostics/gradient_diagnostics_shared_v1.json',
-    'tests/report_population_gzip_v2.json','tests/aggregate_mini_shared_v1.json','tests/runner_engineering_final.json',
+    'tests/report_population_gzip_v2.json','tests/population_missing_v2.json','tests/aggregate_deployed_v2.json','tests/runner_engineering_final_v2.json',
     'tests/mini_v5/mini_complete.json','tests/deployment_test.json','tests/resources.json')
 
 def read(path):return json.loads(Path(path).read_text())
@@ -126,7 +126,7 @@ def collect(root):
         from .runner import stage_specs
         for spec in stage_specs(mini):
             if spec['stage']!='report':validate_stage(spec['stage'],read(spec['receipt']),mini,spec)
-        aq=read(root/'tests/mini_v5/configs/aggregate_queue.json');validate_stage('report',read(root/'tests/mini_v5/comparison/complete.json'),aq,dict(method=None))
+        aggregate=read(root/'tests/aggregate_deployed_v2.json');aq=read(aggregate['outputs']['queue']['path']);validate_stage('report',read(aggregate['outputs']['comparison']['path']),aq,dict(method=None))
     except (OSError,ValueError,KeyError) as e:failures.append('semantic admission: '+str(e))
     frozen=root/'source/frozen.json'
     if not frozen.exists():failures.append('source not frozen')
@@ -146,8 +146,7 @@ def execute_missing(root):
       ('tests/checkpoint_faults_v2.json',['scripts.bs4.tests.checkpoint_faults','--root',str(root)]),
       ('diagnostics/gradient_diagnostics_shared_v1.json',['scripts.bs4.tests.gradients','--root',str(root)]),
       ('tests/report_population_gzip_v2.json',['scripts.bs4.tests.report_population','--root',str(root)]),
-      ('tests/aggregate_mini_shared_v1.json',['scripts.bs4.tests.aggregate_mini','--root',str(root)]),
-      ('tests/runner_engineering_final.json',['scripts.bs4.test_engineering','--root',str(root)])]
+      ('tests/runner_engineering_final_v2.json',['scripts.bs4.test_engineering','--root',str(root)])]
     # Freeze scientific dependencies before producing any strict numerical checkpoint.
     if not (root/'prepared/coverage.json').exists():
         subprocess.run([q['python'],'-m','scripts.bs4.prepare','--root',str(root)],cwd=cwd,check=True,timeout=14400)
@@ -155,7 +154,7 @@ def execute_missing(root):
     capture_method_sources(root)
     from .entry import freeze_inputs
     freeze_inputs(root/'configs/queue.json')
-    deferred={'tests/aggregate_mini_shared_v1.json','tests/runner_engineering_final.json'}
+    deferred={'tests/runner_engineering_final_v2.json'}
     commands.insert(6,('tests/shared_loss_v1.json',['scripts.bs4.tests.shared_loss','--root',str(root)]))
     for rel,command in commands:
         if rel in deferred:continue

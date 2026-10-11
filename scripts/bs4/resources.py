@@ -63,7 +63,7 @@ def measure_final(queuepath):
     from scripts.crgf.common import atomic_json,identity,verify_outputs
     from scripts.cos.resources import allocated
     q=json.loads(Path(queuepath).read_text());root=Path(q['output_root']);hist=Path(q['historical_root'])/'B';replay=root/'diagnostics/B_native_replay'
-    required=[root/'tests/post_real_v2/complete.json',replay/'complete.json',root/'tests/report_population_gzip_v2.json',root/'diagnostics/numeric_admission_v2.json',root/'tests/mini_v5/mini_complete.json',root/'tests/aggregate_mini_shared_v1.json',root/'tests/deployment_test.json']
+    required=[root/'tests/post_real_v2/complete.json',replay/'complete.json',root/'tests/report_population_gzip_v2.json',root/'diagnostics/numeric_admission_v2.json',root/'tests/mini_v5/mini_complete.json',root/'tests/aggregate_deployed_v2.json',root/'tests/deployment_test.json']
     for p in required:
         r=json.loads(p.read_text())
         if r.get('status') not in ('passed','succeeded'):raise ValueError('unpassed resource measurement '+str(p))

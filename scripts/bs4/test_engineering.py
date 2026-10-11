@@ -102,6 +102,6 @@ def run(root):
     except ValueError:rejected.append('report:dummy_only')
     else:raise AssertionError('placeholder report accepted')
     if source_identity(sources)!=execution:raise ValueError('engineering execution source drift')
-    atomic_json(root/'tests/runner_engineering_final.json',dict(status='passed',execution_source=execution,actual_process_tests=result.testsRun,biological_fixture='real four-arm mini, actual artifacts validated',validated_real_stages=validated,rejected_faults=rejected,source={n:identity(Path(__file__).with_name(n)) for n in ('runner.py','validation.py','entry.py','test_engineering.py')}))
+    atomic_json(root/'tests/runner_engineering_final_v2.json',dict(status='passed',execution_source=execution,actual_process_tests=result.testsRun,biological_fixture='real four-arm mini, actual artifacts validated',validated_real_stages=validated,rejected_faults=rejected,source={n:identity(Path(__file__).with_name(n)) for n in ('runner.py','validation.py','entry.py','test_engineering.py')}))
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',required=True);a=p.parse_args();run(a.root)

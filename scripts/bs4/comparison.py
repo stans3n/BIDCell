@@ -8,26 +8,28 @@ from scripts.bs4 import diagnostics
 from scripts.crgf import evaluate_egr as accepted
 from scripts.crgf.common import atomic_json,identity,sha256,verify_outputs
 from .evaluation import read,PAIRS,PROFILES,publish,validate_arm,method_coverage
-from .stage_population import postprocess_increment,load_population
+from .stage_population import postprocess_increment,load_population,align_stage,population_index
 
 def population_scores(methods,queue,out,population,label):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);labels=diagnostics.load_anchor(queue['anchors']['B1'])
+    population=population_index(population)
     markers=read(Path(queue['prepared'])/'markers.json');genes_ref=(Path(queue['prepared'])/'reference_genes.txt').read_text().splitlines()
     values={};summary=[];counts_summary=[]
     for name,spec in methods.items():
         matrix=Path(spec['matrix']);ids=pd.read_csv(matrix/'cell_mapping.csv').canonical_cell_id.to_numpy(int);genes=pd.read_csv(matrix/'gene_mapping.csv').gene.tolist();idx=pd.Index(ids).get_indexer(population)
-        if np.any(idx<0):raise ValueError('frozen population ID missing from own matrix '+name)
-        x=np.load(matrix/'counts.npy',mmap_mode='r')[idx];f=diagnostics.fixed_scores(x,population,genes,labels,markers,genes_ref)
+        if len(np.unique(ids))!=len(ids):raise ValueError('duplicate own matrix ID '+name)
+        present=idx>=0
+        x=np.load(matrix/'counts.npy',mmap_mode='r')[idx[present]];f=diagnostics.fixed_scores(x,population[present],genes,labels,markers,genes_ref)
         # Empty expression has no rank prediction domain; preserve explicit NA.
         empty=x[:,pd.Index(genes).get_indexer(genes_ref)].sum(1)==0
         f.loc[empty,diagnostics.METRICS]=np.nan;f['zero_reference_counts']=empty
-        for metric in diagnostics.METRICS:
-            f[metric+'_reason']=np.where(f.label_availability!='known','label_ineligible',np.where(empty,'zero_reference_counts',np.where(np.isfinite(f[metric]),'available','undefined_original_metric')))
+        f,domain=align_stage(f.reset_index(),population,labels)
+        f['zero_reference_counts']=f.zero_reference_counts.fillna(False).astype(bool)
         qc=set(pd.read_csv(Path(spec['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id)
         f['own_qc_pass']=f.index.isin(qc);f['population']=label;write_table(f,out/f'{name}.csv',na_rep='NA');values[name]=f
         for typ,part in [('__all__',f),*list(f.groupby('anchor_label',dropna=False))]:
             for metric in diagnostics.METRICS:
-                v=part[metric];finite=np.isfinite(v);counts_summary.append(dict(population=label,method=name,type=typ,metric=metric,n_eligible=len(v),n_evaluable=int(finite.sum()),n_unavailable=int((~finite).sum()),n_zero_counts=int(part.zero_reference_counts.sum()),n_own_qc=int(part.own_qc_pass.sum()),mean=float(v[finite].mean()) if finite.any() else None))
+                v=part[metric];finite=np.isfinite(v);counts_summary.append(dict(population=label,method=name,type=typ,metric=metric,n_eligible=len(v),n_evaluable=int(finite.sum()),n_unavailable=int((~finite).sum()),n_missing_stage_id=int((~part.stage_row_present).sum()),n_zero_counts=int(part.zero_reference_counts.sum()),n_own_qc=int(part.own_qc_pass.sum()),mean=float(v[finite].mean()) if finite.any() else None))
     for a,b in PAIRS:
         if a not in values or b not in values:continue
         delta=values[a][diagnostics.METRICS]-values[b][diagnostics.METRICS];delta['type']=values[a].anchor_label
