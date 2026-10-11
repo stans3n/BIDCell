@@ -20,9 +20,24 @@ from scripts.crgf.run_egr import is_alive,process_group_memory
 TIMEOUTS={'train':21600,'predict':43200,'postprocess':28800,'matrix':3600,'evaluate':14400,'report':14400}
 
 
+def group_members(pgid,leader_start):
+    """Only this newly-created session; ignore already-dead zombies."""
+    found=[]
+    for proc in Path('/proc').iterdir():
+        if not proc.name.isdigit():continue
+        try:
+            fields=(proc/'stat').read_text().split(') ',1)[1].split()
+            if int(fields[2])==pgid and int(fields[3])==pgid and fields[0]!='Z':
+                if int(fields[19])<leader_start:raise RuntimeError('process group identity mismatch')
+                found.append(int(proc.name))
+        except (FileNotFoundError,ProcessLookupError,PermissionError):continue
+    return found
+
+
 def validate_queue(cfg):
     required={'run_id','output_root','python','methods','paper_protocol','prepared','reference','engineering_protocol','anchors','gpu_lock','minimum_free_gb','cpu_workers','stage_timeouts','retry_backoff_seconds','admission'}
     allowed=required|{'diagnostics_inputs','mini_test','testing_poll_fast','historical_root','historical_methods','population','review_receipt','resource_estimate','version','arm_order','historical_ssp_root'}
+    if cfg.get('mini_test'):allowed|={'historical_validation_receipts','comparison_domain'}
     if set(cfg)-allowed or required-set(cfg):raise ValueError('queue schema unknown/missing fields: '+str((set(cfg)-allowed,required-set(cfg))))
     if set(cfg['methods'])!=set(ARMS) or set(cfg['anchors'])!={'B1'}:raise ValueError('queue arm/anchor identity set mismatch')
     if set(cfg['stage_timeouts'])!=set(TIMEOUTS) or any(v<=0 for v in cfg['stage_timeouts'].values()):raise ValueError('explicit conservative stage watchdogs required')
@@ -61,7 +76,8 @@ def freeze(config):
         path=root/'source/frozen.json'
         if path.exists():
             prior=read(path)
-            if prior['worktrees']!=frozen:raise ValueError('freeze changed; explicit new attempt/output root required')
+            if prior['worktrees']!=frozen or prior['queue']['sha256']!=sha256(config):raise ValueError('freeze changed; explicit new attempt/output root required')
+            return prior
         atomic_json(path,dict(version='BS4-source-freeze-v1',run_id=cfg['run_id'],queue=identity(config),worktrees=frozen,**times()))
 
 
@@ -83,7 +99,7 @@ def preflight(config,cfg):
     if sha256(config)!=frozen['queue']['sha256']:raise ValueError('queue configuration changed after freeze')
     if set(cfg['methods'])!=set(ARMS):raise ValueError('BS4 arm set mismatch')
     for arm,s in cfg['methods'].items():
-        actual=subprocess.check_output(['git','rev-parse','HEAD'],cwd=s['worktree'],text=True).strip()
+        actual=subprocess.check_output(['git','rev-parse','HEAD'],cwd=s['worktree'],text=True,timeout=30).strip()
         if actual!=s['commit'] or actual!=frozen['worktrees'][s['worktree']]['commit']:raise ValueError('worktree commit mismatch '+arm)
         if source_map(s['worktree'])!=frozen['worktrees'][s['worktree']]['files']:raise ValueError('source changed after freeze '+arm)
     for anchor in cfg['anchors'].values():
@@ -222,6 +238,7 @@ def run(config):
                 if any(state['stages'][d]['status']!='succeeded' for d in spec['dependencies']):
                     record.update(status='blocked_dependency',reason='required stage unavailable');blocked_receipt(cfg,spec,record['reason']);atomic_json(path,state);continue
                 try:
+                    preflight(config,cfg)  # Shared source/input/population identities before every stage.
                     sign=signature(cfg,spec,state,config)
                     if record.get('signature') and record['signature']!=sign:raise ValueError('stage dependency changed; explicit version/invalidation required '+name)
                     if record['status']=='succeeded':
@@ -250,7 +267,7 @@ def run(config):
                 if spec['stage'] in ('train','predict') and not cfg.get('mini_test'):
                     admission=read(cfg.get('admission',root/'admission.json'));needed=admission['resources']['estimated_peak_gpu_allocator_bytes']
                     try:
-                        free=int(subprocess.check_output(['nvidia-smi','--id=0','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True).strip())*1024**2
+                        free=int(subprocess.check_output(['nvidia-smi','--id=0','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True,timeout=30).strip())*1024**2
                     except (OSError,ValueError,subprocess.CalledProcessError) as exc:
                         record.update(status='paused_resource',reason='cannot verify current GPU capacity: '+str(exc));state['status']='paused_resource';atomic_json(path,state);break
                     record['gpu_capacity_check']=dict(free_bytes=free,required_bytes=needed,device_index=0,**times())
@@ -271,12 +288,12 @@ def run(config):
                         threads=2 if spec['stage'] in ('train','predict') else 1 if spec['stage'] in ('postprocess','b_cost') else min(4,cfg['cpu_workers'])
                         env=dict(os.environ,PYTHONPATH=cwd,OMP_NUM_THREADS=str(threads),OPENBLAS_NUM_THREADS=str(threads),MKL_NUM_THREADS=str(threads),NUMEXPR_NUM_THREADS=str(threads))
                         child=subprocess.Popen(cmd,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,pass_fds=tuple(s.fileno() for s in locks))
-                        record['child_identity']=process_identity(child.pid);atomic_json(path,state);terminated=None
+                        record['child_identity']=process_identity(child.pid);leader_start=int(Path(f'/proc/{child.pid}/stat').read_text().split(') ',1)[1].split()[19]);atomic_json(path,state);terminated=None
                         while child.poll() is None:
                             elapsed=time.monotonic()-start
                             if (shutdown or elapsed>cfg.get('stage_timeouts',TIMEOUTS).get(spec['stage'],TIMEOUTS[spec['stage']])) and terminated is None:
                                 os.killpg(child.pid,signal.SIGTERM);terminated=time.monotonic();attempt['termination_reason']='runner_signal' if shutdown else 'watchdog_timeout'
-                            if terminated is not None and time.monotonic()-terminated>120:os.killpg(child.pid,signal.SIGKILL)
+                            if terminated is not None and time.monotonic()-terminated>120 and group_members(child.pid,leader_start):os.killpg(child.pid,signal.SIGKILL)
                             mem=process_group_memory(child.pid)
                             for key in ['rss','pss']:attempt['sampled_peak_'+key+'_bytes_sum']=max(attempt['sampled_peak_'+key+'_bytes_sum'],mem[key+'_bytes_sum'])
                             if spec['stage']=='b_cost':
@@ -292,6 +309,16 @@ def run(config):
                             state['execution_mode']='serial_P1_then_P2_then_T1_then_T2'
                             state['heartbeat']=times();record['wall_seconds_current_attempt']=elapsed;atomic_json(path,state);time.sleep(0.05 if cfg.get('testing_poll_fast') else 5)
                         rc=child.wait()
+                        survivors=group_members(child.pid,leader_start)
+                        if survivors:
+                            # The stage leader has exited; no legitimate work may outlive it.
+                            attempt['descendants_terminated']=survivors
+                            os.killpg(child.pid,signal.SIGKILL)
+                            deadline=time.monotonic()+10
+                            while group_members(child.pid,leader_start) and time.monotonic()<deadline:time.sleep(.05)
+                            if group_members(child.pid,leader_start):raise RuntimeError('stage descendants survived SIGKILL')
+                            if not terminated:attempt['termination_reason']='unexpected_surviving_descendants'
+                            rc=rc or -signal.SIGKILL
                     attempt.update(end=times(),exit_code=rc,wall_seconds=time.monotonic()-start);record.update(child_identity=None,exit_code=rc)
                     if rc==0:
                         try:accept(spec['stage'],read(receipt),cfg,spec)
@@ -301,6 +328,8 @@ def run(config):
                     if 'PAUSED_RESOURCE' in failure or attempt.get('termination_reason')=='B_cost_resource_budget':
                         record['status']='paused_resource';state['status']='paused_resource';attempt['recoverable']=True;atomic_json(path,state);break
                     blocked_receipt(cfg,spec,failure,status='failed')
+                    if any(token in failure.lower() for token in ('frozen dependency changed','frozen scientific input changed','teacher content mismatch','historical anchor changed','population drift','source changed','shared nucleus','historical b endpoint drift')):
+                        state['status']='failed_shared_identity';atomic_json(path,state);raise ValueError('shared identity failure: '+failure)
                     if attempt.get('termination_reason')=='runner_signal':
                         record['status']='interrupted';attempt['recoverable']=True;atomic_json(path,state);break
                     retry=recoverable(rc,failure) and not shutdown and attempt.get('termination_reason')!='watchdog_timeout' and len(record['attempts'])<3

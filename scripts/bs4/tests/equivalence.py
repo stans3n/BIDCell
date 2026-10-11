@@ -1,4 +1,4 @@
-"""Historical B off-switch and S/SP common initialization on real data."""
+"""Historical B off-switch and T1/T2 common initialization on real data."""
 import argparse,copy,json,subprocess,sys
 from pathlib import Path
 import torch
@@ -12,12 +12,12 @@ from scripts.bs4.training import make_model,losses,dataset,forward,optimizer,rng
 from scripts.bs4.loss_diagnostics import get
 HIST=Path('/home/zwan0726/work/outputs/cos_loss_20261009T160351+1100')
 def main(root):
-    root=Path(root);torch.set_num_threads(2);cfg=read(root/'T1/configs/run.json');ds=dataset(cfg)
+    root=Path(root);attempt=root/'tests/equivalence_shared_v1';attempt.mkdir(exist_ok=True);sources=__import__('scripts.bs4.training',fromlist=['TRAIN_SOURCES']).TRAIN_SOURCES+['scripts/bs4/tests/equivalence.py','scripts/bs4/tests/historical_reference.py'];execution_source=source_identity(sources);torch.set_num_threads(2);cfg=read(root/'T1/configs/run.json');ds=dataset(cfg)
     views=json.loads((root/'configs/views.json').read_text())['views'];known=next(v for v in views if v['k']>=2 and all(ds.type_by_id.get(c,-1)>=0 for c in v['cell_ids']))
     v=next(v for v in views if v['k']>=2 and any(ds.type_by_id.get(c,-1)<0 for c in v['cell_ids']));s=get(ds,v)
-    sample_file=root/'tests/historical_reference_sample.pth';torch.save({k:v.cpu() if torch.is_tensor(v) else v for k,v in s.items()},sample_file)
-    subprocess.run([sys.executable,str(Path(__file__).with_name('historical_reference.py')),str(sample_file),str(root/'tests/historical_reference.json')],check=True,cwd='/home/zwan0726/work/projects/BIDCell_cos_loss_20261009T160351')
-    reference=json.loads((root/'tests/historical_reference.json').read_text())
+    sample_file=attempt/'historical_reference_sample.pth';torch.save({k:v.cpu() if torch.is_tensor(v) else v for k,v in s.items()},sample_file)
+    subprocess.run([sys.executable,str(Path(__file__).with_name('historical_reference.py')),str(sample_file),str(attempt/'historical_reference.json')],check=True,timeout=300,cwd='/home/zwan0726/work/projects/BIDCell_cos_loss_20261009T160351')
+    reference=json.loads((attempt/'historical_reference.json').read_text())
     b=old_model(old_read(HIST/'B/configs/run.json'),'B',len(ds.gene_names));a=make_model(cfg,'T1',len(ds.gene_names));rng=digest(tensor_hashes(rng_state()))
     pcfg=read(root/'T2/configs/run.json');p=make_model(pcfg,'T2',len(ds.gene_names));assert digest(tensor_hashes(rng_state()))==rng
     assert {k:v for k,v in tensor_hashes(p.state_dict()).items() if not k.startswith('prototype_residual.')}==tensor_hashes(a.state_dict())==tensor_hashes(b.state_dict())
@@ -33,7 +33,7 @@ def main(root):
     za=forward(a,s);zb=b(s['x'],s['geometry'],s['s']);assert torch.equal(za,zb)
     la,pa=losses(za,s,True,cfg.anchor_weight,1.,s_enabled=False);lb,pb=old_loss(zb,s,True,cfg.anchor_weight,1.)
     scalar_differences={k:dict(new=float(pa[k]),historical=reference['parts'][k],same_process_old=float(pb[k])) for k in pa}
-    atomic_json(root/'tests/equivalence_scalar_observation.json',dict(status='observed',parts=scalar_differences))
+    atomic_json(attempt/'equivalence_scalar_observation.json',dict(status='observed',parts=scalar_differences))
     assert all(float(pa[k])==reference['parts'][k] for k in pa if k not in ('ne','pos'))
     assert all(path.startswith('/home/zwan0726/work/projects/BIDCell_cos_loss_20261009T160351/') for path in reference['source_imports'].values())
     assert all(torch.equal(pa[k],pb[k]) for k in pa if k not in ('ne','pos'))
@@ -64,8 +64,9 @@ def main(root):
         assert all(torch.equal(po[key],pn[key]) for key in po if key not in ('ne','pos'))
     def cpu_sample(sample):
         return {k:v.detach().cpu() if torch.is_tensor(v) else v for k,v in sample.items() if k!='_teacher'}
-    torch.save({'all_known':(zk.detach().cpu(),cpu_sample(sk)),'mixed_unknown':(za.detach().cpu(),cpu_sample(empty))},root/'tests/cpu_loss_fixtures.pth')
-    atomic_json(root/'tests/historical_cuda_reduction.json',dict(status='observed',patch=known,old_NE_repeats=old_ne,new_NE_repeats=new_ne,old_POS_repeats=old_values,new_disabled_POS_repeats=new_values,old_range=max(old_values)-min(old_values),new_range=max(new_values)-min(new_values),logits_identical=True,all_repeated_logits_gradients_bitwise=True,limitation='original all-known CUDA nll_loss2d sum uses nondeterministic reduction; no loss or kernel altered'))
-    atomic_json(root/'tests/equivalence.json',dict(status='passed',historical_B_forward_grad_next_adam_bitwise=True,loss_scalar_observation=scalar_differences,empty_H_scalar_observation=empty_scalar,empty_H_POS_original_path_and_grad_next_adam_bitwise=True,scalar_reduction_review_required=True,SP_zero_init_logits_decode_and_common_RNG_bitwise=True,patch=v,independent_historical_imports=reference['source_imports'],source=source_identity(__import__('scripts.bs4.training',fromlist=['TRAIN_SOURCES']).TRAIN_SOURCES)))
+    torch.save({'all_known':(zk.detach().cpu(),cpu_sample(sk)),'mixed_unknown':(za.detach().cpu(),cpu_sample(empty))},attempt/'cpu_loss_fixtures.pth')
+    atomic_json(attempt/'historical_cuda_reduction.json',dict(status='observed',patch=known,old_NE_repeats=old_ne,new_NE_repeats=new_ne,old_POS_repeats=old_values,new_disabled_POS_repeats=new_values,old_range=max(old_values)-min(old_values),new_range=max(new_values)-min(new_values),logits_identical=True,all_repeated_logits_gradients_bitwise=True,limitation='original all-known CUDA nll_loss2d sum uses nondeterministic reduction; no loss or kernel altered'))
+    if source_identity(sources)!=execution_source:raise ValueError('equivalence execution source changed')
+    atomic_json(root/'tests/equivalence_shared_v1.json',dict(execution_source=execution_source,status='passed',historical_B_forward_grad_next_adam_bitwise=True,loss_scalar_observation=scalar_differences,empty_H_scalar_observation=empty_scalar,empty_H_POS_original_path_and_grad_next_adam_bitwise=True,scalar_reduction_review_required=True,T1_T2_zero_init_logits_decode_and_common_RNG_bitwise=True,patch=v,independent_historical_imports=reference['source_imports'],source=source_identity(__import__('scripts.bs4.training',fromlist=['TRAIN_SOURCES']).TRAIN_SOURCES)))
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',required=True);a=p.parse_args();main(a.root)

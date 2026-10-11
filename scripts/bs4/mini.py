@@ -1,5 +1,5 @@
 """Real regional input fixture; never confused with a production full-field run."""
-import argparse,json,shutil,re,sys,subprocess,os
+import argparse,json,shutil,re,sys,subprocess,os,time,signal
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -97,8 +97,9 @@ def prepare(queuepath,root):
 def stages(queuepath):
     queue=json.loads(Path(queuepath).read_text())
     from scripts.bs4.training import TRAIN_SOURCES
-    source_paths=TRAIN_SOURCES+['scripts/bs4/mini.py','scripts/bs4/prediction.py','scripts/bs4/evaluation.py','scripts/bs4/stage.py','scripts/bs4/postprocess.py','scripts/bs4/post_rules.py','scripts/bs4/diagnostics.py','scripts/crgf/matrix.py','scripts/crgf/evaluate.py','scripts/crgf/evaluate_egr.py','scripts/crgf/cellspa.R','scripts/crgf/paper_evaluation.R']
+    source_paths=TRAIN_SOURCES+['scripts/bs4/mini.py','scripts/bs4/prediction.py','scripts/bs4/evaluation.py','scripts/bs4/stage.py','scripts/bs4/postprocess.py','scripts/bs4/post_rules.py','scripts/bs4/diagnostics.py','scripts/bs4/tables.py','scripts/crgf/matrix.py','scripts/crgf/evaluate.py','scripts/crgf/evaluate_egr.py','scripts/crgf/cellspa.R','scripts/crgf/paper_evaluation.R']
     execution_source=source_identity(source_paths)
+    status_path=Path(queue['output_root'])/'run_status.json';status=json.loads(status_path.read_text()) if status_path.exists() else dict(status='mini_running',stages={})
     for arm,item in queue['methods'].items():
         for stage in (('postprocess','matrix','evaluate') if arm.startswith('P') else ('train','predict','postprocess','matrix','evaluate')):
             base=Path(item['cost_root']);receipt={'train':base/'checkpoints'/arm/'complete.json','predict':base/'predictions'/arm/'complete.json','postprocess':base/'predictions'/arm/'postprocess/complete.json','matrix':Path(item['matrix'])/'complete.json','evaluate':Path(item['evaluation'])/'complete.json'}[stage]
@@ -111,7 +112,16 @@ def stages(queuepath):
                     print('Validated existing mini receipt',arm,stage,flush=True);continue
             threads=1 if stage=='postprocess' else 2 if stage in ('train','predict') else 4
             env=dict(os.environ,OMP_NUM_THREADS=str(threads),OPENBLAS_NUM_THREADS=str(threads),MKL_NUM_THREADS=str(threads),NUMEXPR_NUM_THREADS=str(threads))
-            subprocess.run([sys.executable,'-u','-m','scripts.bs4.stage','--config',item['config'],'--stage',stage],check=True,env=env,timeout=14400)
+            from scripts.crgf.run_egr import process_group_memory
+            start=time.monotonic();peak_rss=0;peak_pss=0
+            child=subprocess.Popen([sys.executable,'-u','-m','scripts.bs4.stage','--config',item['config'],'--stage',stage],env=env,start_new_session=True)
+            while child.poll() is None:
+                memory=process_group_memory(child.pid);peak_rss=max(peak_rss,memory['rss_bytes_sum']);peak_pss=max(peak_pss,memory['pss_bytes_sum'])
+                if time.monotonic()-start>14400:os.killpg(child.pid,signal.SIGKILL);child.wait();raise TimeoutError('real mini stage')
+                time.sleep(.5)
+            elapsed=time.monotonic()-start
+            status['stages'][arm+'_'+stage]=dict(method=arm,stage=stage,status='succeeded' if child.returncode==0 else 'failed',attempts=[dict(wall_seconds=elapsed,exit_code=child.returncode,sampled_peak_rss_bytes_sum=peak_rss,sampled_peak_pss_bytes_sum=peak_pss,memory_sampling_scope='actual stage PGID, 0.5 second samples')]);atomic_json(status_path,status)
+            if child.returncode:raise subprocess.CalledProcessError(child.returncode,child.args)
     receipts={}
     for arm,item in queue['methods'].items():
         ar=Path(item['cost_root'])

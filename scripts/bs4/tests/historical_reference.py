@@ -10,8 +10,8 @@ from scripts.cos.tests.real_model import tensor_hashes
 from scripts.crgf.common import atomic_json
 
 def main(sample_path,out):
-    assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=HISTORY,text=True).strip()=='541eeae61a53d84ec5543716cf4cb46bf6a292b2'
-    assert not subprocess.check_output(['git','status','--porcelain'],cwd=HISTORY,text=True).strip()
+    assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=HISTORY,text=True,timeout=30).strip()=='541eeae61a53d84ec5543716cf4cb46bf6a292b2'
+    assert not subprocess.check_output(['git','status','--porcelain'],cwd=HISTORY,text=True,timeout=30).strip()
     torch.set_num_threads(2);cfg=read('/home/zwan0726/work/outputs/cos_loss_20261009T160351+1100/B/configs/run.json');s=to_device(torch.load(sample_path,map_location='cpu'));m=make_model(cfg,'B',s['x'].shape[1]);opt=optimizer(m,cfg);m.eval()
     with torch.no_grad():z=m(s['x'],s['geometry'],s['s']);ev=tensor_hashes(z.detach())
     m.train();z=m(s['x'],s['geometry'],s['s']);loss,parts=losses(z,s,True,cfg.anchor_weight);loss.backward()

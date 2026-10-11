@@ -1,3 +1,4 @@
+from .tables import read_table,write_table
 """COS-ownership-diagnostic-v1: explicit ID, frozen-label and stage diagnostics.
 
 Rank marker scoring follows the accepted historical COS diagnostic (diagnose.py).
@@ -10,7 +11,7 @@ import pandas as pd
 import tifffile
 from scipy import ndimage as ndi
 from scipy.spatial import cKDTree
-from scripts.crgf.common import atomic_json, identity, sha256, verify_outputs
+from scripts.crgf.common import atomic_json, identity, sha256, verify_outputs,source_identity
 
 VERSION = 'COS-ownership-diagnostic-v1'
 CATS = ['background_to_background', 'background_to_cell', 'cell_to_background', 'same_cell', 'cell_to_cell']
@@ -156,8 +157,8 @@ def ownership_pair(new_spec, old_spec, out, anchor_spec, prepared, comparison):
     if manifests[0]['contract']!=manifests[1]['contract']:raise ValueError('coordinate contract mismatch')
     maps=[pd.read_csv(r/'cell_mapping.csv').canonical_cell_id.to_numpy(int) for r in roots]
     genes=[pd.read_csv(r/'gene_mapping.csv').gene.tolist() for r in roots]
-    if not np.array_equal(*maps) or genes[0]!=genes[1]:raise ValueError('row/gene identity mismatch')
-    ids=maps[0];genes=genes[0];ng=len(genes);maximum=int(ids.max(initial=0));n=maximum+1
+    if genes[0]!=genes[1]:raise ValueError('gene identity mismatch')
+    ids=np.union1d(*maps);genes=genes[0];ng=len(genes);maximum=int(ids.max(initial=0));n=maximum+1
     masks=[tifffile.imread(c['final_mask']) for c in cfg]
     if masks[0].shape!=masks[1].shape or cfg[0]['pixel_um']!=cfg[1]['pixel_um']:raise ValueError('mask geometry mismatch')
     for i in range(2):
@@ -165,12 +166,14 @@ def ownership_pair(new_spec, old_spec, out, anchor_spec, prepared, comparison):
     labels=load_anchor(anchor_spec);mk=read(Path(prepared)/'markers.json');refgenes=(Path(prepared)/'reference_genes.txt').read_text().splitlines()
     lookup,typecode,types=marker_lookup(labels,mk,genes,refgenes,maximum)
     coordinates=pd.read_csv(Path(old_spec['evaluation'])/'engineering/structure/annotation_nuclear.csv').set_index('cell_id')
-    if coordinates.index.has_duplicates or not set(ids)<=set(coordinates.index):raise ValueError('fixed nuclear centroids missing/duplicate')
+    if coordinates.index.has_duplicates:raise ValueError('fixed nuclear centroid duplicate')
+    coordinates=coordinates.reindex(ids)
     radius=np.full(n,np.nan);density=np.full(n,4,np.uint8)
-    if len(coordinates)>=6:
-        r=cKDTree(coordinates[['x_um','y_um']]).query(coordinates[['x_um','y_um']],k=6,workers=1)[0][:,-1]
+    known_coordinates=coordinates[['x_um','y_um']].dropna()
+    if len(known_coordinates)>=6:
+        r=cKDTree(known_coordinates).query(known_coordinates,k=6,workers=1)[0][:,-1]
         quartiles=pd.qcut(pd.Series(r),4,labels=False,duplicates='drop').fillna(0).to_numpy(np.uint8)
-        radius[coordinates.index]=r;density[coordinates.index]=quartiles
+        radius[known_coordinates.index]=r;density[known_coordinates.index]=quartiles
     pd.DataFrame(dict(cell_id=ids,fifth_neighbour_radius_um=radius[ids],density_quartile=density[ids])).to_csv(out/'fixed_nuclear_density.csv',index=False)
     frozen_boundary=tifffile.imread(cfg[0]['baseline_final_mask'])
     if frozen_boundary.shape!=masks[0].shape or sha256(cfg[0]['baseline_final_mask'])!=sha256(cfg[1]['baseline_final_mask']):raise ValueError('fixed historical boundary reference mismatch')
@@ -205,9 +208,9 @@ def ownership_pair(new_spec, old_spec, out, anchor_spec, prepared, comparison):
         nt=len(types);typed+=np.bincount(cat.astype(np.int64)*nt*nt+typecode[old]*nt+typecode[new],minlength=5*nt*nt).reshape(5,nt,nt)
         changed=old!=new;gain+=np.bincount(new[changed],minlength=n);loss+=np.bincount(old[changed],minlength=n)
     for i in range(2):
-        if rows!=manifests[i]['totals']['eligible'] or not np.array_equal(rebuilt[i][ids],counts[i]):raise ValueError('cell-gene conservation failed')
+        if rows!=manifests[i]['totals']['eligible'] or not np.array_equal(rebuilt[i][maps[i]],counts[i]):raise ValueError('cell-gene conservation failed')
     areas=[np.bincount(m.ravel(),minlength=n) for m in masks]
-    if not np.array_equal((pgain-ploss)[ids],(areas[1]-areas[0])[ids]) or not np.array_equal((gain-loss)[ids],counts[1].sum(1)-counts[0].sum(1)):raise ValueError('gain-loss conservation failed')
+    if not np.array_equal((pgain-ploss)[ids],(areas[1]-areas[0])[ids]) or not np.array_equal((gain-loss)[ids],rebuilt[1][ids].sum(1)-rebuilt[0][ids].sum(1)):raise ValueError('gain-loss conservation failed')
     if int(trans[1]-trans[2])!=int(counts[1].sum()-counts[0].sum()):raise ValueError('capture conservation failed')
     comps=[components(m,ids) for m in masks]
     ledger=pd.DataFrame(dict(cell_id=ids,old_area_pixels=areas[0][ids],new_area_pixels=areas[1][ids],pixel_gain=pgain[ids],pixel_loss=ploss[ids],transcript_gain=gain[ids],transcript_loss=loss[ids],old_components_8=comps[0],new_components_8=comps[1],new_disconnected=(comps[0]<=1)&(comps[1]>1),restored_connected=(comps[0]>1)&(comps[1]==1),persistently_disconnected=(comps[0]>1)&(comps[1]>1)))
@@ -228,11 +231,13 @@ def ownership_pair(new_spec, old_spec, out, anchor_spec, prepared, comparison):
 
 def stage_diagnostics(spec, anchors, prepared, out):
     """Saved whole-slide ID endpoints; intermediate counts use frozen labels only."""
+    execution_source=source_identity(['scripts/bs4/diagnostics.py','scripts/bs4/tables.py'])
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     machine=read(spec['machine']); matrix=Path(spec['matrix']);manifest=read(matrix/'complete.json')
     endpoint_path=Path(spec.get('endpoints',Path(machine['final_mask']).parent/'endpoints.json'))
     endpoints=read(endpoint_path); entries=endpoints['endpoints']
     required={'raw_shift0','raw_shift24','shift0','shift24','pre','postconnect_canonical','tile_merge','split_cleanup','before_global_nuclear_restore','final'}
+    if spec.get('historical_native_nine') is True:required.remove('postconnect_canonical')
     if not required<=set(entries):raise ValueError('missing native ownership endpoints: '+str(sorted(required-set(entries))))
     ids=pd.read_csv(matrix/'cell_mapping.csv').canonical_cell_id.to_numpy(int);maximum=int(ids.max(initial=0));n=maximum+1
     genes=pd.read_csv(matrix/'gene_mapping.csv').gene.tolist();ng=len(genes)
@@ -252,6 +257,7 @@ def stage_diagnostics(spec, anchors, prepared, out):
     if not np.array_equal(masks['final'],np.where(nuclei>0,nuclei,masks['before_global_nuclear_restore'])):raise ValueError('global nuclear restore endpoint mismatch')
     if not np.array_equal(masks['split_cleanup'],masks['before_global_nuclear_restore']):raise ValueError('undocumented step before global nuclear restore')
     links=[('raw_shift0','shift0','patch_nuclear_restore_shift0'),('raw_shift24','shift24','patch_nuclear_restore_shift24'),('shift0','pre','dual_shift_stitch'),('pre','postconnect_canonical','postconnect_canonical_unique_pixels'),('postconnect_canonical','tile_merge','islands_and_ordered_merge'),('pre','tile_merge','ordered_tile_merge'),('tile_merge','split_cleanup','split_cleanup'),('before_global_nuclear_restore','final','global_nuclear_restore'),('pre','final','aggregate_postprocessing')]
+    links=[(a,b,op) for a,b,op in links if a in masks and b in masks]
     transitions={op:{unit:np.zeros(5,np.int64) for unit in ('pixel','transcript')} for _,_,op in links}
     snapshots={};scores=[];cells={};count_files={}
     common=pd.read_csv(spec['population']['path']).cell_id.to_numpy(int) if spec.get('population') else pd.read_csv(Path(spec['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id.to_numpy(int)
@@ -276,7 +282,7 @@ def stage_diagnostics(spec, anchors, prepared, out):
             frame=fixed_scores(counts[ids][positions],common,genes,anchor_labels[anchor],mk,refgenes)
             empty=counts[ids][positions][:,pd.Index(genes).get_indexer(refgenes)].sum(1)==0
             frame['zero_reference_counts']=empty;frame.loc[empty,METRICS]=np.nan
-            frame.to_csv(out/f'fixed_{anchor}_{name}.csv',na_rep='NA')
+            write_table(frame,out/f'fixed_{anchor}_{name}.csv',na_rep='NA')
             for metric in METRICS:
                 finite=np.isfinite(frame[metric]);count=int(finite.sum());scores.append(dict(anchor=anchor,stage=name,metric=metric,n_eligible=len(frame),n_evaluable=count,n_unavailable=len(frame)-count,mean=float(frame.loc[finite,metric].mean()) if count else None,population='frozen_historical_B1QC' if spec.get('population') else 'mini_own_final_qc'))
         del counts
@@ -333,7 +339,8 @@ def stage_diagnostics(spec, anchors, prepared, out):
     pd.DataFrame(scores).to_csv(out/'stage_fixed_anchor_summary.csv',index=False,na_rep='NA');pd.DataFrame(connect).to_csv(out/'stage_connectivity.csv',index=False)
     pd.DataFrame(composition).to_csv(out/'stage_marker_type_density_transitions.csv',index=False)
     pd.DataFrame(gene_rows).to_csv(out/'stage_gene_composition.csv',index=False);pd.DataFrame(boundary_rows).to_csv(out/'stage_boundary_transitions.csv',index=False)
-    result=dict(status='succeeded',version=VERSION,endpoints=identity(endpoint_path),boundary_reference=identity(machine['baseline_final_mask']),integer_conservation=True,cell_gene_gain_loss_verified=True,all_required_endpoints=True,annotation_reruns=0,count_artifacts={k:identity(p) for k,p in count_files.items()})
+    result=dict(status='succeeded',version=VERSION,execution_source=execution_source,endpoints=identity(endpoint_path),boundary_reference=identity(machine['baseline_final_mask']),integer_conservation=True,cell_gene_gain_loss_verified=True,all_required_endpoints=True,annotation_reruns=0,count_artifacts={k:identity(p) for k,p in count_files.items()})
+    if execution_source!=source_identity(['scripts/bs4/diagnostics.py','scripts/bs4/tables.py']):raise ValueError('stage diagnostic execution source drift')
     atomic_json(out/'validation.json',result);return result
 
 
@@ -381,7 +388,7 @@ def postprocess_increment(methods,anchors,pairs,common_ids,out):
             values={}
             for arm in [a,b]:
                 for stage in ['pre','final']:
-                    table=pd.read_csv(Path(methods[arm]['evaluation'])/'diagnostics/stages'/f'fixed_{anchor}_{stage}.csv').set_index('cell_id')
+                    table=read_table(Path(methods[arm]['evaluation'])/'diagnostics/stages'/f'fixed_{anchor}_{stage}.csv').set_index('cell_id')
                     values[(arm,stage)]=table.loc[common_ids]
             for metric in METRICS:
                 pre=values[(a,'pre')][metric]-values[(b,'pre')][metric];final=values[(a,'final')][metric]-values[(b,'final')][metric]

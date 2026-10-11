@@ -1,3 +1,4 @@
+from .tables import read_table,write_table
 """Fixed historical B1 population; explicit NA and frozen four-method purity."""
 from pathlib import Path
 import time
@@ -23,17 +24,17 @@ def population_scores(methods,queue,out,population,label):
         for metric in diagnostics.METRICS:
             f[metric+'_reason']=np.where(f.label_availability!='known','label_ineligible',np.where(empty,'zero_reference_counts',np.where(np.isfinite(f[metric]),'available','undefined_original_metric')))
         qc=set(pd.read_csv(Path(spec['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id)
-        f['own_qc_pass']=f.index.isin(qc);f['population']=label;f.to_csv(out/f'{name}.csv',na_rep='NA');values[name]=f
+        f['own_qc_pass']=f.index.isin(qc);f['population']=label;write_table(f,out/f'{name}.csv',na_rep='NA');values[name]=f
         for typ,part in [('__all__',f),*list(f.groupby('anchor_label',dropna=False))]:
             for metric in diagnostics.METRICS:
                 v=part[metric];finite=np.isfinite(v);counts_summary.append(dict(population=label,method=name,type=typ,metric=metric,n_eligible=len(v),n_evaluable=int(finite.sum()),n_unavailable=int((~finite).sum()),n_zero_counts=int(part.zero_reference_counts.sum()),n_own_qc=int(part.own_qc_pass.sum()),mean=float(v[finite].mean()) if finite.any() else None))
     for a,b in PAIRS:
         if a not in values or b not in values:continue
         delta=values[a][diagnostics.METRICS]-values[b][diagnostics.METRICS];delta['type']=values[a].anchor_label
-        delta.to_csv(out/f'{a}_minus_{b}.csv',na_rep='NA')
+        write_table(delta,out/f'{a}_minus_{b}.csv',na_rep='NA')
         for typ,part in [('__all__',delta),*list(delta.groupby('type',dropna=False))]:
             for metric in diagnostics.METRICS:
-                v=part[metric];ok=np.isfinite(v);summary.append(dict(population=label,comparison=a+'-'+b,contrast_role='primary' if (a,b) in PAIRS[:4] else 'auxiliary',type=typ,metric=metric,n_eligible=len(v),n_evaluable=int(ok.sum()),n_unavailable=int((~ok).sum()),mean_delta=float(v[ok].mean()) if ok.any() else None))
+                v=part[metric];ok=np.isfinite(v);summary.append(dict(population=label,comparison=a+'-'+b,contrast_role='primary' if (a,b) in PAIRS[:4] else 'auxiliary',type=typ,metric=metric,n_eligible=len(v),n_evaluable=int(ok.sum()),n_unavailable=int((~ok).sum()),mean_delta=float(v[ok].mean()) if ok.any() else None,percentage_point_delta=100*float(v[ok].mean()) if ok.any() else None,relative_delta=(float(v[ok].mean())/float(values[b].loc[part.index[ok],metric].mean())) if ok.any() and float(values[b].loc[part.index[ok],metric].mean())!=0 else None))
     macro=[]
     for name in methods:
         for metric in diagnostics.METRICS:
@@ -49,8 +50,15 @@ def aggregate(config,output_dir=None):
     receipts={a:validate_arm(q,a) for a in ('P1','P2','T1','T2')};methods={**q['historical_methods'],**q['methods']}
     oldq=read(Path(q['historical_root'])/'configs/queue.json')
     from scripts.ssp.evaluation import validate_arm as historical_validate
-    receipts['B']=historical_validate(oldq,'B')
-    receipts['S']=historical_validate(read(Path(q['historical_ssp_root'])/'configs/queue.json'),'S')
+    if q.get('mini_test') and q.get('historical_validation_receipts'):
+        for arm,obj in q['historical_validation_receipts'].items():
+            if sha256(obj['path'])!=obj['sha256']:raise ValueError('regional baseline receipt drift')
+            record=read(obj['path']);verify_outputs(record)
+            if record.get('status')!='succeeded' or record.get('scope')!='real regional report admission baseline':raise ValueError('regional baseline provenance')
+            receipts[arm]=obj
+    else:
+        receipts['B']=historical_validate(oldq,'B')
+        receipts['S']=historical_validate(read(Path(q['historical_ssp_root'])/'configs/queue.json'),'S')
     verify_outputs(read(Path(oldq['methods']['C']['evaluation'])/'complete.json'))
     if set(methods)!={'B','S','P1','P2','T1','T2'}:raise ValueError('fixed purity set mismatch')
     population=load_population(q['population']).tolist()
@@ -59,6 +67,8 @@ def aggregate(config,output_dir=None):
     oldq=read(Path(q['historical_root'])/'configs/queue.json');qc_c=set(pd.read_csv(Path(oldq['methods']['C']['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id)
     sensitivities={'historical_ABC_commonQC':set(pd.read_csv(Path(oldq['methods']['A']['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id)&qc['B']&qc_c,'six_methods_commonQC':set.intersection(*qc.values()),'four_new_arms_commonQC':set.intersection(*(qc[a] for a in ('P1','P2','T1','T2')))}
     for a,b in PAIRS:sensitivities[a+'_'+b+'_commonQC']=qc[a]&qc[b]
+    if q.get('mini_test') and q.get('comparison_domain'):
+        domain=set(q['comparison_domain']);sensitivities={k:v&domain for k,v in sensitivities.items()}
     for name,ids in sensitivities.items():population_scores(methods,q,out/'sensitivity'/name,sorted(ids),name)
     for a in methods:population_scores({a:methods[a]},q,out/'sensitivity'/('ownQC_'+a),sorted(qc[a]),'ownQC_'+a)
     main=pd.read_csv(out/'fixed_B1QC/paired_metrics.csv')
@@ -68,6 +78,8 @@ def aggregate(config,output_dir=None):
         dp=float(part.loc['positive_F1','mean_delta']);dn=float(part.loc['negative_F1','mean_delta'])
         screen.append(dict(arm=arm,delta_positive_F1=dp,delta_negative_F1=dn,direction_screen=bool(dp>=0 and dn<0),interpretation='descriptive direction only; all-metric tradeoffs remain required'))
     atomic_json(out/'direction_screen.json',dict(raw_unrounded=True,rows=screen))
+    from .tradeoffs import write as write_tradeoffs
+    write_tradeoffs(methods,out)
     raw_purity={a:{k:read(Path(s['evaluation'])/'summary.json')[k] for k in ('positive_F1','negative_F1')} for a,s in methods.items()}
     pur=accepted.purity(raw_purity,methods=['B','S','T1','T2','P1','P2']);pur.update(method_set=['B','S','T1','T2','P1','P2'],historical_sets_not_comparable=True);atomic_json(out/'purity.json',pur)
     coverage=[];raw=[];snapshot=out/'resource_cost_snapshot.json';atomic_json(snapshot,read(root/'run_status.json'))
@@ -83,7 +95,9 @@ def aggregate(config,output_dir=None):
     for before,after in [('pre','postconnect_canonical'),('postconnect_canonical','tile_merge'),('tile_merge','final')]:
         pairs=[p for p in PAIRS if 'S' not in p]
         postprocess_increment(stage_methods,q['anchors'],pairs,population,out/'stage_domains'/(before+'_to_'+after),stages=(before,after))
-    coverage.extend(dict(metric_id=k,profile='SSP',comparison='B/S/P1/P2/T1/T2',required_this_run=True,status='computed',artifact_path=str(p)) for k,p in [('fixed_B1QC',out/'fixed_B1QC/paired_metrics.csv'),('purity_fixed_set',out/'purity.json'),('B_native_replay',root/'diagnostics/B_native_replay/validation.json')])
+    from .post_effects import write as post_effects
+    post_effects(methods,root/'diagnostics/B_native_replay/predictions/B/endpoints.json',out/'post_effects')
+    coverage.extend(dict(metric_id=k,profile='SSP',comparison='B/S/P1/P2/T1/T2',required_this_run=True,status='computed',artifact_path=str(p)) for k,p in [('fixed_B1QC',out/'fixed_B1QC/paired_metrics.csv'),('purity_fixed_set',out/'purity.json'),('B_native_replay',root/'diagnostics/B_native_replay/validation.json'),('downstream_difference_fate',out/'post_effects/downstream_difference_fate.csv')])
     pd.DataFrame(coverage).to_csv(out/'metric_coverage.csv',index=False,na_rep='NA');pd.DataFrame(raw).to_csv(out/'raw_metrics.csv',index=False,na_rep='NA')
     bad=[x for x in coverage if x['required_this_run'] and x['status'] not in ('computed','computed_distribution','partial_domain_NA','not_identifiable_zero_range')]
     if bad:raise ValueError('required metric coverage failures '+str(bad))

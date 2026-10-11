@@ -14,13 +14,10 @@ def groups(model):
     names=[n for n,p in model.named_parameters()]
     return {g:[i for i,n in enumerate(names) if pred(n)] for g,pred in {
       'new_head':lambda n:n.startswith('cos_residual.'),
-      'prototype_head':lambda n:n.startswith('prototype_residual.'),
-      'prototype_first':lambda n:n.startswith('prototype_residual.first.'),
-      'prototype_final':lambda n:n.startswith('prototype_residual.final.'),
       'output_conv':lambda n:n.startswith('outconv_seg.'),
       'encoder':lambda n:n.startswith(('conv1.','conv2.','conv3.','conv4.','conv5.')),
-      'other_decoder':lambda n:not n.startswith(('prototype_residual.','cos_residual.','outconv_seg.','conv1.','conv2.','conv3.','conv4.','conv5.')),
-      'old_shared':lambda n:not n.startswith(('cos_residual.','prototype_residual.')),
+      'other_decoder':lambda n:not n.startswith(('cos_residual.','outconv_seg.','conv1.','conv2.','conv3.','conv4.','conv5.')),
+      'old_shared':lambda n:not n.startswith(('cos_residual.',)),
       'all':lambda n:True}.items()}
 
 def norm(gs,inds):
@@ -95,19 +92,20 @@ def append_unique(path,rows,keys):
 
 def training_probe(root,arm,step,model,ds,cfg):
     root=Path(root);out=root/'diagnostics';out.mkdir(exist_ok=True);start=time.monotonic()
-    views=json.loads((root/'configs/training_probes.json').read_text())['samples'];metrics=[];norms=[];cos=[]
+    views=json.loads((root/'configs/training_probes.json').read_text())['samples'];metrics=[];norms=[];cos=[];regions=[]
     with preserve(model,ds):
         model.train()
         for i,v in enumerate(views):
             # Restore model/BN/RNG for every probe to the same milestone.
             with preserve(model,ds):
                 m,n,c,r=inspect(model,get(ds,v),cfg.pos_background_rho,cfg.anchor_weight,dict(arm=arm,update=step,sample=i,view_cursor=v['view_cursor']))
-            metrics.append(m);norms+=n;cos+=c
+            metrics.append(m);norms+=n;cos+=c;regions+=r
     atomic_json(out/f'probe_{step:06d}.json',dict(status='succeeded',arm=arm,update=step,samples=metrics,wall_seconds=time.monotonic()-start,protocol='no optimizer access; full model/BN/modes/RNG/grad/view-transform restored'))
     flat=[{k:(json.dumps(v,sort_keys=True) if isinstance(v,dict) else v) for k,v in m.items()} for m in metrics]
     append_unique(out/'training_probe_metrics.csv',flat,['arm','update','sample'])
     append_unique(out/'training_probe_gradients.csv',norms,['arm','update','sample','loss','group'])
     append_unique(out/'training_probe_cosines.csv',cos,['arm','update','sample','loss','group'])
+    append_unique(out/'training_probe_regions.csv',regions,['arm','update','sample','loss','region'])
 
 def record_update(root,arm,step,model,before):
     named=list(model.named_parameters());deltas=tuple(p.detach()-before[n] for n,p in named)

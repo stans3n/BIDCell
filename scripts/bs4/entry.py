@@ -10,6 +10,8 @@ BASE='3569aa8f76d2945bdd4eec481ccfa4728ccdf794'
 def verify_review(config,cfg):
     root=Path(cfg['output_root']);p=Path(cfg['review_receipt']);r=read(p)
     if not r.get('approved_to_launch') or r.get('required_failures') or r.get('independent') is not True:raise ValueError('independent reviewer did not approve final admission')
+    expected_scope='regional_deployment_test' if cfg.get('mini_test') else 'formal'
+    if r.get('review_scope')!=expected_scope or r.get('output_root')!=str(root.resolve()):raise ValueError('review scope/output root mismatch')
     who=r.get('reviewer',{})
     if not who.get('agent_id') or who.get('requested_model')!='gpt-6-astra' or who.get('requested_reasoning_effort')!='high':raise ValueError('reviewer identity/role missing')
     if r['run_id']!=cfg['run_id'] or r['queue_sha256']!=sha256(config) or r['frozen_source_sha256']!=sha256(root/'source/frozen.json'):raise ValueError('review/source/queue drift')
@@ -40,9 +42,12 @@ def freeze_inputs(config):
             items['teacher_'+name]=identity(Path(prepared).parent/name)
         for i,obj in enumerate(manifest.get('global_blocks',[])):
             items['global_block_'+str(i)]=obj
-        items['calibration']=identity(root/'diagnostics/calibration.json');items['probes']=identity(root/'configs/training_probes.json')
+        items['exposure']=identity(root/'prepared/exposure/complete.json');items['calibration']=identity(root/'diagnostics/calibration.json');items['probes']=identity(root/'configs/training_probes.json')
         items['method_execution_sources']=identity(root/'tests/method_execution_sources.json')
-        atomic_json(ar/'configs/frozen.json',dict(version='BS4-frozen-input-v1',identities=items))
+        dest=ar/'configs/frozen.json';value=dict(version='BS4-frozen-input-v1',identities=items)
+        if dest.exists() and read(dest).get('version')=='BS4-frozen-input-v1':
+            if read(dest)!=value:raise ValueError('frozen scientific inputs changed; preserve prior test attempt')
+        else:atomic_json(dest,value)
 
 def export_deployment(root):
     root=Path(root);q=read(root/'configs/queue.json');repo=Path(q['methods']['P1']['worktree'])
@@ -50,13 +55,16 @@ def export_deployment(root):
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True,timeout=30).strip()
     if subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True,timeout=30).strip():raise ValueError('commit all implementation files before export')
     subprocess.run(['git','merge-base','--is-ancestor',BASE,commit],cwd=repo,check=True,timeout=300)
-    bundle=root/'source/reviewed.bundle'
+    bundle=root/'source/bundles'/(commit+'.bundle');bundle.parent.mkdir(parents=True,exist_ok=True)
     if not bundle.exists():subprocess.run(['git','bundle','create',str(bundle),'HEAD'],cwd=repo,check=True,timeout=300)
+    bundle_refs=subprocess.check_output(['git','bundle','list-heads',str(bundle)],cwd=repo,text=True,timeout=30)
+    if not any(line.split()[0]==commit for line in bundle_refs.splitlines()):raise ValueError('existing bundle does not contain current commit; export a new preserved source attempt')
     subprocess.run(['git','bundle','verify',str(bundle)],cwd=repo,check=True,stdout=subprocess.DEVNULL,timeout=300)
     m=dict(version='BS4-reviewed-deployment-v1',base_commit=BASE,commit=commit,tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=repo,text=True,timeout=30).strip(),target=str(repo),bundle=identity(bundle),files=source_map(repo))
-    path=root/'source/deployment.json'
+    path=root/'source/deployments'/(commit+'.json')
     if path.exists() and read(path)!=m:raise ValueError('deployment export drift')
     if not path.exists():atomic_json(path,m)
+    atomic_json(root/'source/deployment.json',m)
     return path
 
 def deploy(manifest):
@@ -86,6 +94,18 @@ def status(q):
     s['observer_pid_namespace']=actual_namespace
     return s
 
+def verify_prepared(config):
+    q=read(config);root=Path(q['output_root']);frozen=read(root/'source/frozen.json')
+    from .runner import source_map
+    if frozen['queue']['sha256']!=sha256(config):raise ValueError('prepared queue drift')
+    for repo,item in frozen['worktrees'].items():
+        if source_map(repo)!=item['files']:raise ValueError('prepared source drift')
+    for arm,spec in q['methods'].items():
+        for obj in read(Path(spec['cost_root'])/'configs/frozen.json')['identities'].values():
+            if sha256(obj['path'])!=obj['sha256']:raise ValueError('prepared input drift')
+    return q
+
+
 def prepare_launch(root):
     """Bring a fresh reviewed deployment to the independent approval gate."""
     root=Path(root);config=root/'configs/queue.json'
@@ -100,7 +120,6 @@ def prepare_launch(root):
         return config
     setup(root)
     execute_missing(root)
-    freeze_inputs(config)
     freeze(config)
     result=collect(root)
     if result['required_failures']:raise ValueError('required admission failures: '+str(result['required_failures']))
@@ -114,8 +133,7 @@ def main():
         print(deploy(a.deployment));return
     if a.command=='prepare':
         if (root/'source/frozen.json').exists():
-            from .runner import preflight
-            preflight(config,read(config));print('Validated frozen reviewed preparation');return
+            verify_prepared(config);print('Validated frozen preparation');return
         from .bootstrap import prepare as setup
         setup(root)
         from .prepare import prepare
@@ -153,7 +171,7 @@ def main():
     if a.command=='tail':
         s=status(q);current=s.get('current_stage');log=s.get('stages',{}).get(current,{}).get('log')
         if not log and (root/'launch.json').exists():log=read(root/'launch.json')['log']
-        if log:subprocess.run(['tail','-n','50',log],check=True)
+        if log:subprocess.run(['tail','-n','50',log],check=True,timeout=30)
         else:print('No launch log yet')
         return
     if a.command=='evaluate':
@@ -163,7 +181,7 @@ def main():
         if s.get('runner_alive') or any(v.get('child_identity') and is_alive(v['child_identity']) for v in s.get('stages',{}).values()):raise RuntimeError('active runner/child; standalone evaluate refused')
         receipt=Path(q['methods'][a.arm]['evaluation'])/'complete.json'
         with ExitStack() as stack:
-            locks=[stack.enter_context(path.open('a+')) for path in (root/'runner.lock',Path(q['gpu_lock']))]
+            locks=[stack.enter_context(path.open('a+')) for path in (root/'runner.lock',Path(q['gpu_lock']),root.parent/'bs4_heavy.lock')]
             for lock in locks:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
             from .runner import preflight,accept
             preflight(config,q)
@@ -172,10 +190,17 @@ def main():
             subprocess.run([q['python'],'-m','scripts.bs4.stage','--config',q['methods'][a.arm]['config'],'--stage','evaluate'],cwd=q['methods'][a.arm]['worktree'],pass_fds=tuple(x.fileno() for x in locks),check=True,timeout=q['stage_timeouts']['evaluate'])
         return
     if a.command in ('complete','complete-check'):
-        f=root/(a.arm+'/evaluation/'+a.arm+'/complete.json' if a.arm else 'compute_complete.json');r=read(f);verify_outputs(r)
+        f=root/(a.arm+'/evaluation/'+a.arm+'/complete.json' if a.arm else 'compute_complete.json')
+        if not f.exists():
+            print(json.dumps(dict(status='incomplete',missing_receipt=str(f),formal_state=status(q).get('status'))));raise SystemExit(2)
+        r=read(f);verify_outputs(r)
         if r.get('status')!='succeeded' or r.get('required_missing'):raise ValueError('required computation incomplete')
         for artifact in r.get('artifacts',{}).values():
             if sha256(artifact['path'])!=artifact['sha256']:raise ValueError('completed stage receipt changed')
             verify_outputs(read(artifact['path']))
+        from .runner import stage_specs,accept
+        if a.arm:accept('evaluate',r,q,dict(method=a.arm))
+        else:
+            for spec in stage_specs(q):accept(spec['stage'],read(spec['receipt']),q,spec)
         print(json.dumps(r,indent=2))
 if __name__=='__main__':main()

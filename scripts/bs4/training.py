@@ -15,13 +15,14 @@ from bidcell.model.model.losses import (NucleiEncapsulationLoss, Oversegmentatio
 from scripts.crgf.common import atomic_json, atomic_torch, digest, identity, sha256, source_identity
 
 from scripts.cos.ownership import anchor_loss, compact_sample
+from scripts.cos import training as original_cos_training
 from .data import dataset
 from .method import teacher, replace_pos, stats, target_hash
 
 TRAIN_SOURCES = ['bidcell/model/model/model.py','bidcell/model/model/relation_geometry.py',
  'bidcell/model/dataio/dataset_input.py','bidcell/model/dataio/candidate_geometry.py',
  'bidcell/model/model/losses.py','bidcell/model/model/layers.py','bidcell/model/model/intialisation.py',
- 'scripts/bs4/training.py','scripts/bs4/loss_diagnostics.py','scripts/bs4/config.py','scripts/bs4/method.py','scripts/ssp/method.py','scripts/bs4/data.py','scripts/cos/ownership.py','scripts/crgf/common.py']
+ 'scripts/bs4/training.py','scripts/cos/training.py','scripts/bs4/loss_diagnostics.py','scripts/bs4/config.py','scripts/bs4/method.py','scripts/ssp/method.py','scripts/bs4/data.py','scripts/cos/ownership.py','scripts/crgf/common.py']
 
 
 def seed_all(seed):
@@ -53,7 +54,6 @@ def make_model(cfg, method, genes, device='cuda'):
     old=parent['model_state_dict']
     result=model.load_state_dict(old,strict=False)
     expected={'cos_residual.weight','cos_residual.bias'} if cfg.cos_enabled else set()
-    if method=='SP': expected.update(k for k in model.state_dict() if k.startswith('prototype_residual.'))
     if set(result.missing_keys)!=expected or result.unexpected_keys:
         raise ValueError(f'parent state mismatch {result}')
     for name,value in old.items():
@@ -95,21 +95,14 @@ def forward(model,sample,return_details=False):
     return model(sample['x'],sample['geometry'],sample['s'],return_details=return_details)
 
 def losses(logits, sample, cos_enabled=False, anchor_weight=1., pos_background_rho=1., s_enabled=True):
-    n,s,p,q = [sample[k] for k in ('n','s','p','q')]
-    if len(logits)==0: raise ValueError('K=0 must skip optimizer update')
-    valid=sample['type_valid'].to(device=logits.device,dtype=logits.dtype)
-    ne=NucleiEncapsulationLoss(1,logits.device)(logits,n)
-    os_=Oversegmentation(1,logits.device)(logits,n)
-    cc=CellCallingLoss(1,logits.device)(logits,s)
-    ov=OverlapLoss(1,logits.device)(logits,n)
-    pos=(F.cross_entropy(logits,p[:,0],reduction='sum') if bool(valid.all()) else (F.cross_entropy(logits,p[:,0],reduction='none')*valid[:,None,None]).sum())/len(logits)
-    if pos_background_rho != 1.:
-        _,weighted,_=pos_components(logits,sample,pos_background_rho)
-        pos=sum(weighted.values())
-    if s_enabled: pos=replace_pos(pos,logits,sample)
-    neg=(torch.sigmoid(F.softmax(logits,1)[:,1]-.5)*q[:,0]*valid[:,None,None]).sum()/len(logits)
-    parts=dict(ne=ne,os=os_,cc=cc,ov=ov,pos=pos,neg=neg)
-    if cos_enabled: parts['anchor']=anchor_loss(logits,sample['nuclei'],sample['cell_ids'])
+    # One authoritative common-loss invocation. The off/identity paths return its
+    # exact objects, including its original scalar reduction and addition order.
+    original_total,original_parts=original_cos_training.losses(
+        logits,sample,cos_enabled,anchor_weight,pos_background_rho)
+    if not s_enabled:return original_total,original_parts
+    pos=replace_pos(original_parts['pos'],logits,sample)
+    if pos is original_parts['pos']:return original_total,original_parts
+    parts=dict(original_parts);parts['pos']=pos
     return sum(v for k,v in parts.items() if k!='anchor') + (anchor_weight*parts['anchor'] if cos_enabled else 0),parts
 
 
@@ -156,9 +149,18 @@ def dependencies(cfg, method):
                 inputs=inputs,prepared=identity(cfg.prepared_manifest),prepared_outputs=prepared['outputs'],views=sha256(root/'configs/views.json'),frozen=identity(root/'configs/frozen.json'),candidate_contract='ascending IDs, complete group, crop S/full nucleus d')
 
 
+def finite_state(value):
+    if torch.is_tensor(value) and value.is_floating_point() and not torch.isfinite(value).all():raise FloatingPointError('nonfinite model/Adam state')
+    if isinstance(value,dict):
+        for child in value.values():finite_state(child)
+    elif isinstance(value,(list,tuple)):
+        for child in value:finite_state(child)
+
+
 def save(path, model, opt, deps, step, cursor, seen):
     import subprocess
-    source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[2],text=True).strip()
+    finite_state(model.state_dict());finite_state(opt.state_dict())
+    source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[2],text=True,timeout=30).strip()
     atomic_torch(path,dict(source_commit=source_commit,architecture={k:list(v.shape) for k,v in model.state_dict().items()},rng_version='python-numpy-torch-cuda-v1',sampler_version='frozen-views-cursor-v1',model_state_dict=model.state_dict(),optimizer_state_dict=opt.state_dict(),
                  dependencies=deps,update_step=step,visited_views=cursor,sampler_cursor=cursor,
                  unique_patches=sorted(seen),rng=rng_state(),scheduler=None,scaler=None,
@@ -182,9 +184,29 @@ def load(path, model, opt, deps):
     if state['dependencies'] != deps: raise ValueError('checkpoint dependency mismatch')
     if state.get('architecture')!={k:list(v.shape) for k,v in model.state_dict().items()}:raise ValueError('checkpoint architecture mismatch')
     if not 0<=state['update_step']<=deps['config']['updates'] or state['sampler_cursor']<state['update_step']:raise ValueError('invalid update/cursor')
+    queue=json.loads(Path(deps['config']['queue_config']).read_text())
+    armroot=Path(queue['methods'][deps['method']]['cost_root'])
+    viewpath=armroot/'configs/views.json'
+    if sha256(viewpath)!=deps['views']:raise ValueError('checkpoint frozen views drift')
+    views=json.loads(viewpath.read_text())['views'];cursor=state['sampler_cursor'];step=state['update_step']
+    if state.get('visited_views')!=cursor or not 0<=cursor<=len(views):raise ValueError('checkpoint cursor outside frozen views')
+    prefix=views[:cursor]
+    if sum(v['k']>0 for v in prefix)!=step:raise ValueError('checkpoint updates differ from real nonempty views')
+    if set(state['unique_patches'])!={v['index'] for v in prefix if v['k']>0}:raise ValueError('checkpoint seen-patch prefix mismatch')
+    optstate=state['optimizer_state_dict'];groups=optstate['param_groups']
+    if groups!=opt.state_dict()['param_groups']:raise ValueError('checkpoint optimizer hyperparameters/parameter order mismatch')
+    parameter_ids=[i for group in groups for i in group['params']]
+    params=[p for group in opt.param_groups for p in group['params']]
+    if len(parameter_ids)!=len(params) or len(set(parameter_ids))!=len(params):raise ValueError('checkpoint optimizer parameter coverage')
+    if set(optstate['state'])!=(set(parameter_ids) if step else set()):raise ValueError('checkpoint incomplete Adam state')
+    for pid,param in zip(parameter_ids,params):
+        if not step:continue
+        item=optstate['state'][pid]
+        if float(item['step'])!=step:raise ValueError('checkpoint Adam step/update mismatch')
+        if any(tuple(item[k].shape)!=tuple(param.shape) for k in ('exp_avg','exp_avg_sq')):raise ValueError('checkpoint Adam moment shape')
+        if (item['exp_avg_sq']<0).any():raise ValueError('negative Adam second moment')
     if state.get('gene_order')!=deps['inputs']['gene_order']:raise ValueError('checkpoint gene order mismatch')
     if state.get('rng_version')!='python-numpy-torch-cuda-v1' or state.get('sampler_version')!='frozen-views-cursor-v1':raise ValueError('checkpoint RNG/sampler contract')
-    if hasattr(model,'prototype_residual') and not torch.equal(state['model_state_dict']['prototype_residual.projection'].cpu(),model.prototype_residual.projection.detach().cpu()):raise ValueError('fixed projection changed in checkpoint')
     model.load_state_dict(state['model_state_dict'],strict=True)
     opt.load_state_dict(state['optimizer_state_dict']);restore_rng(state['rng'])
     return state['update_step'],state['sampler_cursor'],set(state['unique_patches'])
@@ -267,7 +289,7 @@ def train(cfg,method):
             tmp=logpath.with_suffix('.tmp');tmp.write_text(''.join(json.dumps(valid[i])+'\n' for i in sorted(valid)));os.replace(tmp,logpath)
     import hashlib
     initialization=dict(variant=method,parent_checkpoint=identity(cfg.checkpoint),fresh_optimizer_state_count=len(opt.state) if step==0 else None,base_variant=cfg.base_variant,cos_enabled=cfg.cos_enabled,parameters=sum(p.numel() for p in model.parameters()),
-        added_parameters=321+(12545 if method=='SP' else 0),prototype_parameters=12545 if method=='SP' else 0,
+        added_parameters=321,
         tensor_hashes={k:hashlib.sha256(v.detach().cpu().numpy().tobytes()).hexdigest() for k,v in model.state_dict().items()} if step==0 else {},
         resumed_at=step,model_import=__import__('bidcell.model.model.model',fromlist=['x']).__file__,training_import=__file__)
     if step==0:
@@ -315,6 +337,7 @@ def train(cfg,method):
             full_before={n:p.detach().clone() for n,p in model.named_parameters()} if milestone else None
             before=model.outconv_seg.weight.detach().clone()
             opt.step()
+            finite_state(model.state_dict());finite_state(opt.state_dict())
             if torch.equal(before,model.outconv_seg.weight): raise FloatingPointError('optimizer made no actual parameter update')
             step+=1;seen.add(view['index']);torch.cuda.synchronize()
             if milestone:
@@ -347,5 +370,5 @@ def train(cfg,method):
     if not final.exists(): os.link(latest,final)
     elif sha256(final)!=sha256(latest): raise ValueError('final checkpoint differs from endpoint')
     atomic_json(out/'complete.json',dict(status='succeeded',updates=step,visited_views=cursor,unique_patches=len(seen),pool_size=len(ds),
-                parameters=sum(p.numel() for p in model.parameters()),added_parameters=321+(12545 if method=='SP' else 0),prototype_parameters=12545 if method=='SP' else 0,dependencies=deps,outputs={'checkpoint':identity(final)},wall_seconds=time.monotonic()-started,
+                parameters=sum(p.numel() for p in model.parameters()),added_parameters=321,dependencies=deps,outputs={'checkpoint':identity(final)},wall_seconds=time.monotonic()-started,
                 peak_vram_bytes=torch.cuda.max_memory_allocated()))

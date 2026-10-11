@@ -1,3 +1,4 @@
+from .tables import read_table,write_table,table_path
 """Stage comparisons on an immutable population, with explicit missing domains."""
 from pathlib import Path
 import numpy as np
@@ -53,10 +54,10 @@ def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','fi
         labels=load_anchor(spec)
         for arm in used:
             for stage in stages:
-                path=Path(methods[arm]['evaluation'])/'diagnostics/stages'/f'fixed_{anchor}_{stage}.csv'
+                path=table_path(Path(methods[arm]['evaluation'])/'diagnostics/stages'/f'fixed_{anchor}_{stage}.csv')
                 table,counts=align_stage(pd.read_csv(path),ids,labels)
                 key=(anchor,arm,stage);aligned[key]=table;inventory['/'.join(key)]=counts;inputs['/'.join(key)]=identity(path)
-                dest=out/'stage_population'/f'{arm}_{anchor}_{stage}.csv';dest.parent.mkdir(exist_ok=True);table.to_csv(dest,na_rep='NA')
+                dest=out/'stage_population'/f'{arm}_{anchor}_{stage}.csv';dest.parent.mkdir(exist_ok=True);write_table(table,dest,na_rep='NA')
                 for metric in METRICS:
                     reason=table[metric+'_reason'];n=int(reason.eq('available').sum())
                     domains.append(dict(anchor=anchor,method=arm,stage=stage,metric=metric,**counts,n_evaluable=n,n_unavailable=len(ids)-n,**{'n_'+k:int(reason.eq(k).sum()) for k in ('available','missing_stage_id','label_ineligible','zero_reference_counts','undefined_original_metric','nonfinite_original_metric')}))
@@ -77,7 +78,7 @@ def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','fi
                 cell[metric+'_postprocess_rewrite']=(final-pre).where(finite)
                 cell[metric+'_joint_evaluable']=finite;cell[metric+'_reason']=reason
                 rows.append(dict(from_stage=stages[0],to_stage=stages[1],comparison=a+'-'+b,anchor=anchor,metric=metric,population='frozen_historical_B1QC',n_population=len(ids),n_evaluable=n,n_unavailable=len(ids)-n,pre_cos_increment=float(pre[finite].mean()) if n else None,final_cos_increment=float(final[finite].mean()) if n else None,postprocess_rewrite=float((final-pre)[finite].mean()) if n else None,**{'n_'+category:int((reason==category).sum()) for category in ('missing_stage_id','label_ineligible','zero_reference_counts','undefined_original_metric','nonfinite_original_metric')},status='computed' if n==len(ids) else 'partial_domain_NA' if n else 'empty_evaluable_domain'))
-            cell.to_csv(out/f'postprocess_{a}_minus_{b}_{anchor}_per_cell.csv',na_rep='NA')
+            write_table(cell,out/f'postprocess_{a}_minus_{b}_{anchor}_per_cell.csv',na_rep='NA')
     pd.DataFrame(rows).to_csv(out/'postprocess_cos_increment.csv',index=False,na_rep='NA')
     pd.DataFrame(domains).to_csv(out/'stage_population_domains.csv',index=False)
     atomic_json(out/'stage_population_contract.json',dict(version='SSP-fixed-stage-population-v1',population_count=len(ids),population_order=ids.tolist(),inputs=inputs,inventory=inventory,missing_score_policy='NA; no intersection and no score imputation',paired_domain='all four method/pre/final metric values finite and label-eligible',reason_priority=['missing_stage_id','label_ineligible','nonfinite_original_metric','undefined_original_metric']))

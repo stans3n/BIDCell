@@ -34,7 +34,7 @@ def prepare(root):
     q.update(version='BS4-OVERNIGHT-v2.0',run_id=root.name.removeprefix('cos_bs4_'),output_root=str(root),python=sys.executable,methods={},historical_methods={'B':bq['methods']['B'],'S':oldq['methods']['S']},historical_root=str(HIST),historical_ssp_root=str(SSP),population=identity(dest),arm_order=list(ARMS),review_receipt=str(root/'tests/independent_review/approval.json'),resource_estimate=str(root/'tests/resources.json'),admission=str(root/'tests/admission.json'),stage_timeouts=dict(train=21600,predict=43200,postprocess=28800,matrix=3600,evaluate=14400,report=14400))
     for key,name in [('reference','reference.json'),('engineering_protocol','protocol.json'),('paper_protocol','evaluation_protocol.json')]:q[key]=str(root/'configs'/name)
     protocol=json.loads(Path(oldq['paper_protocol']).read_text());protocol.update(version='BS4-OVERNIGHT-v2.0',comparison_set=['B','S','T1','T2','P1','P2'],comparisons=[['P1','B'],['P2','B'],['T1','B'],['T2','B'],['T2','T1'],['T1','S'],['T2','S']]);put(q['paper_protocol'],protocol)
-    commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,text=True).strip()
+    commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,text=True,timeout=30).strip()
     for arm in ARMS:
         ar=root/arm;(ar/'configs').mkdir(parents=True,exist_ok=True);(ar/'source').mkdir(exist_ok=True)
         for path in (root/'configs').glob('*.json'):
@@ -43,8 +43,13 @@ def prepare(root):
         put(ar/'configs/run.json',cfg.model_dump(mode='json'))
         machine=json.loads((HIST/'B/configs/B_machine.json').read_text());machine.update(final_mask=str(ar/'predictions'/arm/'final.tif'),pre_mask=str(ar/'predictions'/arm/'pre.tif'),final_matrix=str(ar/'matrix'/arm/'expr_mat.csv'));put(ar/f'configs/{arm}_machine.json',machine)
         q['methods'][arm]=dict(config=str(ar/'configs/run.json'),worktree=str(REPO),commit=commit,machine=str(ar/f'configs/{arm}_machine.json'),matrix=str(ar/'matrix'/arm),evaluation=str(ar/'evaluation'/arm),cost_root=str(ar))
-        put(ar/'configs/frozen.json',dict(version='BS4-inputs-v2',identities={p.name:identity(p) for p in (ar/'configs').glob('*.json') if p.name!='frozen.json'}))
-    put(root/'configs/queue.json',q)
+        if not (ar/'configs/frozen.json').exists():put(ar/'configs/frozen.json',dict(version='BS4-inputs-v2',identities={p.name:identity(p) for p in (ar/'configs').glob('*.json') if p.name!='frozen.json'}))
+    queue=root/'configs/queue.json'
+    if queue.exists():
+        prior=json.loads(queue.read_text())
+        # Code commit binding is finalized separately, before source/admission freeze.
+        for arm in ARMS:q['methods'][arm]['commit']=prior['methods'][arm]['commit']
+    put(queue,q)
     return root/'configs/queue.json'
 
 if __name__=='__main__':print(prepare(sys.argv[1]))

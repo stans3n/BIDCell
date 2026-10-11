@@ -1,4 +1,4 @@
-"""Real A/B/C 32-update finite admission, strict resume and probe isolation."""
+"""Real T1/T2 32-update finite admission, strict resume and probe isolation."""
 import argparse,copy,hashlib,json,time,subprocess,sys
 from pathlib import Path
 import torch
@@ -27,7 +27,7 @@ def update(model,opt,s,cfg):
 def main(root):
     from scripts.bs4.training import TRAIN_SOURCES
     execution_source=source_identity(TRAIN_SOURCES+['scripts/bs4/tests/numeric.py'])
-    root=Path(root);out=root/'tests/numeric';out.mkdir(parents=True,exist_ok=True);torch.set_num_threads(2);start=time.monotonic();evidence={};initial=None;initial_rng=None
+    root=Path(root);out=root/'tests/numeric_v2';out.mkdir(parents=True,exist_ok=True);torch.set_num_threads(2);start=time.monotonic();evidence={};initial=None;initial_rng=None
     for arm in ('T1','T2'):
         probe_root=out/arm;(probe_root/'configs').mkdir(parents=True,exist_ok=True);(probe_root/'configs/training_probes.json').write_text((root/'configs/training_probes.json').read_text())
         cfg=read(root/arm/'configs/run.json');ds=dataset(cfg);views=json.loads((root/'configs/views.json').read_text())['views'];used=[v for v in views if v['k']][:33]
@@ -62,9 +62,8 @@ def main(root):
                 load(path,model,opt,deps);update(model,opt,get(ds,used[16]),cfg);actual=state(model,opt,ds)
                 assert actual==expected,'next-step full state diverged after strict restore'
                 atomic_json(out/f'{arm}_resume_expected.json',expected)
-                if arm=='T1':
-                    subprocess.run([sys.executable,'-m','scripts.bs4.tests.numeric','--root',str(root),'--child',arm],check=True)
-                    assert json.loads((out/'T1_resume_child.json').read_text())==expected, 'new process strict resume diverged'
+                subprocess.run([sys.executable,'-m','scripts.bs4.tests.numeric','--root',str(root),'--child',arm],check=True,timeout=300)
+                assert json.loads((out/f'{arm}_resume_child.json').read_text())==expected, 'new process strict resume diverged'
                 load(path,model,opt,deps)
         # Real 8-probe wrapper restores all state including preexisting gradients.
         prior=state(model,opt,ds);training_probe(probe_root,arm,32,model,ds,cfg)
@@ -78,9 +77,10 @@ def main(root):
         del model,opt,ds;torch.cuda.empty_cache()
     assert evidence['T1']['configuration']['anchor_weight']==evidence['T2']['configuration']['anchor_weight']
     assert evidence['T1']['configuration']['calibration_identity']==evidence['T2']['configuration']['calibration_identity']=='c1f77e69c03e0f1768898989f6190e448140a0f805f8a8ed28d22de1e75cf64a'
-    atomic_json(root/'diagnostics/numeric_admission.json',dict(status='passed',execution_source=execution_source,arms=evidence,initialization_all_tensors_and_bn_paired=True,views_hash=sha256(root/'configs/views.json'),temporary_models_discarded=True,peak_vram_bytes=torch.cuda.max_memory_allocated(),formal_checkpoints_absent=all(not (root/a/'checkpoints').exists() for a in ('T1','T2')),torch_threads=torch.get_num_threads(),wall_seconds=time.monotonic()-start))
+    if execution_source!=source_identity(TRAIN_SOURCES+['scripts/bs4/tests/numeric.py']):raise ValueError('numeric execution source drift')
+    atomic_json(root/'diagnostics/numeric_admission_v2.json',dict(status='passed',execution_source=execution_source,arms=evidence,initialization_all_tensors_and_bn_paired=True,views_hash=sha256(root/'configs/views.json'),temporary_models_discarded=True,peak_vram_bytes=torch.cuda.max_memory_allocated(),formal_checkpoints_absent=all(not (root/a/'checkpoints').exists() for a in ('T1','T2')),outputs={str(p.relative_to(out)):identity(p) for p in out.rglob('*') if p.is_file()},torch_threads=torch.get_num_threads(),wall_seconds=time.monotonic()-start))
 def child(root,arm):
-    root=Path(root);out=root/'tests/numeric';cfg=read(root/arm/'configs/run.json');torch.set_num_threads(2)
+    root=Path(root);out=root/'tests/numeric_v2';cfg=read(root/arm/'configs/run.json');torch.set_num_threads(2)
     ds=dataset(cfg)
     model=make_model(cfg,arm,len(ds.gene_names));model.train();opt=optimizer(model,cfg);deps=dependencies(cfg,arm)
     step,cursor,seen=load(out/f'{arm}_resume.pth',model,opt,deps);assert step==16
