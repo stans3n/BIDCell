@@ -34,6 +34,45 @@ def verify_execution_review(path,root,output,source):
         if sha256(p)!=value:raise ValueError('reviewed evidence drift '+p)
     return identity(path)
 
+def normalization_records(aligned,domain,summary,arm,anchor,stage):
+    for key in set(domain)&set(summary):
+        if domain[key]!=summary[key]:raise ValueError('normalization domain/source disagreement '+key)
+    base={**domain,**summary};rows=[]
+    for metric in METRICS:
+        reasons=aligned[metric+'_reason']
+        rows.append(dict(base,method=arm,anchor=anchor,stage=stage,metric=metric,n_evaluable=int(reasons.eq('available').sum()),n_unavailable=int(reasons.ne('available').sum()),**{'n_'+reason:int(reasons.eq(reason).sum()) for reason in ('missing_stage_id','label_ineligible','zero_reference_counts','undefined_original_metric','nonfinite_original_metric')}))
+    return rows
+
+def validate_reused_tables(comparison,original):
+    unchanged=[]
+    for rel,obj in original.items():
+        if Path(rel).parts[0] not in ('fixed_B1QC','sensitivity'):continue
+        new=comparison/rel
+        if identity(new)!=obj:raise ValueError('unchanged final/sensitivity identity drift')
+        if rel.endswith(('.csv','.csv.gz')):pd.testing.assert_frame_equal(pd.read_csv(obj['path']),pd.read_csv(new),check_exact=True)
+        unchanged.append(rel)
+    return unchanged
+
+def compare_stage_summaries(comparison,original_comparison):
+    summaries=[comparison/'diagnostics/postprocess_cos_increment.csv',*sorted((comparison/'stage_domains').glob('*/postprocess_cos_increment.csv'))]
+    changed=[]
+    for path in summaries:
+        new=pd.read_csv(path);old=pd.read_csv(original_comparison/path.relative_to(comparison));keys=['comparison','from_stage','to_stage','anchor','metric'];a=new.set_index(keys);b=old.set_index(keys)
+        if not a.index.equals(b.index):raise ValueError('comparison row inventory/order drift')
+        for key in a.index:
+            columns=[c for c in a.columns if not ((pd.isna(a.loc[key,c]) and pd.isna(b.loc[key,c])) or a.loc[key,c]==b.loc[key,c])]
+            if columns:changed.append(dict(zip(keys,key),changed_fields=columns,before={c:None if pd.isna(b.loc[key,c]) else b.loc[key,c].item() if isinstance(b.loc[key,c],np.generic) else b.loc[key,c] for c in columns},after={c:None if pd.isna(a.loc[key,c]) else a.loc[key,c].item() if isinstance(a.loc[key,c],np.generic) else a.loc[key,c] for c in columns}))
+    return summaries,changed
+
+def artifact_index(comparison,original):
+    rows=[dict(relative_path=rel,action='reused_readonly_exact',authority_path=obj['path'],sha256=obj['sha256']) for rel,obj in original.items() if not replaced(Path(rel))]
+    for p in sorted(comparison.rglob('*')):
+        if p.is_file() and not p.is_symlink():rows.append(dict(relative_path=str(p.relative_to(comparison)),action='recomputed_stage_availability' if p.name!='metric_coverage.csv' else 'coverage_extended',authority_path=str(p),sha256=sha256(p)))
+    return rows
+
+def output_manifest(output):
+    return {str(p.relative_to(output)):identity(p) for p in sorted(output.rglob('*')) if p.is_file() and p!=output/'complete.json' and '.git' not in p.parts}
+
 def validate_original_dependencies(root,q,protected):
     methods={**q['historical_methods'],**q['methods']};stage_methods={a:dict(s) for a,s in methods.items()};stage_methods['B']['evaluation']=str(root/'diagnostics/B_native_replay/evaluation')
     admission_path=root/'tests/admission.json';formal_review=read(root/'source/review_receipt.json')
@@ -128,8 +167,7 @@ def run(root,output,review_receipt):
                     dest=output/'normalized_stages'/arm/f'fixed_{anchor}_{stage}.csv';write_table(aligned,dest,na_rep='NA')
                     key='/'.join((arm,anchor,stage));authority[key]=provenance
                     for obj in provenance['inputs'].values():protected[obj['path']]=obj
-                    for metric in METRICS:
-                        reasons=aligned[metric+'_reason'];normalization.append(dict(method=arm,anchor=anchor,stage=stage,metric=metric,**domain,**provenance['summary'],n_evaluable=int(reasons.eq('available').sum()),n_unavailable=int(reasons.ne('available').sum()),**{'n_'+reason:int(reasons.eq(reason).sum()) for reason in ('missing_stage_id','label_ineligible','zero_reference_counts','undefined_original_metric','nonfinite_original_metric')}))
+                    normalization.extend(normalization_records(aligned,domain,provenance['summary'],arm,anchor,stage))
                 print('normalized',arm,stage,flush=True)
         atomic_json(output/'stage_input_authority.json',authority)
         pd.DataFrame(normalization).drop(columns='finite_values_replaced_by_NA').to_csv(output/'stage_domain_audit.csv',index=False)
@@ -137,27 +175,13 @@ def run(root,output,review_receipt):
         for before,after in [('pre','postconnect_canonical'),('postconnect_canonical','tile_merge'),('tile_merge','final')]:
             postprocess_increment(stage_methods,q['anchors'],[p for p in PAIRS if 'S' not in p],population,comparison/'stage_domains'/(before+'_to_'+after),stages=(before,after),prepared=q['prepared'])
         # All fixed-final and sensitivity tables retain their original value and NA domains.
-        unchanged=[]
-        for rel,obj in original.items():
-            if Path(rel).parts[0] not in ('fixed_B1QC','sensitivity'):continue
-            new=comparison/rel
-            if identity(new)!=obj:raise ValueError('unchanged final/sensitivity identity drift')
-            if rel.endswith(('.csv','.csv.gz')):pd.testing.assert_frame_equal(pd.read_csv(obj['path']),pd.read_csv(new),check_exact=True)
-            unchanged.append(rel)
-        summaries=[comparison/'diagnostics/postprocess_cos_increment.csv',*sorted((comparison/'stage_domains').glob('*/postprocess_cos_increment.csv'))]
-        changed=[]
-        for path in summaries:
-            new=pd.read_csv(path);old=pd.read_csv(root/'comparison'/path.relative_to(comparison));keys=['comparison','from_stage','to_stage','anchor','metric'];a=new.set_index(keys);b=old.set_index(keys)
-            if not a.index.equals(b.index):raise ValueError('comparison row inventory/order drift')
-            for key in a.index:
-                columns=[c for c in a.columns if not ((pd.isna(a.loc[key,c]) and pd.isna(b.loc[key,c])) or a.loc[key,c]==b.loc[key,c])]
-                if columns:changed.append(dict(zip(keys,key),changed_fields=columns,before={c:None if pd.isna(b.loc[key,c]) else b.loc[key,c].item() if isinstance(b.loc[key,c],np.generic) else b.loc[key,c] for c in columns},after={c:None if pd.isna(a.loc[key,c]) else a.loc[key,c].item() if isinstance(a.loc[key,c],np.generic) else a.loc[key,c] for c in columns}))
+        unchanged=validate_reused_tables(comparison,original)
+        summaries,changed=compare_stage_summaries(comparison,root/'comparison')
         atomic_json(output/'regression.json',dict(status='passed',unchanged_fixed_final_and_sensitivity_tables=unchanged,n_unchanged=len(unchanged),four_endpoint_rows=sum(len(pd.read_csv(p)) for p in summaries),changed_rows=changed,not_recomputed=['train','predict','postprocess','matrix','scClassify','raw final metrics','ownership transfers','Purity']))
         coverage=pd.read_csv(root/'comparison/metric_coverage.csv')
         extra=pd.DataFrame([dict(metric_id='counts_derived_zero_reference_NA_'+str(p.relative_to(comparison)),profile='fixed_stage_B1',comparison='B/S/P1/P2/T1/T2',required_this_run=True,status='partial_domain_NA',artifact_path=str(p)) for p in summaries])
         pd.concat([coverage,extra],ignore_index=True).to_csv(comparison/'metric_coverage.csv',index=False)
-        for p in sorted(comparison.rglob('*')):
-            if p.is_file() and not p.is_symlink():index.append(dict(relative_path=str(p.relative_to(comparison)),action='recomputed_stage_availability' if p.name!='metric_coverage.csv' else 'coverage_extended',authority_path=str(p),sha256=sha256(p)))
+        index=artifact_index(comparison,original)
         pd.DataFrame(index).to_csv(output/'artifact_index.csv',index=False)
         for obj in protected.values():
             if identity(obj['path'])!=obj:raise ValueError('protected original/source changed '+obj['path'])
@@ -165,7 +189,7 @@ def run(root,output,review_receipt):
             if identity(root/'comparison'/rel)!=obj:raise ValueError('original comparison changed '+rel)
         if source_identity(SOURCES)!=execution or source_state(repo)!=source or subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True,timeout=30).strip():raise ValueError('execution source changed during recovery')
         if shutil.disk_usage(output).free<15*GiB:raise ValueError('recovery breached free-space reserve')
-    outputs={str(p.relative_to(output)):identity(p) for p in sorted(output.rglob('*')) if p.is_file() and p!=output/'complete.json' and '.git' not in p.parts}
+    outputs=output_manifest(output)
     atomic_json(output/'complete.json',dict(version='BS4-report-stage-reference-NA-recovery-v1',status='succeeded',report_authority=str(comparison),original_machine_comparison=str(root/'comparison'),original_compute_receipt=identity(root/'compute_complete.json'),execution_source=execution,execution_review=execution_review,source=source,protected_inputs=protected,outputs=outputs,wall_seconds=time.monotonic()-started,scientific_acceptance=False,reason='legacy stage score tables without zero-reference flags admitted zero-reference F1/Recall as zeros; counts-derived NA applied before metric-specific four-endpoint intersection',scope='report-only recovery; original successful computations and machine report preserved'))
     print('report-only recovery succeeded',output,flush=True)
 if __name__=='__main__':
