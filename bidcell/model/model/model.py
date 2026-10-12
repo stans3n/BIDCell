@@ -226,7 +226,7 @@ class SegmentationModel(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 init_weights(m, init_type="kaiming")
 
-    def forward(self, inputs):
+    def forward(self, inputs, morphology_aux=None):
         ## -------------Encoder-------------
         h1 = self.conv1(inputs)  # h1->320*320*64
 
@@ -235,6 +235,12 @@ class SegmentationModel(nn.Module):
 
         h3 = self.maxpool2(h2)
         h3 = self.conv3(h3)  # h3->80*80*256
+        # The module is attached only after the complete original constructor.
+        # Every subsequent encoder/decoder consumer sees the same modified h3.
+        if hasattr(self, "morphology"):
+            if morphology_aux is None:
+                raise ValueError("V2_MORPH requires frozen geometry and DAPI features")
+            h3 = self.morphology(h3, morphology_aux["geometry"], morphology_aux["dapi"])
 
         h4 = self.maxpool3(h3)
         h4 = self.conv4(h4)  # h4->40*40*512
