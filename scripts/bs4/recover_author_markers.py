@@ -9,9 +9,10 @@ from .stage_population import load_population,align_stage,postprocess_increment
 from .author_stage import load_stage_table
 from .comparison import population_scores
 from .author_marker import fixed_scores
+from .author_stage_summary import records as stage_summary_records,publish as publish_stage_summaries,remap_coverage as remap_stage_coverage
 from .tables import write_table
 PAIRS=[('P1','B'),('P2','B'),('T1','B'),('T2','B'),('T2','T1'),('T1','S'),('T2','S')]
-SOURCES=['scripts/bs4/recover_author_markers.py','scripts/bs4/author_stage.py','scripts/bs4/author_marker.py','scripts/bs4/comparison.py','scripts/bs4/diagnostics.py','scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/cos/diagnostics.py','scripts/crgf/common.py']
+SOURCES=['scripts/bs4/recover_author_markers.py','scripts/bs4/author_stage_summary.py','scripts/bs4/author_stage.py','scripts/bs4/author_marker.py','scripts/bs4/comparison.py','scripts/bs4/diagnostics.py','scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/cos/diagnostics.py','scripts/crgf/common.py']
 GiB=1024**3
 
 def read(p):return json.loads(Path(p).read_text())
@@ -225,7 +226,7 @@ def run(root,output,review_receipt,profile_audit):
             if replaced(relative):continue
             dest=comparison/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.symlink_to(obj['path'])
             index.append(dict(relative_path=rel,action='reused_readonly_exact',authority_path=obj['path'],sha256=obj['sha256']))
-        population=load_population(q['population']);normalization=[];authority={}
+        population=load_population(q['population']);normalization=[];authority={};single_stage=[]
         for arm,spec in stage_methods.items():
             validation=read(Path(spec['evaluation'])/'diagnostics/stages/validation.json')
             for stage in sorted(validation['count_artifacts']):
@@ -235,7 +236,9 @@ def run(root,output,review_receipt,profile_audit):
                     key='/'.join((arm,anchor,stage));authority[key]=provenance
                     for obj in provenance['inputs'].values():protected[obj['path']]=obj
                     normalization.extend(normalization_records(aligned,domain,provenance['summary'],arm,anchor,stage))
+                    single_stage.extend(stage_summary_records(aligned,arm,anchor,stage))
                 print('normalized',arm,stage,flush=True)
+        stage_summaries=publish_stage_summaries(single_stage,authority,comparison)
         atomic_json(output/'stage_input_authority.json',authority)
         atomic_json(output/'stage_domain_audit_schema.json',dict(version='author-marker-stage-domains-v1',zero_reference_counts='descriptive only; does not invalidate a metric',n_zero_reference_counts='legacy compatibility exclusion-count column, always zero',descriptive_zero_fields=['n_zero_reference_count_ids','n_zero_reference_stage_rows','n_zero_reference_known_rows'],score_change_tolerance='5e-15 only for decimal CSV serialization comparisons; author R binary fixture exact',missing_rows='NA with missing_stage_id; never fabricated zero',fixed_label_policy='original historical label eligibility unchanged',four_endpoint_domain='separate finite intersection for each actual author metric'))
         pd.DataFrame(normalization).drop(columns='author_score_changes').to_csv(output/'stage_domain_audit.csv',index=False)
@@ -249,6 +252,7 @@ def run(root,output,review_receipt,profile_audit):
         summaries,changed=compare_stage_summaries(comparison,root/'comparison')
         atomic_json(output/'regression.json',dict(status='passed',unchanged_reference_only_artifacts=unchanged,n_unchanged=len(unchanged),population_reports=population_audit,four_endpoint_rows=sum(len(pd.read_csv(p)) for p in summaries),changed_rows=changed,not_recomputed=['train','predict','postprocess','matrix','scClassify','three-profile raw metrics verified against author','ownership transfers','Purity verified from unchanged paper F1']))
         coverage=pd.read_csv(root/'comparison/metric_coverage.csv')
+        coverage,old_summary_inputs=remap_stage_coverage(coverage,q['methods'],stage_summaries);protected.update(old_summary_inputs)
         for i,path in coverage.artifact_path.items():
             if isinstance(path,str):
                 try:relative=Path(path).relative_to(root/'comparison')
