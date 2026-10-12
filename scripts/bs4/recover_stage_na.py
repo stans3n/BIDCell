@@ -34,6 +34,49 @@ def verify_execution_review(path,root,output,source):
         if sha256(p)!=value:raise ValueError('reviewed evidence drift '+p)
     return identity(path)
 
+def validate_original_dependencies(root,q,protected):
+    methods={**q['historical_methods'],**q['methods']};stage_methods={a:dict(s) for a,s in methods.items()};stage_methods['B']['evaluation']=str(root/'diagnostics/B_native_replay/evaluation')
+    admission_path=root/'tests/admission.json';formal_review=read(root/'source/review_receipt.json')
+    if formal_review['evidence'][str(admission_path)]!=sha256(admission_path):raise ValueError('original admitted B table authority changed')
+    stage_methods['B']['stage_table_authority']=read(admission_path)['evidence']['B_native_recursive_artifacts']
+    stage_methods['B']['stage_table_authority_receipt']=str(admission_path)
+    machine_report=read(root/'comparison/complete.json')
+    for arm,spec in stage_methods.items():
+        for kind in ('matrix','evaluate'):
+            declared=machine_report['arm_receipts'][arm][kind]
+            if sha256(declared['path'])!=declared['sha256']:raise ValueError('original published '+kind+' receipt changed '+arm)
+            protected[declared['path']]=identity(declared['path'])
+        validationfile=Path(spec['evaluation'])/'diagnostics/stages/validation.json'
+        if arm=='B':
+            declared=read(root/'tests/admission.json')['evidence']['diagnostics/B_native_replay/complete.json']
+            if sha256(declared['path'])!=declared['sha256']:raise ValueError('admitted B replay receipt drift')
+            validation_authority=read(declared['path'])['outputs']['diagnostics']
+        else:
+            ev=read(machine_report['arm_receipts'][arm]['evaluate']['path'])
+            matching=[v for v in ev['outputs'].values() if Path(v['path']).resolve()==validationfile.resolve()]
+            if len(matching)!=1:raise ValueError('stage validation absent from original evaluation receipt')
+            validation_authority=matching[0]
+        if sha256(validationfile)!=validation_authority['sha256']:raise ValueError('stage validation receipt changed '+arm)
+        protected[str(validationfile)]=identity(validationfile)
+    paper=Path(q['prepared'])/'complete.json'
+    for arm,spec in methods.items():
+        evaluation=read(machine_report['arm_receipts'][arm]['evaluate']['path'])
+        profiles=Path(spec['evaluation'])/'profiles_complete.json'
+        matches=[v for v in evaluation['outputs'].values() if Path(v['path']).resolve()==profiles.resolve()]
+        if len(matches)!=1 or matches[0]['sha256']!=sha256(profiles):raise ValueError('published profiles receipt drift '+arm)
+        declared=read(profiles)['dependencies']['prepared']
+        if Path(declared['path']).resolve()!=paper.resolve() or declared['sha256']!=sha256(paper):raise ValueError('published scoring reference receipt drift '+arm)
+        protected[str(profiles)]=identity(profiles)
+    protected[str(paper)]=identity(paper)
+    for arm in ('T1','T2'):
+        frozen=Path(q['methods'][arm]['cost_root'])/'configs/frozen.json'
+        if read(admission_path)['arm_frozen'][arm]['sha256']!=sha256(frozen):raise ValueError('original admitted training freeze drift '+arm)
+        training=read(frozen)['identities']['prepared']
+        if Path(read(q['methods'][arm]['config'])['prepared_manifest']).resolve()!=Path(training['path']).resolve():raise ValueError('training config/preparation identity mismatch '+arm)
+        if sha256(training['path'])!=training['sha256']:raise ValueError('frozen training preparation drift '+arm)
+        protected[str(frozen)]=identity(frozen);protected[training['path']]=identity(training['path'])
+    return stage_methods
+
 def source_state(repo):
     return dict(commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True,timeout=30).strip(),tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=repo,text=True,timeout=30).strip(),checkout=str(repo),files={p:sha256(repo/p) for p in subprocess.check_output(['git','ls-files'],cwd=repo,text=True,timeout=30).splitlines()})
 
@@ -59,6 +102,7 @@ def run(root,output,review_receipt):
     verify_outputs(dict(outputs=original_complete['artifacts']))
     protected={str(p):identity(p) for p in [root/'compute_complete.json',root/'configs/queue.json',root/'source/frozen.json',root/'source/review_receipt.json',root/'comparison/complete.json']}
     protected[execution_review['path']]=execution_review
+    stage_methods=validate_original_dependencies(root,q,protected)
     original={str(p.relative_to(root/'comparison')):identity(p) for p in sorted((root/'comparison').rglob('*')) if p.is_file()}
     # Upper estimate exceeds all current original comparison allocations; no copy of biology.
     old_bytes=sum(p.stat().st_blocks*512 for p in (root/'comparison').rglob('*') if p.is_file())
@@ -75,33 +119,7 @@ def run(root,output,review_receipt):
             if replaced(relative):continue
             dest=comparison/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.symlink_to(obj['path'])
             index.append(dict(relative_path=rel,action='reused_readonly_exact',authority_path=obj['path'],sha256=obj['sha256']))
-        methods={**q['historical_methods'],**q['methods']};stage_methods={a:dict(s) for a,s in methods.items()};stage_methods['B']['evaluation']=str(root/'diagnostics/B_native_replay/evaluation')
-        admission_path=root/'tests/admission.json';formal_review=read(root/'source/review_receipt.json')
-        if formal_review['evidence'][str(admission_path)]!=sha256(admission_path):raise ValueError('original admitted B table authority changed')
-        stage_methods['B']['stage_table_authority']=read(admission_path)['evidence']['B_native_recursive_artifacts']
-        stage_methods['B']['stage_table_authority_receipt']=str(admission_path)
         population=load_population(q['population']);normalization=[];authority={}
-        machine_report=read(root/'comparison/complete.json')
-        prepared_receipt=Path(q['prepared'])/'complete.json'
-        frozen_inputs=read(Path(q['methods']['T1']['cost_root'])/'configs/frozen.json')['identities']
-        if frozen_inputs['prepared']['sha256']!=sha256(prepared_receipt):raise ValueError('prepared receipt differs from frozen scientific authority')
-        for arm,spec in stage_methods.items():
-            for kind in ('matrix','evaluate'):
-                declared=machine_report['arm_receipts'][arm][kind]
-                if sha256(declared['path'])!=declared['sha256']:raise ValueError('original published '+kind+' receipt changed '+arm)
-                protected[declared['path']]=identity(declared['path'])
-            validationfile=Path(spec['evaluation'])/'diagnostics/stages/validation.json'
-            if arm=='B':
-                declared=read(root/'tests/admission.json')['evidence']['diagnostics/B_native_replay/complete.json']
-                if sha256(declared['path'])!=declared['sha256']:raise ValueError('admitted B replay receipt drift')
-                validation_authority=read(declared['path'])['outputs']['diagnostics']
-            else:
-                ev=read(machine_report['arm_receipts'][arm]['evaluate']['path'])
-                matching=[v for v in ev['outputs'].values() if Path(v['path']).resolve()==validationfile.resolve()]
-                if len(matching)!=1:raise ValueError('stage validation absent from original evaluation receipt')
-                validation_authority=matching[0]
-            if sha256(validationfile)!=validation_authority['sha256']:raise ValueError('stage validation receipt changed '+arm)
-            protected[str(validationfile)]=identity(validationfile)
         for arm,spec in stage_methods.items():
             validation=read(Path(spec['evaluation'])/'diagnostics/stages/validation.json')
             for stage in sorted(validation['count_artifacts']):
