@@ -44,14 +44,26 @@ def normalization_records(aligned,domain,summary,arm,anchor,stage):
     return rows
 
 def validate_reused_tables(comparison,original):
-    unchanged=[]
+    unchanged=[];empty=[]
+    def parsed(path):
+        try:return pd.read_csv(path),False
+        except pd.errors.EmptyDataError:return pd.DataFrame(),True
     for rel,obj in original.items():
         if Path(rel).parts[0] not in ('fixed_B1QC','sensitivity'):continue
         new=comparison/rel
         if identity(new)!=obj:raise ValueError('unchanged final/sensitivity identity drift')
-        if rel.endswith(('.csv','.csv.gz')):pd.testing.assert_frame_equal(pd.read_csv(obj['path']),pd.read_csv(new),check_exact=True)
+        # Historical empty-domain CSVs may have no columns. Identity above still
+        # requires the exact original bytes; compare their empty parsed tables.
+        if rel.endswith(('.csv','.csv.gz')):
+            old_frame,old_empty=parsed(obj['path']);new_frame,new_empty=parsed(new)
+            if old_empty!=new_empty:raise ValueError('empty-table representation drift')
+            if old_empty:
+                allowed={f'sensitivity/ownQC_{arm}/paired_metrics.csv' for arm in ('B','S','P1','P2','T1','T2')}
+                if rel not in allowed or Path(obj['path']).read_bytes()!=b'\n':raise ValueError('unexpected empty original report table '+rel)
+                empty.append(dict(relative_path=rel,original=obj,reason='single-method ownQC domain has no method pair; original newline-only table preserved'))
+            pd.testing.assert_frame_equal(old_frame,new_frame,check_exact=True)
         unchanged.append(rel)
-    return unchanged
+    return unchanged,empty
 
 def compare_stage_summaries(comparison,original_comparison):
     summaries=[comparison/'diagnostics/postprocess_cos_increment.csv',*sorted((comparison/'stage_domains').glob('*/postprocess_cos_increment.csv'))]
@@ -175,9 +187,9 @@ def run(root,output,review_receipt):
         for before,after in [('pre','postconnect_canonical'),('postconnect_canonical','tile_merge'),('tile_merge','final')]:
             postprocess_increment(stage_methods,q['anchors'],[p for p in PAIRS if 'S' not in p],population,comparison/'stage_domains'/(before+'_to_'+after),stages=(before,after),prepared=q['prepared'])
         # All fixed-final and sensitivity tables retain their original value and NA domains.
-        unchanged=validate_reused_tables(comparison,original)
+        unchanged,empty=validate_reused_tables(comparison,original)
         summaries,changed=compare_stage_summaries(comparison,root/'comparison')
-        atomic_json(output/'regression.json',dict(status='passed',unchanged_fixed_final_and_sensitivity_tables=unchanged,n_unchanged=len(unchanged),four_endpoint_rows=sum(len(pd.read_csv(p)) for p in summaries),changed_rows=changed,not_recomputed=['train','predict','postprocess','matrix','scClassify','raw final metrics','ownership transfers','Purity']))
+        atomic_json(output/'regression.json',dict(status='passed',unchanged_fixed_final_and_sensitivity_tables=unchanged,n_unchanged=len(unchanged),empty_original_tables=empty,four_endpoint_rows=sum(len(pd.read_csv(p)) for p in summaries),changed_rows=changed,not_recomputed=['train','predict','postprocess','matrix','scClassify','raw final metrics','ownership transfers','Purity']))
         coverage=pd.read_csv(root/'comparison/metric_coverage.csv')
         extra=pd.DataFrame([dict(metric_id='counts_derived_zero_reference_NA_'+str(p.relative_to(comparison)),profile='fixed_stage_B1',comparison='B/S/P1/P2/T1/T2',required_this_run=True,status='partial_domain_NA',artifact_path=str(p)) for p in summaries])
         pd.concat([coverage,extra],ignore_index=True).to_csv(comparison/'metric_coverage.csv',index=False)
