@@ -49,30 +49,8 @@ def load_anchor(spec):
 
 
 def fixed_scores(counts, ids, genes, labels, markers, reference_genes):
-    """Same known-label score and NA rules as historical diagnostic, no new QC."""
-    counts = np.asarray(counts)
-    if counts.shape != (len(ids),len(genes)) or len(set(ids)) != len(ids): raise ValueError('counts/ID mapping mismatch')
-    if not set(reference_genes) <= set(genes): raise ValueError('reference gene missing')
-    x = counts[:,pd.Index(genes).get_indexer(reference_genes)]
-    frame = pd.DataFrame(index=pd.Index(ids,name='cell_id'))
-    frame['anchor_label'] = labels.reindex(ids).fillna('missing_historical_label')
-    frame['label_availability'] = np.where(frame.anchor_label.eq('missing_historical_label'),'missing_historical_label',
-        np.where(frame.anchor_label.isin(set(markers['positive']) & set(markers['negative'])),'known',frame.anchor_label.str.replace('__unavailable__:','',regex=False)))
-    for sign in ('positive','negative'):
-        values = np.full((len(ids),3),np.nan)
-        for label in sorted(set(markers['positive']) & set(markers['negative'])):
-            rows = np.flatnonzero(frame.anchor_label.to_numpy() == label)
-            if not len(rows): continue
-            marker = np.isin(reference_genes,markers[sign][label])
-            xx=x[rows]
-            predicted = xx > np.quantile(xx,1-marker.mean(),axis=1,method='linear')[:,None]
-            tp = predicted[:,marker].sum(1)
-            with np.errstate(divide='ignore',invalid='ignore'):
-                precision=tp/predicted.sum(1); recall=tp/marker.sum(); f1=2*precision*recall/(precision+recall)
-            f1[~np.isfinite(f1)]=0
-            values[rows]=np.column_stack((f1,precision,recall))
-        for col,name in enumerate(('F1','Precision','Recall')): frame[sign+'_'+name]=values[:,col]
-    return frame
+    from .author_marker import fixed_scores as author_fixed_scores
+    return author_fixed_scores(counts,ids,genes,labels,markers,reference_genes)
 
 
 def fixed_comparison(methods, anchors, prepared, out, pairs, primary, population=None):
@@ -281,7 +259,7 @@ def stage_diagnostics(spec, anchors, prepared, out):
         for anchor,anchor_spec in anchors.items():
             frame=fixed_scores(counts[ids][positions],common,genes,anchor_labels[anchor],mk,refgenes)
             empty=counts[ids][positions][:,pd.Index(genes).get_indexer(refgenes)].sum(1)==0
-            frame['zero_reference_counts']=empty;frame.loc[empty,METRICS]=np.nan
+            frame['zero_reference_counts']=empty
             write_table(frame,out/f'fixed_{anchor}_{name}.csv',na_rep='NA')
             for metric in METRICS:
                 finite=np.isfinite(frame[metric]);count=int(finite.sum());scores.append(dict(anchor=anchor,stage=name,metric=metric,n_eligible=len(frame),n_evaluable=count,n_unavailable=len(frame)-count,mean=float(frame.loc[finite,metric].mean()) if count else None,population='frozen_historical_B1QC' if spec.get('population') else 'mini_own_final_qc'))

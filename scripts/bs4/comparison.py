@@ -1,3 +1,4 @@
+from .author_marker import fixed_scores as author_fixed_scores
 from .tables import read_table,write_table
 """Fixed historical B1 population; explicit NA and frozen four-method purity."""
 from pathlib import Path
@@ -10,7 +11,7 @@ from scripts.crgf.common import atomic_json,identity,sha256,verify_outputs
 from .evaluation import read,PAIRS,PROFILES,publish,validate_arm,method_coverage
 from .stage_population import postprocess_increment,load_population,align_stage,population_index
 
-def population_scores(methods,queue,out,population,label):
+def population_scores(methods,queue,out,population,label,score_tables=None):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);labels=diagnostics.load_anchor(queue['anchors']['B1'])
     population=population_index(population)
     markers=read(Path(queue['prepared'])/'markers.json');genes_ref=(Path(queue['prepared'])/'reference_genes.txt').read_text().splitlines()
@@ -19,10 +20,16 @@ def population_scores(methods,queue,out,population,label):
         matrix=Path(spec['matrix']);ids=pd.read_csv(matrix/'cell_mapping.csv').canonical_cell_id.to_numpy(int);genes=pd.read_csv(matrix/'gene_mapping.csv').gene.tolist();idx=pd.Index(ids).get_indexer(population)
         if len(np.unique(ids))!=len(ids):raise ValueError('duplicate own matrix ID '+name)
         present=idx>=0
-        x=np.load(matrix/'counts.npy',mmap_mode='r')[idx[present]];f=diagnostics.fixed_scores(x,population[present],genes,labels,markers,genes_ref)
-        # Empty expression has no rank prediction domain; preserve explicit NA.
+        x=np.load(matrix/'counts.npy',mmap_mode='r')[idx[present]]
+        if score_tables is None:f=author_fixed_scores(x,population[present],genes,labels,markers,genes_ref)
+        else:
+            cached=score_tables[name]
+            if cached.index.has_duplicates or not np.array_equal(cached.index.to_numpy(),ids):raise ValueError('author score cache own-ID identity mismatch')
+            f=cached.reindex(population[present]).copy()
+            if not f.anchor_label.equals(labels.reindex(population[present]).fillna('missing_historical_label').rename('anchor_label')):raise ValueError('author score cache anchor mismatch')
+        # Zero expression is descriptive: author F1/Recall zeros remain valid.
         empty=x[:,pd.Index(genes).get_indexer(genes_ref)].sum(1)==0
-        f.loc[empty,diagnostics.METRICS]=np.nan;f['zero_reference_counts']=empty
+        f['zero_reference_counts']=empty
         f,domain=align_stage(f.reset_index(),population,labels)
         f['zero_reference_counts']=f.zero_reference_counts.fillna(False).astype(bool)
         qc=set(pd.read_csv(Path(spec['evaluation'])/'paper_aligned_v1/markers_per_cell.csv').cell_id)
@@ -93,10 +100,12 @@ def aggregate(config,output_dir=None):
         ac=read(methods[a]['machine']);bc=read(methods[b]['machine']);accepted.changes(ac['final_mask'],bc['final_mask'],dest/'mask_changes',a+'-'+b,ac['pixel_um'])
     stage_methods={k:dict(v) for k,v in methods.items()}
     stage_methods['B']['evaluation']=str(root/'diagnostics/B_native_replay/evaluation')
-    postprocess_increment(stage_methods,q['anchors'],PAIRS,population,out/'diagnostics')
+    stage_methods['B']['stage_table_authority']=read(root/'tests/admission.json')['evidence']['B_native_recursive_artifacts']
+    stage_methods['B']['stage_table_authority_receipt']=str(root/'tests/admission.json')
+    postprocess_increment(stage_methods,q['anchors'],PAIRS,population,out/'diagnostics',prepared=q['prepared'])
     for before,after in [('pre','postconnect_canonical'),('postconnect_canonical','tile_merge'),('tile_merge','final')]:
         pairs=[p for p in PAIRS if 'S' not in p]
-        postprocess_increment(stage_methods,q['anchors'],pairs,population,out/'stage_domains'/(before+'_to_'+after),stages=(before,after))
+        postprocess_increment(stage_methods,q['anchors'],pairs,population,out/'stage_domains'/(before+'_to_'+after),stages=(before,after),prepared=q['prepared'])
     from .post_effects import write as post_effects
     post_effects(methods,root/'diagnostics/B_native_replay/predictions/B/endpoints.json',out/'post_effects')
     coverage.extend(dict(metric_id=k,profile='SSP',comparison='B/S/P1/P2/T1/T2',required_this_run=True,status='computed',artifact_path=str(p)) for k,p in [('fixed_B1QC',out/'fixed_B1QC/paired_metrics.csv'),('purity_fixed_set',out/'purity.json'),('B_native_replay',root/'diagnostics/B_native_replay/validation.json'),('downstream_difference_fate',out/'post_effects/downstream_difference_fate.csv')])

@@ -8,7 +8,7 @@ from scripts.bs4.tables import read_table
 from scripts.cos.diagnostics import METRICS
 from scripts.crgf.common import atomic_json,identity,source_identity
 
-SOURCES=['scripts/bs4/comparison.py','scripts/bs4/diagnostics.py','scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/cos/diagnostics.py','scripts/bs4/tests/population_missing.py']
+SOURCES=['scripts/bs4/author_marker.py','scripts/bs4/comparison.py','scripts/bs4/diagnostics.py','scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/cos/diagnostics.py','scripts/bs4/tests/population_missing.py']
 
 def verify(methods,population,out):
     frames={};missing={}
@@ -52,7 +52,17 @@ def synthetic():
         q=dict(anchors={'B1':identity(anchor)},prepared=str(prep));population=[3,1,2,4,9]
         population_scores(methods,q,r/'scores',population,'synthetic');verify(methods,population,r/'scores')
         f=read_table(r/'scores/B.csv').set_index('cell_id')
-        assert f.loc[2,'positive_F1_reason']=='zero_reference_counts' and f.loc[4,'positive_F1_reason']=='label_ineligible'
+        assert f.loc[2,'positive_F1']==0 and f.loc[2,'positive_Recall']==0 and pd.isna(f.loc[2,'positive_Precision'])
+        assert f.loc[2,'positive_F1_reason']=='available' and f.loc[2,'positive_Recall_reason']=='available' and f.loc[2,'positive_Precision_reason']=='undefined_original_metric'
+        assert f.loc[4,'positive_F1_reason']=='label_ineligible'
+        from scripts.bs4.author_marker import fixed_scores
+        from scripts.cos.diagnostics import load_anchor
+        cached={}
+        for name,spec in methods.items():
+            matrix=Path(spec['matrix']);ids=pd.read_csv(matrix/'cell_mapping.csv').canonical_cell_id
+            cached[name]=fixed_scores(np.load(matrix/'counts.npy'),ids,list('abcd'),load_anchor(q['anchors']['B1']),json.loads((prep/'markers.json').read_text()),list('abcd'))
+        population_scores(methods,q,r/'cached',population,'synthetic',score_tables=cached)
+        for name in methods:pd.testing.assert_frame_equal(read_table(r/'scores'/f'{name}.csv'),read_table(r/'cached'/f'{name}.csv'),check_exact=True)
         population_scores(methods,q,r/'empty',[9],'empty_pair');verify(methods,[9],r/'empty')
         # An entirely absent method cannot invent a zero row or drop the population.
         pd.DataFrame({'canonical_cell_id':[]}).to_csv(Path(methods['P1']['matrix'])/'cell_mapping.csv',index=False)

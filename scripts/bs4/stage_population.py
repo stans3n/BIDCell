@@ -39,24 +39,27 @@ def align_stage(table,population,labels):
         reason=np.full(len(ids),'available',dtype=object)
         reason[~np.isfinite(values)]='undefined_original_metric'
         reason[np.isinf(values)]='nonfinite_original_metric'
-        if 'zero_reference_counts' in aligned:reason[present & aligned.zero_reference_counts.fillna(False).astype(bool).to_numpy()]='zero_reference_counts'
         reason[present & ~known]='label_ineligible'
         reason[~present]='missing_stage_id'
         values[reason!='available']=np.nan
         aligned[metric]=values;aligned[metric+'_reason']=reason
     return aligned,dict(n_population=len(ids),n_stage_rows=len(own_ids),n_present=int(present.sum()),n_missing_stage_rows=int((~present).sum()),n_extra_stage_ids=int((~own_ids.isin(ids)).sum()))
 
-def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','final')):
+def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','final'),prepared=None):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);ids=population_index(population)
-    rows=[];domains=[];inputs={};aligned={};inventory={}
+    if prepared is None:raise ValueError('frozen prepared reference inventory required for stage availability')
+    from .author_stage import load_stage_table
+    rows=[];domains=[];inputs={};aligned={};inventory={};normalization={}
     used=sorted(set(x for pair in pairs for x in pair))
     for anchor,spec in anchors.items():
         labels=load_anchor(spec)
         for arm in used:
             for stage in stages:
-                path=table_path(Path(methods[arm]['evaluation'])/'diagnostics/stages'/f'fixed_{anchor}_{stage}.csv')
-                table,counts=align_stage(pd.read_csv(path),ids,labels)
+                raw,authority=load_stage_table(methods[arm],anchor,stage,prepared)
+                path=Path(authority['inputs']['table']['path'])
+                table,counts=align_stage(raw,ids,labels)
                 key=(anchor,arm,stage);aligned[key]=table;inventory['/'.join(key)]=counts;inputs['/'.join(key)]=identity(path)
+                normalization['/'.join(key)]=authority
                 dest=out/'stage_population'/f'{arm}_{anchor}_{stage}.csv';dest.parent.mkdir(exist_ok=True);write_table(table,dest,na_rep='NA')
                 for metric in METRICS:
                     reason=table[metric+'_reason'];n=int(reason.eq('available').sum())
@@ -70,7 +73,7 @@ def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','fi
                 finite=np.isfinite(pre)&np.isfinite(final);n=int(finite.sum())
                 reason=np.full(len(ids),'available',dtype=object)
                 # Mutually exclusive reason priority; detailed endpoint reasons stay in aligned tables.
-                for category in ('zero_reference_counts','undefined_original_metric','nonfinite_original_metric','label_ineligible','missing_stage_id'):
+                for category in ('undefined_original_metric','nonfinite_original_metric','label_ineligible','missing_stage_id'):
                     any_bad=np.logical_or.reduce([t[metric+'_reason'].eq(category).to_numpy() for t in values.values()]);reason[any_bad]=category
                 if not np.array_equal(finite.to_numpy(),reason=='available'):raise ValueError('paired validity/reason mismatch')
                 cell[metric+'_pre_increment']=pre.where(finite)
@@ -81,4 +84,4 @@ def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','fi
             write_table(cell,out/f'postprocess_{a}_minus_{b}_{anchor}_per_cell.csv',na_rep='NA')
     pd.DataFrame(rows).to_csv(out/'postprocess_cos_increment.csv',index=False,na_rep='NA')
     pd.DataFrame(domains).to_csv(out/'stage_population_domains.csv',index=False)
-    atomic_json(out/'stage_population_contract.json',dict(version='SSP-fixed-stage-population-v1',population_count=len(ids),population_order=ids.tolist(),inputs=inputs,inventory=inventory,missing_score_policy='NA; no intersection and no score imputation',paired_domain='all four method/pre/final metric values finite and label-eligible',reason_priority=['missing_stage_id','label_ineligible','nonfinite_original_metric','undefined_original_metric']))
+    atomic_json(out/'stage_population_contract.json',dict(version='BS4-fixed-stage-population-author-marker-v1',population_count=len(ids),population_order=ids.tolist(),inputs=inputs,inventory=inventory,reference_count_normalization=normalization,missing_score_policy='actual author F1 NA/NaN to zero; P/R preserved; missing/ineligible rows NA; zero-reference flag descriptive only',paired_domain='all four method/pre/final metric values finite and label-eligible',reason_priority=['missing_stage_id','label_ineligible','nonfinite_original_metric','undefined_original_metric'],legacy_compatibility_fields={'n_zero_reference_counts':'always zero; not an invalidity reason'},zero_reference_flag='descriptive only; author F1 and Recall zeros remain evaluable'))

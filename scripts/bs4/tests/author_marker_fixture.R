@@ -1,0 +1,11 @@
+args<-commandArgs(trailingOnly=TRUE)
+source(args[1])
+input<-jsonlite::fromJSON(args[2],simplifyVector=FALSE)
+genes<-unlist(input$genes);ids<-unlist(input$ids);types<-unlist(input$labels)
+x<-matrix(unlist(input$expression),nrow=length(ids),byrow=TRUE)
+expr<-t(x);rownames(expr)<-genes;colnames(expr)<-ids
+markers<-lapply(input$markers,unlist)
+res<-.calculate_marker_purity(expr,types,markers,BiocParallel::SerialParam())
+precise<-as.data.frame(lapply(res,function(v)sprintf('%.17g',v)),stringsAsFactors=FALSE)
+write.csv(data.frame(cell_id=rownames(res),precise),args[3],row.names=FALSE,na='NA')
+writeLines(capture.output(sessionInfo()),paste0(args[3],'.session.txt'))
