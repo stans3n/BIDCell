@@ -36,26 +36,28 @@ class Tests(unittest.TestCase):
    with self.assertRaisesRegex(ValueError,'population drift'):load_population(spec)
  def test_joint_four_endpoint_denominator_and_empty(self):
   with tempfile.TemporaryDirectory() as t:
-   root=Path(t);anchor=root/'anchor.csv';pd.DataFrame({'cell_id':[1,2,3,4],'cell_type':['T']*4}).to_csv(anchor,index=False);methods={}
+   root=Path(t);anchor=root/'anchor.csv';pd.DataFrame({'cell_id':[1,2,3,4],'cell_type':['T']*4}).to_csv(anchor,index=False);methods={};prepared=root/'prepared';prepared.mkdir();refs=['g'+str(i) for i in range(307)];(prepared/'reference_genes.txt').write_text('\n'.join(refs)+'\n');atomic_json(prepared/'complete.json',dict(outputs={'reference_genes.txt':identity(prepared/'reference_genes.txt')}))
    for arm in ['S','B']:
-    ev=root/arm;d=ev/'diagnostics/stages';d.mkdir(parents=True);methods[arm]={'evaluation':str(ev)}
+    ev=root/arm;d=ev/'diagnostics/stages';d.mkdir(parents=True);matrix=root/(arm+'_matrix');matrix.mkdir();pd.DataFrame({'gene_column':range(307),'gene':refs}).to_csv(matrix/'gene_mapping.csv',index=False);atomic_json(matrix/'complete.json',dict(outputs={'gene_mapping.csv':identity(matrix/'gene_mapping.csv')}));methods[arm]={'evaluation':str(ev),'matrix':str(matrix)};count_artifacts={};tables={}
     for stage in ['pre','final']:
      ids=[1,2,3] if arm=='S' else [1,2,4];v=[.8,.5,.4] if arm=='S' else [.2,.1,.2]
      frame=table(ids,v)
      if arm=='B' and stage=='final':frame.loc[1,METRICS]=np.nan
      if arm=='S' and stage=='final':frame.loc[0,METRICS]=.9
-     frame.to_csv(d/f'fixed_B1_{stage}.csv',index=False,na_rep='NA')
-   out=root/'out';postprocess_increment(methods,{'B1':identity(anchor)},[('S','B')],[4,2,1,3],out)
+     frame.to_csv(d/f'fixed_B1_{stage}.csv',index=False,na_rep='NA');tables[stage]=identity(d/f'fixed_B1_{stage}.csv')
+     np.savez_compressed(d/f'counts_{stage}.npz',cell_id=np.asarray(ids),counts=np.ones((len(ids),307),np.int64));count_artifacts[stage]=identity(d/f'counts_{stage}.npz')
+    atomic_json(d/'validation.json',dict(status='succeeded',integer_conservation=True,count_artifacts=count_artifacts));atomic_json(ev/'complete.json',dict(outputs=tables))
+   out=root/'out';postprocess_increment(methods,{'B1':identity(anchor)},[('S','B')],[4,2,1,3],out,prepared=prepared)
    rows=pd.read_csv(out/'postprocess_cos_increment.csv');self.assertTrue((rows.n_population==4).all());self.assertTrue((rows.n_evaluable==1).all());self.assertTrue((rows.n_missing_stage_id==2).all());self.assertTrue((rows.n_undefined_original_metric==1).all());np.testing.assert_allclose(rows.pre_cos_increment,.6);np.testing.assert_allclose(rows.final_cos_increment,.7);np.testing.assert_allclose(rows.postprocess_rewrite,.1)
    cells=read_table(out/'postprocess_S_minus_B_B1_per_cell.csv');self.assertEqual(cells.cell_id.tolist(),[4,2,1,3]);self.assertTrue(cells.loc[cells.cell_id!=1,METRICS[0]+'_postprocess_rewrite'].isna().all())
-   postprocess_increment(methods,{'B1':identity(anchor)},[('S','B')],[3,4],root/'empty');empty=pd.read_csv(root/'empty/postprocess_cos_increment.csv');self.assertTrue((empty.n_evaluable==0).all());self.assertTrue(empty.pre_cos_increment.isna().all())
+   postprocess_increment(methods,{'B1':identity(anchor)},[('S','B')],[3,4],root/'empty',prepared=prepared);empty=pd.read_csv(root/'empty/postprocess_cos_increment.csv');self.assertTrue((empty.n_evaluable==0).all());self.assertTrue(empty.pre_cos_increment.isna().all())
 
 
 def actual(root,out):
  q=json.loads((root/'configs/queue.json').read_text());methods={**q['historical_methods'],**q['methods']};ids=load_population(q['population']);assert len(ids)==103000
- pairs=[('S','B'),('SP','S'),('SP','B'),('S','A'),('SP','A')]
- postprocess_increment(methods,q['anchors'],pairs,ids,out)
- summary=pd.read_csv(out/'postprocess_cos_increment.csv');assert len(summary)==30 and (summary.n_population==103000).all()
+ pairs=[('P1','B'),('P2','B'),('T1','B'),('T2','B'),('T2','T1'),('T1','S'),('T2','S')];methods['B']=dict(methods['B'],evaluation=str(root/'diagnostics/B_native_replay/evaluation'),stage_table_authority=json.loads((root/'tests/admission.json').read_text())['evidence']['B_native_recursive_artifacts'],stage_table_authority_receipt=str(root/'tests/admission.json'))
+ postprocess_increment(methods,q['anchors'],pairs,ids,out,prepared=q['prepared'])
+ summary=pd.read_csv(out/'postprocess_cos_increment.csv');assert len(summary)==42 and (summary.n_population==103000).all()
  for a,b in pairs:
   cells=read_table(out/f'postprocess_{a}_minus_{b}_B1_per_cell.csv');assert cells.cell_id.tolist()==ids.tolist()
   for metric in METRICS:
@@ -66,8 +68,8 @@ def actual(root,out):
  return dict(population_count=len(ids),summary_rows=len(summary),all_pairs_preserve_exact_order=True,all_missing_scores_NA=True,domains=pd.read_csv(out/'stage_population_domains.csv').to_dict('records'))
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--root',required=True);args=p.parse_args();root=Path(args.root);sources=['scripts/bs4/stage_population.py','scripts/bs4/tables.py','scripts/bs4/tests/report_population.py','scripts/cos/diagnostics.py'];execution_source=source_identity(sources);r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Tests))
+ p=argparse.ArgumentParser();p.add_argument('--root',required=True);p.add_argument('--output',required=True);args=p.parse_args();root=Path(args.root);sources=['scripts/bs4/stage_population.py','scripts/bs4/stage_reference.py','scripts/bs4/tables.py','scripts/bs4/tests/report_population.py','scripts/cos/diagnostics.py'];execution_source=source_identity(sources);r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Tests))
  if not r.wasSuccessful():raise SystemExit(1)
- out=root/'tests/report_population_gzip_v2';result=actual(Path('/home/zwan0726/work/outputs/cos_ssp_20261011T005741+1100'),out)
+ out=Path(args.output);result=actual(root,out)
  if source_identity(sources)!=execution_source:raise ValueError('population regression execution source changed')
- atomic_json(root/'tests/report_population_gzip_v2.json',dict(execution_source=execution_source,status='passed',tests_run=r.testsRun,actual=result,outputs={str(p.relative_to(out)):identity(p) for p in out.rglob('*') if p.is_file()}));print('Actual frozen population stage validation passed',flush=True)
+ atomic_json(out.parent/(out.name+'_receipt.json'),dict(execution_source=execution_source,status='passed',tests_run=r.testsRun,actual=result,outputs={str(p.relative_to(out)):identity(p) for p in out.rglob('*') if p.is_file()}));print('Actual frozen population stage validation passed',flush=True)

@@ -46,17 +46,21 @@ def align_stage(table,population,labels):
         aligned[metric]=values;aligned[metric+'_reason']=reason
     return aligned,dict(n_population=len(ids),n_stage_rows=len(own_ids),n_present=int(present.sum()),n_missing_stage_rows=int((~present).sum()),n_extra_stage_ids=int((~own_ids.isin(ids)).sum()))
 
-def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','final')):
+def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','final'),prepared=None):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);ids=population_index(population)
-    rows=[];domains=[];inputs={};aligned={};inventory={}
+    if prepared is None:raise ValueError('frozen prepared reference inventory required for stage availability')
+    from .stage_reference import load_stage_table
+    rows=[];domains=[];inputs={};aligned={};inventory={};normalization={}
     used=sorted(set(x for pair in pairs for x in pair))
     for anchor,spec in anchors.items():
         labels=load_anchor(spec)
         for arm in used:
             for stage in stages:
-                path=table_path(Path(methods[arm]['evaluation'])/'diagnostics/stages'/f'fixed_{anchor}_{stage}.csv')
-                table,counts=align_stage(pd.read_csv(path),ids,labels)
+                raw,authority=load_stage_table(methods[arm],anchor,stage,prepared)
+                path=Path(authority['inputs']['table']['path'])
+                table,counts=align_stage(raw,ids,labels)
                 key=(anchor,arm,stage);aligned[key]=table;inventory['/'.join(key)]=counts;inputs['/'.join(key)]=identity(path)
+                normalization['/'.join(key)]=authority
                 dest=out/'stage_population'/f'{arm}_{anchor}_{stage}.csv';dest.parent.mkdir(exist_ok=True);write_table(table,dest,na_rep='NA')
                 for metric in METRICS:
                     reason=table[metric+'_reason'];n=int(reason.eq('available').sum())
@@ -81,4 +85,4 @@ def postprocess_increment(methods,anchors,pairs,population,out,stages=('pre','fi
             write_table(cell,out/f'postprocess_{a}_minus_{b}_{anchor}_per_cell.csv',na_rep='NA')
     pd.DataFrame(rows).to_csv(out/'postprocess_cos_increment.csv',index=False,na_rep='NA')
     pd.DataFrame(domains).to_csv(out/'stage_population_domains.csv',index=False)
-    atomic_json(out/'stage_population_contract.json',dict(version='SSP-fixed-stage-population-v1',population_count=len(ids),population_order=ids.tolist(),inputs=inputs,inventory=inventory,missing_score_policy='NA; no intersection and no score imputation',paired_domain='all four method/pre/final metric values finite and label-eligible',reason_priority=['missing_stage_id','label_ineligible','nonfinite_original_metric','undefined_original_metric']))
+    atomic_json(out/'stage_population_contract.json',dict(version='BS4-fixed-stage-population-counts-NA-v2',population_count=len(ids),population_order=ids.tolist(),inputs=inputs,inventory=inventory,reference_count_normalization=normalization,missing_score_policy='NA; no intersection and no score imputation',paired_domain='all four method/pre/final metric values finite and label-eligible',reason_priority=['missing_stage_id','label_ineligible','nonfinite_original_metric','undefined_original_metric','zero_reference_counts']))

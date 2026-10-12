@@ -93,10 +93,13 @@ def aggregate(config,output_dir=None):
         ac=read(methods[a]['machine']);bc=read(methods[b]['machine']);accepted.changes(ac['final_mask'],bc['final_mask'],dest/'mask_changes',a+'-'+b,ac['pixel_um'])
     stage_methods={k:dict(v) for k,v in methods.items()}
     stage_methods['B']['evaluation']=str(root/'diagnostics/B_native_replay/evaluation')
-    postprocess_increment(stage_methods,q['anchors'],PAIRS,population,out/'diagnostics')
+    if not (Path(stage_methods['B']['evaluation'])/'complete.json').exists():
+        stage_methods['B']['stage_table_authority']=read(root/'tests/admission.json')['evidence']['B_native_recursive_artifacts']
+        stage_methods['B']['stage_table_authority_receipt']=str(root/'tests/admission.json')
+    postprocess_increment(stage_methods,q['anchors'],PAIRS,population,out/'diagnostics',prepared=q['prepared'])
     for before,after in [('pre','postconnect_canonical'),('postconnect_canonical','tile_merge'),('tile_merge','final')]:
         pairs=[p for p in PAIRS if 'S' not in p]
-        postprocess_increment(stage_methods,q['anchors'],pairs,population,out/'stage_domains'/(before+'_to_'+after),stages=(before,after))
+        postprocess_increment(stage_methods,q['anchors'],pairs,population,out/'stage_domains'/(before+'_to_'+after),stages=(before,after),prepared=q['prepared'])
     from .post_effects import write as post_effects
     post_effects(methods,root/'diagnostics/B_native_replay/predictions/B/endpoints.json',out/'post_effects')
     coverage.extend(dict(metric_id=k,profile='SSP',comparison='B/S/P1/P2/T1/T2',required_this_run=True,status='computed',artifact_path=str(p)) for k,p in [('fixed_B1QC',out/'fixed_B1QC/paired_metrics.csv'),('purity_fixed_set',out/'purity.json'),('B_native_replay',root/'diagnostics/B_native_replay/validation.json'),('downstream_difference_fate',out/'post_effects/downstream_difference_fate.csv')])
