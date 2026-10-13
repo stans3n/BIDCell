@@ -27,6 +27,148 @@ def native_receipt(cfg,stage):
         'evaluate':out/'evaluation'/run/'complete.json'}[stage]
 
 
+def expected_native_dependencies(cfg,stage):
+    """Reproduce each native producer's actual complete dependency schema."""
+    cfg=validate_layout(cfg);out=Path(cfg['output_root']);machine=read(cfg['machine'])
+    if stage=='train':
+        from .training import checkpoint_header
+        return checkpoint_header(cfg)
+    if stage=='predict':
+        return dict(checkpoint=identity(out/'checkpoints/final.pth'),producer=producer('predict'),
+                    prepared=identity(INPUT/'prepared/manifest.json'),run_id=cfg['run_id'],model_kind=cfg['model_kind'])
+    if stage=='postprocess':
+        return dict(pre=identity(out/'predictions'/cfg['run_id']/'pre.tif'),nuclei=identity(machine['nuclei_mask']),
+                    seed=1234,patch_size=1024,
+                    source=source_identity(['scripts/crgf/postprocess.py','bidcell/model/postprocess_predictions.py']))
+    if stage=='matrix':
+        return dict(**{k:identity(machine[k]) for k in ('transcripts','genes','baseline_config')},mask=identity(machine['final_mask']))
+    if stage=='evaluate':
+        from .evaluation import evaluation_contract
+        _,_,contract=evaluation_contract(cfg['runroot'])
+        return dict(matrix=identity(native_receipt(cfg,'matrix')),machine=identity(cfg['machine']),**contract)
+    raise ValueError(stage)
+
+
+def _exact_outputs(rec,paths):
+    expected={name:identity(path) for name,path in paths.items()}
+    if rec.get('outputs')!=expected:raise ValueError('native output identity/path inventory differs')
+
+
+def validate_prediction_chunk(path,base,start,stop,patches):
+    path=Path(path);chunk=read(path)
+    expected=dict(base=base,start=start,stop=stop,patches=patches)
+    if chunk.get('status')!='succeeded' or chunk.get('dependencies')!=expected:
+        raise ValueError('native prediction chunk complete dependency mismatch')
+    _exact_outputs(chunk,dict(masks=path.with_suffix('.npy')))
+    return identity(path)
+
+
+def validate_postprocess_split(path,base,ids):
+    path=Path(path);split=read(path)
+    if split.get('status')!='succeeded' or split.get('dependencies')!=dict(base=base,ids=ids):
+        raise ValueError('postprocess split complete dependency mismatch')
+    _exact_outputs(split,dict(split=path.with_suffix('.npz')))
+    return dict(receipt=identity(path),output=identity(path.with_suffix('.npz')))
+
+
+def validate_native_lineage(config,stage,rec=None,check_upstream=True):
+    """Validate provenance before any old native success can acquire a bound receipt.
+
+    An unchanged complete.json alone is insufficient: check current upstream
+    artifacts and the native chunk/cache manifests that actually produced them.
+    This does not change scientific generation or the frozen training producer.
+    """
+    cfg=validate_layout(config);out=Path(cfg['output_root']);run=cfg['run_id'];machine=read(cfg['machine'])
+    rec=read(native_receipt(cfg,stage)) if rec is None else rec
+    if rec.get('status')!='succeeded':raise ValueError('native stage did not succeed: '+stage)
+    expected=expected_native_dependencies(cfg,stage)
+    if rec.get('dependencies')!=expected:raise ValueError('native '+stage+' dependencies differ from current inputs/producer')
+    verify_outputs(rec)
+    if stage=='train':
+        _exact_outputs(rec,dict(checkpoint=out/'checkpoints/final.pth',sequence=out/'effective_sequence.jsonl'))
+        if rec.get('pilot') or rec.get('run_id')!=run or rec.get('model_kind')!=cfg['model_kind']:
+            raise ValueError('native train identity/pilot differs')
+    elif stage=='predict':
+        p=out/'predictions'/run
+        _exact_outputs(rec,{name:p/name for name in ('pre.tif','shift0.tif','shift24.tif','fill.tif')})
+        chunks=[]
+        for shift in (0,24):
+            pool=read(INPUT/f'configs/predict_shift{shift}.json')
+            for start in range(0,len(pool),128):
+                cp=p/f'shift{shift}_patches'/f'{start:06d}.json';stop=min(start+128,len(pool))
+                chunks.append(validate_prediction_chunk(cp,expected,start,stop,[v['identity'] for v in pool[start:stop]]))
+        if rec.get('chunks')!=chunks:raise ValueError('native prediction ordered chunk inventory differs')
+    elif stage=='postprocess':
+        p=out/'predictions'/run/'postprocess';m=read(p/'manifest.json')
+        _exact_outputs(rec,dict(final_mask=out/'predictions'/run/'final.tif',manifest=p/'manifest.json'))
+        if m.get('dependencies')!=expected:raise ValueError('postprocess manifest dependencies differ')
+        if len(m['tiles'])!=len(m['coords']):raise ValueError('postprocess tile inventory incomplete')
+        for obj,coords in zip(m['tiles'],m['coords']):
+            y,x=coords;path=p/f'tile_{y}_{x}.json';tile=read(path)
+            if obj!=identity(path) or tile.get('status')!='succeeded' or tile.get('dependencies')!=dict(base=expected,coords=coords):
+                raise ValueError('postprocess tile complete dependency mismatch')
+            _exact_outputs(tile,dict(tile=path.with_suffix('.tif')))
+        splitbase=digest(dict(base=expected,tiles=m['tiles'],ids=m['split_ids']))
+        expected_chunks=[]
+        for start in range(0,len(m['split_ids']),128):
+            ids=m['split_ids'][start:start+128];path=p/'splits'/f'{start:06d}.json'
+            expected_chunks.append(dict(start=start,ids=ids,**validate_postprocess_split(path,splitbase,ids)))
+        if m.get('split_chunks')!=expected_chunks:raise ValueError('postprocess ordered split inventory differs')
+    elif stage=='matrix':
+        import cv2
+        from scripts.crgf.common import VERSION as MATRIX_VERSION
+        p=out/'matrix'/run;shape=list(tifffile.imread(machine['final_mask']).shape)
+        _exact_outputs(rec,{name:p/name for name in ('counts.npy','cell_mapping.csv','gene_mapping.csv','expr_mat.csv')})
+        source=REPO/'scripts/crgf/matrix.py'
+        contract=dict(version=MATRIX_VERSION,source_sha256=sha256(source),shape=shape,scale_x=machine['scale_x'],scale_y=machine['scale_y'],
+            coordinate='processed coords / scale_pix -> pandas-compatible ties-to-even round -> native cv2 INTER_NEAREST axes; OOB unassigned',
+            filter='already processed qv>=20 + configured prefixes + nonnegative; no refilter; vendor cell_id ignored',
+            data_scope='own-mask Rep1 full field engineering',fit_scope='none',kind='final')
+        if rec.get('kind')!='final' or rec.get('contract')!=contract:raise ValueError('matrix source/coordinate contract differs')
+        cdeps=dict(transcripts=expected['transcripts']['sha256'],genes=expected['genes']['sha256'],shape=shape,
+            scale_x=machine['scale_x'],scale_y=machine['scale_y'],builder=contract['source_sha256'],
+            common=sha256(REPO/'scripts/crgf/common.py'),numpy=np.__version__,opencv=cv2.__version__,pandas=pd.__version__)
+        cdir=Path(rec['coordinate_cache']);cache=read(cdir/'complete.json')
+        key=hashlib.sha256(json.dumps(cdeps,sort_keys=True).encode()).hexdigest()
+        if cdir.name!=key or cache.get('dependencies')!=cdeps or cache.get('duplicate_ids')!=0:
+            raise ValueError('matrix coordinate cache input/scale/source/version mismatch')
+        if len(rec['receipts'])!=len(cache['chunks']):raise ValueError('matrix coordinate/owner inventory mismatch')
+        rows=0
+        for i,(owner,coordinate) in enumerate(zip(rec['receipts'],cache['chunks'])):
+            cp=cdir/f'chunk_{i:04d}.npy';op=p/f'owners_{i:04d}.npy';saved=read(op.with_suffix('.json'))
+            csha=sha256(cp);osha=sha256(op);n=coordinate['rows']
+            if coordinate['file']!=cp.name or coordinate['sha256']!=csha or owner['coordinate_file']!=str(cp) or owner['coordinate_sha256']!=csha:
+                raise ValueError('matrix coordinate chunk identity differs')
+            if owner['chunk']!=i or owner['owner_file']!=op.name or owner['sha256']!=osha or (owner['row_start'],owner['row_stop'],owner['rows'])!=(rows,rows+n,n):
+                raise ValueError('matrix owner chunk identity/row coverage differs')
+            if saved!={'dependencies':dict(mask=expected['mask']['sha256'],coordinates=csha,source=contract['source_sha256']),'sha256':osha}:
+                raise ValueError('matrix owner receipt dependency mismatch')
+            rows+=n
+        if rows!=rec['totals']['eligible']:raise ValueError('matrix complete coordinate coverage differs')
+        validation=read(p/'validation.json')
+        if rec.get('validation')!=identity(p/'validation.json') or rec.get('validation_kind')!='independent_full_native_resize_lookup_and_conservation':
+            raise ValueError('matrix independent validation receipt differs')
+        if validation.get('source')!=identity(source) or validation.get('mask')!=expected['mask'] or validation.get('outputs')!=rec['outputs'] or validation.get('conservation')!=rec['totals']:
+            raise ValueError('matrix validation provenance differs')
+        if validation.get('numpy')!=np.__version__ or validation.get('opencv')!=cv2.__version__:
+            raise ValueError('matrix validation environment differs')
+    else:
+        p=out/'evaluation'/run
+        # Actual generation records the whole current evaluation tree, including
+        # profiles_complete. Compare its paths as well as hashes, not just fields.
+        if rec.get('outputs')!=file_tree(p):raise ValueError('evaluation output identity inventory differs')
+        profiles=read(p/'profiles_complete.json')
+        if profiles.get('status')!='succeeded' or profiles.get('dependencies')!=expected:
+            raise ValueError('evaluation profiles matrix/machine/science dependencies differ')
+        verify_outputs(profiles)
+    if check_upstream and stage!='train':
+        # Check the predecessor's real artifacts and native scientific inputs.
+        # The formal gateway also requires its bound semantic acceptance below.
+        previous=STAGES[STAGES.index(stage)-1]
+        validate_native_lineage(cfg,previous,check_upstream=False)
+    return expected
+
+
 def dependencies(cfg,stage):
     cfg=validate_layout(cfg)
     rec=dict(run_id=cfg['run_id'],model_kind=cfg['model_kind'],config=identity(cfg['config_path']),
@@ -94,8 +236,8 @@ def validate_stage(config,stage,require_bound=False):
     cfg=validate_layout(config)
     if stage not in STAGES:raise ValueError(stage)
     path=native_receipt(cfg,stage);rec=read(path)
-    if rec.get('status')!='succeeded':raise ValueError('stage did not succeed: '+stage)
-    verify_outputs(rec);out=Path(cfg['output_root']);run=cfg['run_id'];machine=read(cfg['machine'])
+    validate_native_lineage(cfg,stage,rec)
+    out=Path(cfg['output_root']);run=cfg['run_id'];machine=read(cfg['machine'])
     semantic={}
     if stage=='train':
         from .training import checkpoint_header,validate_cursor
@@ -172,7 +314,7 @@ def validate_stage(config,stage,require_bound=False):
 
 def run_stage(config,stage):
     cfg=validate_layout(config);bound=Path(cfg['output_root'])/'stages'/f'{stage}.json'
-    if bound.exists():return validate_stage(cfg,stage,require_bound=True)
+    if bound.exists():return _bind_completed_stage(cfg,stage)
     environment=check_environment(require_cuda=stage in ('train','predict'))
     frozen=read(Path(cfg['runroot'])/'prepared/step_zero_receipt.json')['environment']
     for key in ('host','python','torch','numpy','scipy','opencv','imgaug','cuda','cudnn',
@@ -203,4 +345,12 @@ def run_stage(config,stage):
         else:
             from .evaluation import evaluate
             evaluate(cfg)
-    result=validate_stage(cfg,stage);atomic_json(bound,result);return result
+    return _bind_completed_stage(cfg,stage)
+
+
+def _bind_completed_stage(config,stage):
+    """Gateway commit point; a previous bound receipt is never silently replaced."""
+    cfg=validate_layout(config);bound=Path(cfg['output_root'])/'stages'/f'{stage}.json'
+    exists=bound.exists();result=validate_stage(cfg,stage,require_bound=exists)
+    if not exists:atomic_json(bound,result)
+    return result
