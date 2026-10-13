@@ -44,7 +44,7 @@ def freeze_inputs(q):
     deps=freeze_dependencies(q)
     if (out/'complete.json').exists():return validate_inputs(q)
     for arm in RUNS:
-        if (endpoint(arm)['evaluation']/'complete.json').exists():raise ValueError('formal scores exist before frozen input strata')
+        if any((endpoint(arm)['evaluation']/p).exists() for p in ('complete.json','paper_aligned_v1/annotation.csv','paper_aligned_v1/markers_per_cell.csv')):raise ValueError('formal scores exist before frozen input strata')
     verify_history(q);ev=Evidence(INPUT);nuc=ev.nuclei;ids=ev.ids.astype(np.int64)
     if len(ids)!=107955 or len(np.unique(ids))!=len(ids):raise ValueError('original ID universe differs')
     typ=ev.meta['type_index'];counts=np.zeros(nuc.shape,np.uint32)
@@ -131,7 +131,7 @@ def freeze_counts(q):
     out=Path(q['root'])/'frozen_counts';out.mkdir(exist_ok=True)
     if (out/'complete.json').exists():return validate_counts(q)
     for arm in RUNS:
-        if (endpoint(arm)['evaluation']/'complete.json').exists():raise ValueError('formal scoring began before E0 count-quartile freeze')
+        if any((endpoint(arm)['evaluation']/p).exists() for p in ('complete.json','paper_aligned_v1/annotation.csv','paper_aligned_v1/markers_per_cell.csv')):raise ValueError('formal scoring began before E0 count-quartile freeze')
     from scripts.paired_v2.stages import validate_stage
     validate_stage(config_path('BASE_MATCH'),'matrix',require_bound=True);validate_inputs(q)
     e=endpoint('BASE_MATCH');ids=pd.read_csv(e['matrix']/'cell_mapping.csv').canonical_cell_id.to_numpy()

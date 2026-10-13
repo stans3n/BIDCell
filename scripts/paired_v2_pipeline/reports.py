@@ -116,12 +116,16 @@ def spatial_diversity(q,out,arms=ENDPOINTS):
 
 def local_summary(frame,mask):
     f=frame.loc[mask];qc=f.qc_pass.to_numpy(bool);n=len(f);qn=int(qc.sum())
+    scores={m:finite_mean(f.loc[qc,'sc_'+m].to_numpy()) for m in METRICS}
+    for stats in scores.values():
+        if stats['mean'] is None:
+            stats['reason']='empty fixed-ID group' if n==0 else 'no own-QC cells in nonempty fixed-ID group' if qn==0 else 'no finite metric values among own-QC cells'
     return dict(n_ids=n,n_qc=qn,rna=int(f.total_transcripts.sum()),capture=None,
         area_mean=float(f.area_um2.mean()) if n else None,area_median=float(f.area_um2.median()) if n else None,
         area_p95=float(f.area_um2.quantile(.95,interpolation='linear')) if n else None,
         qc_retention=qn/n if n else None,unassigned=int((f.sc_label=='unassigned').sum())/qn if qn else None,
         disconnected8=int((f.components_8>1).sum()) if n else None,
-        **{m:finite_mean(f['sc_'+m].to_numpy()) for m in METRICS})
+        **scores)
 
 
 def strata_reports(q,out,pop,frames):
@@ -139,6 +143,8 @@ def strata_reports(q,out,pop,frames):
             for arm,s in summaries.items():
                 rows.append(dict(family=family,group=level,method=arm,**{k:v for k,v in s.items() if k not in METRICS},
                     **{m:s[m]['mean'] for m in METRICS},**{m+'_n':s[m]['n_finite'] for m in METRICS},
+                    **{m+'_status':s[m]['status'] for m in METRICS},**{m+'_reason':s[m]['reason'] for m in METRICS},
+                    **{m+'_population':s[m]['n_population'] for m in METRICS},
                     status='computed' if int(mask.sum()) else 'not_estimable',reason=None if mask.any() else 'empty fixed-ID group'))
             for key,(candidate,control) in COMPARISONS.items():
                 a,b=summaries[candidate],summaries[control];guards=guard_values(a,b);guards.pop('capture')
@@ -384,4 +390,14 @@ def validate_reports(q):
             if draws.shape[0]!=2000:raise ValueError('paired bootstrap repetitions incomplete')
     required=('strata_endpoint_values.csv','strata_comparisons.json','domain_capture.csv','block_capture.csv','common_population_deltas.csv','QC_entry_exit_counts.csv','label_migrations.csv','spatial_summary.json','stage_cost.json','scope_and_missingness.json','author_spatial/spatial_diversity_all_methods.csv')
     if any(not (out/name).is_file() for name in required):raise ValueError('prespecified report absent')
+    strata=pd.read_csv(out/'strata_endpoint_values.csv')
+    spec=read(Path(q['root'])/'frozen_strata/strata.json');counts=read(Path(q['root'])/'frozen_counts/strata.json')
+    expected_groups=len(spec['original_type_names'])+1+len(spec['density_edges'])+1+len(counts['edges'])+1+sum(spec['grids'][str(s)]['n_blocks'] for s in (500,1000,2000))
+    if len(strata)!=3*expected_groups or set(strata.method)!=set(ENDPOINTS):raise ValueError('prespecified fixed groups missing')
+    for metric in METRICS:
+        columns={metric,metric+'_n',metric+'_status',metric+'_reason',metric+'_population'}
+        if not columns<=set(strata):raise ValueError('per-metric stratum estimability fields missing')
+        absent=strata[metric+'_n']==0;present=~absent
+        if not (strata.loc[absent,metric].isna().all() and (strata.loc[absent,metric+'_status']=='not_estimable').all() and strata.loc[absent,metric+'_reason'].notna().all()):raise ValueError('unscorable fixed group lacks explicit not_estimable/reason')
+        if not (np.isfinite(strata.loc[present,metric]).all() and (strata.loc[present,metric+'_status']=='computed').all()):raise ValueError('finite stratum metric/status inconsistent')
     return dict(status='passed',receipt=identity(out/'complete.json'),endpoints=list(ENDPOINTS),comparisons=list(COMPARISONS),all_ids=107955)

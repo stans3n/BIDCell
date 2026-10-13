@@ -50,15 +50,16 @@ def terminate_owned(child,ident):
         child.wait(timeout=10)
 
 
-def resume_training_valid(q,task):
-    """Read-only validation of a durable formal snapshot, before one timeout retry."""
+def validate_resume_snapshot(cfg,p,log,pilot=False):
+    """Read-only durable-state verifier. Pilot positives are confined to tests."""
     import torch
     from scripts.paired_v2.training import checkpoint_header,validate_cursor
     from scripts.paired_v2.common import make_model,optimizer
-    cfg=load_config(config_path(task['arm']));p=endpoint(task['arm'])['root']/'checkpoints/latest.pth'
+    p=Path(p);log=Path(log)
+    if pilot and (DEFAULT_ROOT/'tests' not in p.resolve().parents or DEFAULT_ROOT/'tests' not in log.resolve().parents):raise ValueError('pilot verifier outside test partition')
     if not p.exists():return False
     state=torch.load(p,map_location='cpu')
-    if state['pilot'] or state['header']!=checkpoint_header(cfg) or state['sequence_digest']!=digest(state['effective_sequence']):return False
+    if bool(state['pilot'])!=pilot or state['header']!=checkpoint_header(cfg) or state['sequence_digest']!=digest(state['effective_sequence']):return False
     validate_cursor(state)
     if not 0<state['actual_updates']<=3625 or not state['bn_in_model_state'] or set(state['rng'])!={'python','numpy','torch','cuda','imgaug'}:return False
     model=make_model(cfg['model_kind'],'cpu');model.load_state_dict(state['model'],strict=True)
@@ -68,13 +69,51 @@ def resume_training_valid(q,task):
         if set(s)!={'step','exp_avg','exp_avg_sq'} or int(s['step'])!=state['actual_updates']:return False
         if any(not torch.isfinite(v).all() for v in s.values()):return False
     if any(not torch.isfinite(v).all() for v in state['model'].values()):return False
-    log=endpoint(task['arm'])['root']/'effective_sequence.jsonl'
     if not log.exists():return False
     lines=log.read_text().splitlines();rows=state['effective_sequence']
     if len(lines)<len(rows):return False
     if any(json.loads(lines[i])!=r for i,r in enumerate(rows)):return False
     # A partial/uncommitted suffix may be repaired only by the reviewed gateway.
     return True
+
+
+def resume_training_valid(q,task):
+    cfg=load_config(config_path(task['arm']));e=endpoint(task['arm'])
+    return validate_resume_snapshot(cfg,e['root']/'checkpoints/latest.pth',e['root']/'effective_sequence.jsonl')
+
+
+def commit_completed(q,task,dep,result,attempts,outputs,recovered=False):
+    """Parent's atomic commit point after independently accepted worker output."""
+    if dep!=own_dependencies(q,task) or result.get('status')!='passed':raise ValueError('parent commit has stale dependency or unsuccessful semantic result')
+    for obj in outputs.values():check_obj(obj)
+    rec=dict(status='completed',dependencies=dep,semantic=result,attempts=attempts,outputs=outputs)
+    if recovered:rec['recovered_worker_completion']=True
+    p=own_receipt(q,task['id'])
+    if p.exists():
+        old=read(p)
+        if any(old.get(k)!=rec[k] for k in ('status','dependencies','semantic','outputs')):raise ValueError('existing parent commit differs')
+        verify_outputs(old);return old
+    atomic_json(p,rec);return rec
+
+
+def supervise(command,cwd,env,logpath,timeout,on_update=None):
+    """Actual owned process supervision, also exercised by OS fixtures."""
+    begin=time.monotonic();peak_rss=peak_pss=0;timed_out=False
+    with Path(logpath).open('a') as stream:
+        child=subprocess.Popen(command,cwd=cwd,stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True,env=env)
+        ident=process_identity(child.pid)
+        try:
+            while child.poll() is None:
+                sample=resource_sample(child.pid);peak_rss=max(peak_rss,sample['rss_sum_bytes']);peak_pss=max(peak_pss,sample['pss_sum_bytes'])
+                elapsed=time.monotonic()-begin
+                if on_update:on_update(ident,elapsed,peak_rss,peak_pss)
+                if elapsed>timeout:terminate_owned(child,ident);timed_out=True;break
+                time.sleep(2)
+        except BaseException:
+            terminate_owned(child,ident);raise
+    code=124 if timed_out else child.returncode
+    return code,dict(exit_code=code,wall_seconds=time.monotonic()-begin,log=identity(logpath),
+        process=ident,peak_RSS_sum_bytes=peak_rss,peak_PSS_sum_bytes=peak_pss,temporary_timeout=timed_out)
 
 
 def retry_allowed(q,task,code,attempt):
@@ -143,7 +182,7 @@ def run(root):
                 if (Path(root)/folder/'complete.json').exists():completed=semantic(q,task)
             if completed is not None:
                 outputs={'native_bound_receipt':identity(cp)} if task['arm'] else {'custom_completion':completed['receipt']}
-                atomic_json(path,dict(status='completed',dependencies=dep,semantic=completed,attempts=attempts,outputs=outputs,recovered_worker_completion=True))
+                commit_completed(q,task,dep,completed,attempts,outputs,recovered=True)
                 validate_task(q,task);entry.update(status='completed',finished_utc=utc(),receipt=identity(path),semantic=completed,reuse='verified_worker_completion')
                 atomic_json(state_path,state);continue
             for attempt in range(len(attempts),q['max_retries']+1):
@@ -151,28 +190,18 @@ def run(root):
                 entry.update(status='running',started_utc=utc(),attempt=attempt,exit_code=None)
                 entry['logs'].append(str(logpath));state.update(current=key,updated_utc=utc());atomic_json(state_path,state)
                 env=numeric_env();env['CUDA_VISIBLE_DEVICES']='0' if task['stage'] in ('train','predict') else ''
-                begin=time.monotonic();peak_rss=peak_pss=0;timed_out=False
-                with logpath.open('a') as stream:
-                    child=subprocess.Popen([q['python'],'-B','-m','scripts.paired_v2_pipeline.cli','worker','--root',str(root),'--task',key,'--attempt',str(attempt)],
-                        cwd=q['repo'],stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True,env=env)
-                    child_id=process_identity(child.pid);entry['child']=child_id;atomic_json(state_path,state)
-                    while child.poll() is None:
-                        sample=resource_sample(child.pid);peak_rss=max(peak_rss,sample['rss_sum_bytes']);peak_pss=max(peak_pss,sample['pss_sum_bytes'])
-                        entry.update(progress=progress(q,task),resources=dict(peak_RSS_sum_bytes=peak_rss,peak_PSS_sum_bytes=peak_pss,scope='sampled owned process tree; shared RSS can double count'),elapsed_seconds=time.monotonic()-begin)
-                        state['updated_utc']=utc();atomic_json(state_path,state)
-                        if time.monotonic()-begin>q['stage_timeouts'][task['stage']]:
-                            terminate_owned(child,child_id);timed_out=True;break
-                        time.sleep(2)
-                    code=124 if timed_out else child.returncode
+                def update(ident,elapsed,rss,pss):
+                    entry.update(child=ident,progress=progress(q,task),resources=dict(peak_RSS_sum_bytes=rss,peak_PSS_sum_bytes=pss,scope='sampled owned process tree; shared RSS can double count'),elapsed_seconds=elapsed)
+                    state['updated_utc']=utc();atomic_json(state_path,state)
+                command=[q['python'],'-B','-m','scripts.paired_v2_pipeline.cli','worker','--root',str(root),'--task',key,'--attempt',str(attempt)]
+                code,item=supervise(command,q['repo'],env,logpath,q['stage_timeouts'][task['stage']],update)
+                item['attempt']=attempt;timed_out=item['temporary_timeout']
                 entry['exit_code']=code
-                item=dict(attempt=attempt,exit_code=code,wall_seconds=time.monotonic()-begin,log=identity(logpath),
-                    peak_RSS_sum_bytes=peak_rss,peak_PSS_sum_bytes=peak_pss,temporary_timeout=timed_out)
                 attempts.append(item);entry['attempts']=attempts
                 if code==0:
                     accepted=semantic(q,task)
                     outputs={'native_bound_receipt':identity(endpoint(task['arm'])['root']/'stages'/f"{task['stage']}.json")} if task['arm'] else {'custom_completion':accepted['receipt']}
-                    rec=dict(status='completed',dependencies=dep,semantic=accepted,attempts=attempts,outputs=outputs)
-                    atomic_json(path,rec);validate_task(q,task)
+                    commit_completed(q,task,dep,accepted,attempts,outputs);validate_task(q,task)
                     entry.update(status='completed',finished_utc=utc(),receipt=identity(path),semantic=accepted,progress=progress(q,task));atomic_json(state_path,state);break
                 entry.update(status='failed',finished_utc=utc(),failure_reason='bounded timeout' if timed_out else 'worker failed; inspect error receipt/log')
                 atomic_json(state_path,state)

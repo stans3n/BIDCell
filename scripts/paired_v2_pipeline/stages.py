@@ -110,8 +110,9 @@ def validate_custom(q,stage):
 
 
 def execute(q,task):
-    for key in task['depends_on']:
-        previous=next(t for t in q['tasks'] if t['id']==key);validate_task(q,previous)
+    # The graph is serial: every previous task is an ancestor. Validate actual
+    # artifacts at every depth before allowing new downstream computation.
+    for previous in q['tasks'][:q['tasks'].index(task)]:validate_task(q,previous)
     if task['arm']:
         if task['stage']=='evaluate':
             from .freeze import validate_counts

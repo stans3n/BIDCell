@@ -8,11 +8,11 @@ import time
 import numpy as np
 import pandas as pd
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
-from scripts.paired_v2_pipeline.common import DEFAULT_ROOT,INPUT,REPO,PYTHON,identity,lock,alive,process_identity,task_graph
+from scripts.paired_v2_pipeline.common import DEFAULT_ROOT,INPUT,REPO,PYTHON,identity,lock,alive,process_identity,task_graph,atomic_json,own_dependencies,own_receipt,config_path,load_config,numeric_env,read
 from scripts.paired_v2_pipeline.math import pooled_deltas,spatial,spatial_flags,quartiles,guard_values,decide
 from scripts.paired_v2_pipeline.freeze import classify_domains
 from scripts.paired_v2_pipeline.reports import load_endpoint,local_summary,purity,write_json,spatial_diversity
-from scripts.paired_v2_pipeline.runtime import terminate_owned
+from scripts.paired_v2_pipeline.runtime import terminate_owned,supervise,commit_completed,validate_resume_snapshot,retry_allowed
 
 
 def main():
@@ -58,6 +58,46 @@ def main():
     bad={**ident,'start_ticks':'invalid'};assert not alive(bad)
     terminate_owned(child,ident);log.close();assert child.poll() is not None and not alive(ident)
     checks['actual_process_controls']=dict(duplicate_lock_rejected=True,wrong_identity_not_alive=True,owned_group_terminated=True,exit_code=child.returncode)
+    # A real abrupt parent death after durable worker output, before the same
+    # production parent-commit helper. This is a generic software fixture, not
+    # a formal scientific stage or a fake training checkpoint.
+    fixture=out/f'parent_commit_fixture_{time.time_ns()}';(fixture/'configs').mkdir(parents=True,exist_ok=True)
+    atomic_json(fixture/'configs/pipeline.json',{'scope':'generic parent commit fixture'})
+    qf={'root':str(fixture),'source_bundle':identity(DEFAULT_ROOT/'reviews/source_bundles/reviewer_r1.json'),'max_retries':1}
+    task={'id':'generic_fixture','arm':None,'stage':'fixture','depends_on':[]};payload=fixture/'worker_output.json'
+    source=INPUT/'V2_MORPH/evaluation/V2_MORPH/summary.json'
+    atomic_json(fixture/'fixture_contract.json',qf);atomic_json(fixture/'fixture_task.json',task)
+    with (fixture/'fixture_parent.log').open('w') as stream:
+        proc=subprocess.Popen([PYTHON,'-B',str(REPO/'tests/new_methods/pipeline_parent_fixture.py'),str(fixture),str(source)],cwd=REPO,env=numeric_env(),stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+        rc=proc.wait(timeout=30)
+    proof=read(fixture/'worker_succeeded.json');attempt=proof['attempt']
+    assert attempt['exit_code']==0 and not alive(proof['parent']) and proof['parent']['pid']!=attempt['process']['pid']
+    assert rc==23 and payload.exists() and not own_receipt(qf,task['id']).exists()
+    dep=read(fixture/'prelaunch_dependencies.json');semantic={'status':'passed','scope':'identity-verified generic payload fixture'}
+    objects={'payload':proof['output']};receipt=commit_completed(qf,task,dep,semantic,[attempt],objects,recovered=True)
+    before=identity(own_receipt(qf,task['id']));assert commit_completed(qf,task,dep,semantic,[attempt],objects,recovered=True)==receipt
+    assert identity(own_receipt(qf,task['id']))==before
+    bad_task={**task,'id':'changed_dependency_fixture'};bad_dep={**own_dependencies(qf,bad_task),'source_bundle':{'sha256':'invalid'}}
+    try:commit_completed(qf,bad_task,bad_dep,semantic,[],objects)
+    except ValueError:pass
+    else:raise AssertionError('parent accepted changed dependency')
+    assert not own_receipt(qf,bad_task['id']).exists()
+    rc,timeout=supervise([PYTHON,'-B','-c','import time; time.sleep(30)'],REPO,numeric_env(),fixture/'timeout.log',.1)
+    assert rc==124 and timeout['temporary_timeout'] and not alive(timeout['process'])
+    assert not retry_allowed(qf,{'id':'x','arm':'BASE_MATCH','stage':'train'},2,0)
+    assert not retry_allowed(qf,{'id':'x','arm':'BASE_MATCH','stage':'train'},124,1)
+    assert not retry_allowed(qf,{'id':'x','arm':None,'stage':'evaluate'},124,0)
+    (fixture/'worker_errors').mkdir(exist_ok=True);atomic_json(fixture/'worker_errors/x_attempt0.json',{'exception':'FloatingPointError'})
+    assert not retry_allowed(qf,{'id':'x','arm':'BASE_MATCH','stage':'train'},124,0)
+    checkpoints=json.loads((DEFAULT_ROOT/'tests/runner_resume.json').read_text())
+    for arm,entry in checkpoints['arms'].items():
+        cp=Path(entry['checkpoint100']['path']);log=cp.parent.parent/'effective_sequence.jsonl';cfg=load_config(config_path(arm))
+        assert validate_resume_snapshot(cfg,cp,log,pilot=True)
+        assert not validate_resume_snapshot(cfg,cp,log,pilot=False)
+    checks['parent_supervision_commit_retry']=dict(fixture=str(fixture),real_OS_parent_exit=23,actual_worker_exit=0,parent_and_child_distinct=True,timeout_exit=124,post_crash_parent_commit_verified=True,
+        existing_commit_readonly=True,stale_dependency_rejected=True,fatal_numeric_and_nontraining_and_exhausted_retry_rejected=True,
+        real_pilot100_complete_model_BN_Adam_rng_cursor_sequence_validated=True,pilot_as_formal_rejected=True,
+        fixture_parent_source=identity(REPO/'tests/new_methods/pipeline_parent_fixture.py'),scope='independent fixture supervisor parent dies after real child success; production supervise/commit helpers and real pilot snapshots tested; no formal scientific stage executed')
     graph=task_graph();assert len(graph)==15 and [t['arm'] for t in graph if t['stage']=='train']==['BASE_MATCH','V2_INTERACT']
     count=next(i for i,t in enumerate(graph) if t['stage']=='freeze_counts');assert all(count<i for i,t in enumerate(graph) if t['stage']=='evaluate')
     assert graph[-1]['stage']=='package' and all(t['depends_on']==[graph[i-1]['id']] for i,t in enumerate(graph) if i)
@@ -71,7 +111,11 @@ def main():
     for c in ('capture_pct','mean_cell_area_um2','disconnected_cells_8','scclassify_qc_cells','scclassify_unassigned_pct','scclassify_expression_pearson_type_mean','scclassify_detection_pearson_type_mean'):
         assert np.isclose(row[c],old[c],atol=1e-10,rtol=1e-8)
     empty=local_summary(frame,np.zeros(len(frame),bool));assert empty['n_ids']==0 and empty['area_mean'] is None and empty['unassigned'] is None
-    checks['real_E1_report']=dict(status='passed',all_ids=len(frame),row=row,empty_fixed_group=empty,scope='read-only actual full E1 matrix/evaluation/mask fixture, no new arm scores or formal computation')
+    nonempty=local_summary(frame,(frame.cell_id<=20).to_numpy())
+    assert nonempty['n_ids']==20 and nonempty['n_qc']==0
+    for metric in ('positive_F1','negative_F1','positive_Precision','positive_Recall','negative_Precision','negative_Recall'):
+        assert nonempty[metric]['status']=='not_estimable' and nonempty[metric]['mean'] is None and nonempty[metric]['reason']=='no own-QC cells in nonempty fixed-ID group'
+    checks['real_E1_report']=dict(status='passed',all_ids=len(frame),row=row,empty_fixed_group=empty,nonempty_no_QC_group=nonempty,scope='read-only actual full E1 matrix/evaluation/mask fixture, no new arm scores or formal computation')
     table=pd.read_csv('/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/main_table.csv');spec=purity(table)
     for profile in ('scclassify','fixed'):
         assert np.allclose(table[profile+'_Purity_F1'],pd.read_csv('/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/main_table.csv')[profile+'_Purity_F1'],atol=1e-12,rtol=0)
