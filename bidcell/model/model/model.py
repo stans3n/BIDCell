@@ -241,6 +241,10 @@ class SegmentationModel(nn.Module):
             if morphology_aux is None:
                 raise ValueError("V2_MORPH requires frozen geometry and DAPI features")
             h3 = self.morphology(h3, morphology_aux["geometry"], morphology_aux["dapi"])
+        if hasattr(self, "interaction"):
+            if morphology_aux is None:
+                raise ValueError("candidate interaction requires frozen auxiliary inputs")
+            h3 = self.interaction(h3, morphology_aux["native_support"], morphology_aux["relation"])
 
         h4 = self.maxpool3(h3)
         h4 = self.conv4(h4)  # h4->40*40*512
