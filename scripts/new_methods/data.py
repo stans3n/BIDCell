@@ -64,14 +64,15 @@ def support_kernel(mask,elongated):
 
 
 class Evidence:
-    def __init__(self,root,nuclei=None):
+    def __init__(self,root,nuclei=None,use_geometry=True,use_dapi=True):
         self.root=Path(root);self.manifest=read(self.root/'prepared/manifest.json')
         self.nuclei=tifffile.imread(BASELINE/'nuclei.tif').astype(np.int32) if nuclei is None else nuclei
         p=self.root/'prepared'
         self.meta=np.load(p/'nucleus_metadata.npz')
         self.full_counts=np.load(p/'full_nuclear_counts.npy',mmap_mode='r')
         self.boxes=ndi.find_objects(self.nuclei)
-        self.dapi=np.load(p/'dapi_features.npy',mmap_mode='r')
+        self.use_geometry=bool(use_geometry);self.use_dapi=bool(use_dapi)
+        if self.use_dapi:self.dapi=np.load(p/'dapi_features.npy',mmap_mode='r')
         self.ids=self.meta['ids'];self.centroids=self.meta['centroid_xy']
         self.id_to_row={int(cid):i for i,cid in enumerate(self.ids)}
         self.centroid_tree=cKDTree(self.centroids)
@@ -198,19 +199,23 @@ class Evidence:
                  support_image_censored=np.asarray(censored,bool),full_nucleus_pixels=np.asarray(full_pixels,np.int64),
                  visible_nucleus_pixels=np.asarray(visible_pixels,np.int64),type_index=types,ref_valid=valid,
                  specimen_clipped=self.meta['specimen_clipped'][rows],native_support=support)
-        if morphology:
+        if morphology and self.use_geometry:
             geo,missing=self.geometry(ids,y,x,flip,rot,support)
+            aux.update(geometry=geo)
+        if morphology and self.use_dapi:
             dapi=transform(np.asarray(self.dapi[:,y:y+48,x:x+48]).transpose(1,2,0),flip,rot).transpose(2,0,1)[None]
-            aux.update(geometry=geo,dapi=np.ascontiguousarray(dapi))
+            aux.update(dapi=np.ascontiguousarray(dapi))
         return {k:torch.from_numpy(np.ascontiguousarray(v)) for k,v in aux.items()}
 
 
 class NativeViews(DataProcessing):
-    def __init__(self,root,training=True,shift=0,auxiliary=True,morphology=False):
+    def __init__(self,root,training=True,shift=0,auxiliary=True,morphology=False,use_geometry=None,use_dapi=None):
         super().__init__(native_config(),isTraining=training,all_patches=True,shift_patches=shift,total_steps=4000 if training else None)
         self.root=Path(root);self.forced_transform=None;self.recorded=(0,0)
         self.morphology_enabled=morphology
-        self.evidence=Evidence(root,self.nuclei) if auxiliary else None
+        self.evidence=Evidence(root,self.nuclei,
+            use_geometry=morphology if use_geometry is None else use_geometry,
+            use_dapi=morphology if use_dapi is None else use_dapi) if auxiliary else None
         # Only accelerate immutable identity lookup; original __getitem__, the
         # candidate ordering, negative type indexing and marker arithmetic run
         # unchanged. Independent eight-transform comparison verifies equivalence.
