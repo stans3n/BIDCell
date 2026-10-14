@@ -40,7 +40,9 @@ Other commands: launch; status; status --json; tail [--node ID] [--lines N]
 External complete-check and validate require the queue to be inactive because
 full semantic checks load scientific masks/matrices. Status/tail remain fast
 operational reads during execution. End-of-lease complete-check runs under the
-supervisor's already held queue lock.
+supervisor's already held queue lock. Both external and internal full semantic
+validation additionally own the workspace compute lock once, so they cannot
+overlap another worktree's heavy mini or experiment.
 Resume is a background experiment queue operation, distinct from Codex goal
 resume. It creates a fresh bounded execution lease without modifying any science
 configuration or completed receipt. Known failed nodes require a new reviewed

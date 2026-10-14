@@ -26,7 +26,9 @@ class RuntimeTests(unittest.TestCase):
         self.cfg['node_estimates']['P2_BASE']['seconds']=22601.96
         self.cfg['node_estimates']['A2_CORE']['seconds']=85352
         runtime.save_state(self.cfg,runtime.new_state(self.cfg))
-    def tearDown(self):self.temp.cleanup()
+        self.compute_patch=patch.object(runtime,'semantic_lock',side_effect=lambda cfg:contextlib.nullcontext())
+        self.compute_patch.start()
+    def tearDown(self):self.compute_patch.stop();self.temp.cleanup()
 
     def test_real_budget_minimum_and_lease_disk_exclusion(self):
         forecast=runtime.budget_forecast(self.cfg)
