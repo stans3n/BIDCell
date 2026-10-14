@@ -863,7 +863,8 @@ def package(cfg,state):
                     endpoint_rows.append(dict(record,node=n,execution_status='COMPLETED',
                         source_table=str(p),source_table_sha256=sources[n+'/'+relative]['sha256'],
                         comparison_set=json.dumps(scale.get('comparison_set',comparison.get('endpoint_ids'))),
-                        purity_scaling_version=scale.get('version'),purity_scaling_sha256=identity(scaling)['sha256'],
+                        purity_scaling_version=scale.get('version') or cfg['version']+'/purity/'+identity(scaling)['sha256'],
+                        purity_scaling_sha256=identity(scaling)['sha256'],
                         comparison_receipt_sha256=identity(p.parent/'complete.json')['sha256']))
             tables.append(dict(node=n,table=identity(p),comparison_receipt=identity(p.parent/'complete.json'),purity_scaling=identity(scaling)))
         for pattern in ('postprocess_transfer.csv','stage_transfer_strata.csv','proposal_and_rejection_counts.csv','*_owner_categories.csv','domain_capture.csv'):

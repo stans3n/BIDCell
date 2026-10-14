@@ -184,6 +184,12 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(actual['scclassify_positive_F1'],'0.012')
         self.assertEqual(actual['purity_scaling_version'],'specific-set-v1')
         self.assertNotIn('A1_CORE',[r['method'] for r in rows])
+        atomic_json(folder/'purity_scaling.json',dict(comparison_set=['BASE_MATCH','P2_BASE'],formula='historical actual-style spec without explicit version'))
+        write_complete(self.cfg,node,'tradeoff_or_negative');state['nodes'][node]['receipt']=identity(self.root/node/'complete.json')
+        runtime.package(self.cfg,state)
+        with (self.root/'reports/endpoint_table.csv').open() as stream:rows=list(runtime.csv.DictReader(stream))
+        actual=next(r for r in rows if r['method']=='P2_BASE')
+        self.assertEqual(actual['purity_scaling_version'],self.cfg['version']+'/purity/'+identity(folder/'purity_scaling.json')['sha256'])
 
 
 if __name__=='__main__':unittest.main()
