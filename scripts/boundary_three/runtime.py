@@ -84,6 +84,19 @@ def save_state(cfg, state):
     atomic_json(output_path(cfg, 'queue_state.json'), state)
 
 
+@contextlib.contextmanager
+def semantic_lock(cfg):
+    """Full mask/matrix validation is workspace compute work, even without GPU."""
+    with GPU_LOCK.open('a+') as stream:
+        until=time.monotonic()+cfg['resources']['resource_wait_seconds']
+        while True:
+            try:fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB);break
+            except BlockingIOError:
+                if time.monotonic()>=until:raise RuntimeError('semantic validation compute-lock wait exhausted')
+                time.sleep(.5)
+        yield stream
+
+
 def new_state(cfg):
     return dict(schema='boundary-three-queue-state-v1', run_id=cfg['run_id'],
                 config_digest=digest(cfg), source_digest=cfg['source_digest'], input_digest=cfg['input_digest'],
@@ -296,7 +309,7 @@ def verify_admission(cfg, admission):
 
 def validate(config, admission):
     cfg = load_run(config); check_run_config(cfg)
-    with lock_file(output_path(cfg, 'control/launch.lock')), lock_file(output_path(cfg,'control/queue.lock')):
+    with lock_file(output_path(cfg, 'control/launch.lock')), lock_file(output_path(cfg,'control/queue.lock')), semantic_lock(cfg):
         state = bound_state(cfg)
         if process_alive(state.get('supervisor')) or process_alive(state.get('worker')):
             raise RuntimeError('cannot replace validation while scientific queue is active')
@@ -311,10 +324,8 @@ def validate(config, admission):
         domains = validate_inputs(cfg)
         # Re-run preparation's exact step-zero and initialization checks without
         # changing scientific configuration; all inputs remain their frozen files.
-        from .common import compute_lock
-        with compute_lock(timeout=cfg['resources']['resource_wait_seconds']):
-            from .morph import prepare_morph
-            prepare_morph(cfg)
+        from .morph import prepare_morph
+        prepare_morph(cfg)
         budget = budget_forecast(cfg); disk = disk_forecast(cfg, state); measured = resources_now(cfg)
         reasons = resource_reasons(cfg, measured, MINIMUM_NODES[0], state)
         if budget['status'] != 'ADMITTED' or disk['status'] != 'ADMITTED' or reasons:
@@ -776,7 +787,7 @@ def status(config):
     return state
 
 
-def complete_check(config, write=True, internal=False):
+def complete_check(config, write=True, internal=False, compute_owned=False):
     cfg=load_run(config)
     if not internal:
         if bound_state(cfg)['execution_status']=='STARTING':
@@ -785,6 +796,9 @@ def complete_check(config, write=True, internal=False):
         # work; it must not overlap a scientific worker or surviving orphan.
         with lock_file(output_path(cfg,'control/queue.lock')):
             return complete_check(config,write,internal=True)
+    if not compute_owned:
+        with semantic_lock(cfg):
+            return complete_check(config,write,internal=True,compute_owned=True)
     state=bound_state(cfg); checked={}
     for n in NODES:
         if output_path(cfg,n,'complete.json').exists():
