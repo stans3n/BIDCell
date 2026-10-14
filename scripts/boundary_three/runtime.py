@@ -296,7 +296,7 @@ def verify_admission(cfg, admission):
 
 def validate(config, admission):
     cfg = load_run(config); check_run_config(cfg)
-    with lock_file(output_path(cfg, 'control/launch.lock')):
+    with lock_file(output_path(cfg, 'control/launch.lock')), lock_file(output_path(cfg,'control/queue.lock')):
         state = bound_state(cfg)
         if process_alive(state.get('supervisor')) or process_alive(state.get('worker')):
             raise RuntimeError('cannot replace validation while scientific queue is active')
@@ -454,6 +454,21 @@ def node_worker(config, node, result_path, lease_id=None, queue_fd=None, compute
     verify_worker_authorization(cfg,config,node,lease_id,queue_fd,compute_fd)
     atomic_json(output_path(cfg, 'control', 'worker.json'), process_identity())
     started = time.monotonic()
+    watchdog_done=threading.Event(); watchdog=None
+    if lease_id is not None:
+        lease=read(output_path(cfg,'control/leases',lease_id+'.json'))
+        supervisor=dict(bound_state(cfg)['supervisor'])
+        end=datetime.fromisoformat(lease['created_utc'])+timedelta(seconds=lease['budget_seconds'])
+        deadline=time.monotonic()+max(0,(end-datetime.now(timezone.utc)).total_seconds())
+        def watch_supervisor():
+            while not watchdog_done.is_set():
+                if not process_alive(supervisor):
+                    request_stop(cfg,'INTERRUPTED','bound supervisor exited; worker preserves safe checkpoint and inherited locks')
+                if time.monotonic()>=deadline-PACKAGE_SECONDS:
+                    request_stop(cfg,'BUDGET','worker execution-lease watchdog reached packaging reserve')
+                watchdog_done.wait(5)
+        watchdog=threading.Thread(target=watch_supervisor,name='node-safe-boundary-watchdog',daemon=True)
+        watchdog.start()
     try:
         module = node_module(node)
         module.run_node(cfg, node)
@@ -472,7 +487,19 @@ def node_worker(config, node, result_path, lease_id=None, queue_fd=None, compute
                       traceback=traceback.format_exc())
         traceback.print_exc()
     result['elapsed_seconds'] = time.monotonic() - started
+    watchdog_done.set()
+    if watchdog: watchdog.join(timeout=6)
     atomic_json(result_path, result)
+    if lease_id is not None and not process_alive(supervisor):
+        orphan=bound_state(cfg)
+        if orphan['active_lease']==lease_id and orphan['current_node']==node:
+            status=result['status']
+            orphan['nodes'][node].update(execution_status=stop_status(cfg) if status=='CONTROLLED_PAUSE' else status,
+                                        science_status=result.get('science_status'),reason=result.get('reason'))
+            if status=='COMPLETED':orphan['nodes'][node]['receipt']=result['receipt']
+            orphan.update(execution_status='PAUSED_INTERRUPTED' if status in ('COMPLETED','CONTROLLED_PAUSE') else status,
+                          failure='bound supervisor exited; inspect atomic worker result before resuming')
+            save_state(cfg,orphan);event(cfg,'ORPHAN_WORKER_SAFE_EXIT',node=node,result=identity(result_path))
     return 0 if result['status'] == 'COMPLETED' else 75 if result['status'] == 'CONTROLLED_PAUSE' else 1
 
 
@@ -697,7 +724,7 @@ def run_queue(config, lease_id):
             state['worker']=None
             state['lease_elapsed_seconds']=time.monotonic()-lease_start; state['lease_finished_utc']=utc()
             save_state(cfg,state)
-            check=complete_check(config)
+            check=complete_check(config,internal=True)
             invalid=[n for n in NODES if check['nodes'][n]['status'].startswith('INVALID')]
             if invalid: raise ValueError('semantic completion check failed: '+','.join(invalid))
             package(cfg,state)
@@ -749,8 +776,16 @@ def status(config):
     return state
 
 
-def complete_check(config, write=True):
-    cfg=load_run(config); state=bound_state(cfg); checked={}
+def complete_check(config, write=True, internal=False):
+    cfg=load_run(config)
+    if not internal:
+        if bound_state(cfg)['execution_status']=='STARTING':
+            raise RuntimeError('complete-check deferred while launch is dispatching; use fast status')
+        # Full semantic validation can load masks/matrices and is substantial
+        # work; it must not overlap a scientific worker or surviving orphan.
+        with lock_file(output_path(cfg,'control/queue.lock')):
+            return complete_check(config,write,internal=True)
+    state=bound_state(cfg); checked={}
     for n in NODES:
         if output_path(cfg,n,'complete.json').exists():
             try:

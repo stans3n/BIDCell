@@ -18,6 +18,7 @@ scientific fixes and obtains a new independent final script/integrated audit.
 | Complete freeze and final audit | provenance.capture_inputs; source_manifest; frozen domains; final reviewer admission + actual environment identity |
 | Strict serialization and orphan protection | queue flock + workspace compute flock once/node; worker inherits both descriptions; closing supervisor descriptor retains child lock |
 | Internal entrypoint protection | _node requires active lease/current node, direct live supervisor parent and inherited descriptor inode identity; _run requires STARTING plus exclusive one-time lease claim |
+| Supervisor failure | worker watchdog requests resumable stop if bound supervisor exits, retains inherited locks until safe exit, and records orphan result/status; execution deadline backup remains active |
 | Durable state and observation | atomic queue_state, result/checkpoint receipts, fsynced events/logs, PID+boot+start ticks; real progress file separate from heartbeat |
 | Detach/duplicate protection | unique actual tmux session; launch guard + queue lock + bound process checks; actual host fixture exercises duplicate rejection |
 | Stop/failure distinction | SafeStop RuntimeError and InterruptedError are controlled pauses; other exceptions remain runtime/integrity failures |
@@ -36,6 +37,10 @@ takes `--config /absolute/runroot/configs/run.json`. Prepare takes
 --run-id IDENTIFIER`. Validate takes `--admission /absolute/final-review.json`.
 Other commands: launch; status; status --json; tail [--node ID] [--lines N]
 [--follow]; resume [--budget-hours N]; complete-check; safe-stop [--reason TEXT].
+External complete-check and validate require the queue to be inactive because
+full semantic checks load scientific masks/matrices. Status/tail remain fast
+operational reads during execution. End-of-lease complete-check runs under the
+supervisor's already held queue lock.
 Resume is a background experiment queue operation, distinct from Codex goal
 resume. It creates a fresh bounded execution lease without modifying any science
 configuration or completed receipt. Known failed nodes require a new reviewed

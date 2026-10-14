@@ -164,6 +164,11 @@ class RuntimeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'newly dispatched'):
                 runtime.run_queue(self.root/'configs/run.json','unit-lease')
 
+    def test_external_full_validation_does_not_overlap_queue(self):
+        path=self.root/'configs/run.json';atomic_json(path,self.cfg)
+        with runtime.lock_file(self.root/'control/queue.lock'):
+            with self.assertRaisesRegex(RuntimeError,'lock held'):runtime.complete_check(path)
+
     def test_package_preserves_scientific_table_set_and_never_creates_a1_mask_row(self):
         self._queue()
         state=runtime.bound_state(self.cfg);node='P2_BASE';folder=self.root/node/'comparison'
