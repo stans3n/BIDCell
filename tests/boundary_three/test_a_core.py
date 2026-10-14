@@ -2,6 +2,7 @@
 import hashlib
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 import cv2
 import numpy as np
@@ -71,6 +72,25 @@ class CoreStatisticsTests(unittest.TestCase):
         self.assertEqual(winner.tolist(),[0,10,20,0,20])
         self.assertTrue(np.isnan(gap[0]));self.assertEqual(gap[1],0);self.assertTrue(np.isinf(gap[2]));self.assertEqual(gap[4],0)
 
+    def test_secondary_molecule_scans_stop_and_recompute_exactly(self):
+        from scripts.boundary_three.a_core import _query_pixels,_pixel_expression,SafeStop
+        dtype=[('x','i4'),('y','i4'),('gene','i4'),('transcript_id','u8')]
+        chunks=[np.array([(0,0,0,1),(1,0,1,2)],dtype=dtype),np.array([(1,1,0,3),(1,0,1,4)],dtype=dtype)]
+        data={'gene_indices':np.array([0,1]),'genes':['a','b'],'nuclei':np.zeros((2,2),int),'records':[{},{}]}
+        def source(data):return iter((i,{},a) for i,a in enumerate(chunks))
+        with mock.patch('scripts.boundary_three.a_core._coordinates',side_effect=source):
+            plain=_query_pixels(data);seen=[]
+            observed=_query_pixels(data,notify=lambda i,n:seen.append((i,n)))
+            self.assertTrue(np.array_equal(plain,observed));self.assertEqual(seen,[(1,2),(2,2)])
+            direct=_pixel_expression(data,plain)[0];seen=[]
+            notified=_pixel_expression(data,plain,notify=lambda i,n:seen.append((i,n)))[0]
+            self.assertTrue(np.array_equal(direct.toarray(),[[1,0],[0,2],[1,0]]))
+            self.assertTrue(np.array_equal(direct.toarray(),notified.toarray()));self.assertEqual(seen,[(1,2),(2,2)])
+            def stop(i,n):raise SafeStop('bounded fixture stop')
+            with self.assertRaises(SafeStop):_query_pixels(data,notify=stop)
+            with self.assertRaises(SafeStop):_pixel_expression(data,plain,notify=stop)
+            self.assertTrue(np.array_equal(direct.toarray(),_pixel_expression(data,plain)[0].toarray()))
+
     def test_sha_split_reference_and_profile(self):
         ids=np.array([0,1,23,24,2**63+99],np.uint64)
         folds=molecule_fold(ids)
@@ -127,6 +147,8 @@ class RefinementTests(unittest.TestCase):
         expr=sparse.csr_matrix([[1,9],[1,9]]);prof=np.array([[.99,.01],[.01,.99]])
         p,s,below=score_proposals(base,pixels,off,rows,geometry,expr,np.array([1,2]),prof)
         self.assertEqual(len(p),2);self.assertEqual(p['y'].tolist(),[5,6]);self.assertEqual(p['target'].tolist(),[2,2])
+        seen=[];pn,sn,bn=score_proposals(base,pixels,off,rows,geometry,expr,np.array([1,2]),prof,notify=lambda i,n:seen.append((i,n)))
+        self.assertTrue(np.array_equal(p,pn));self.assertTrue(np.array_equal(s,sn));self.assertEqual(below,bn);self.assertEqual(seen,[(0,2)])
         p2,_,_=score_proposals(base,pixels,off,rows,geometry,expr,np.array([1,2]),prof,disabled=True);self.assertEqual(len(p2),0)
         tied=np.array([[.5,.5],[.5,.5]]);p3,_,_=score_proposals(base,pixels,off,rows,geometry,expr,np.array([1,2]),tied);self.assertEqual(len(p3),0)
 
@@ -155,5 +177,37 @@ class RefinementTests(unittest.TestCase):
         bridge=np.zeros((7,9),np.uint32);bridge[3,1:8]=1;bridge[2,4]=2
         nuclei=np.zeros_like(bridge);nuclei[3,1]=1;nuclei[2,4]=2
         self.assertEqual(topology_oracle(bridge,nuclei,3,4,1,2),(False,'donor_components_increased'))
+
+
+class CompletionTests(unittest.TestCase):
+    def test_a2_exact_required_comparisons_and_tamper_detection(self):
+        from scripts.boundary_three import common
+        from scripts.boundary_three.a_core import A2_COMPARISONS,_validate_a2_comparisons
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg={'output_root':tmp,'endpoints':{}};out=Path(tmp)/'A2_CORE';items={}
+            for candidate,control in A2_COMPARISONS:
+                root=Path(common.endpoint_spec(cfg,candidate)['root'])/('comparison_'+control)
+                key=candidate+'_minus_'+control;decision={'status':'no_expression_gain','delta_P':0.0}
+                common.atomic_json(root/'decision.json',{'comparisons':{key:decision}})
+                common.atomic_json(root/'complete.json',{'endpoint_ids':[control,candidate],'comparisons':{key:[candidate,control]}})
+                items[candidate+'_vs_'+control]={**decision,'candidate':candidate,'control':control,'report_root':str(root),'report_receipt':common.identity(root/'complete.json')}
+            summary={'execution_status':'COMPLETED','capture_exactly_equal':True,'comparisons':items}
+            common.atomic_json(out/'comparison.json',summary)
+            # Only the expensive full-population report validator is replaced;
+            # path binding, exact contrast set, file hashes and summary agreement run.
+            with mock.patch('scripts.boundary_three.reports.validate_comparison',side_effect=lambda cfg,path:common.read(path/'complete.json')) as validator:
+                _validate_a2_comparisons(cfg,out);self.assertEqual(validator.call_count,3)
+                missing=dict(summary,comparisons={k:v for k,v in items.items() if k!='A2_GTC_vs_A2_SHUFFLED'})
+                common.atomic_json(out/'comparison.json',missing)
+                with self.assertRaisesRegex(ValueError,'exactly the three'):_validate_a2_comparisons(cfg,out)
+                common.atomic_json(out/'comparison.json',summary)
+                first=items['A2_GTC_vs_A2_GT'];receipt=Path(first['report_receipt']['path']);original=receipt.read_text()
+                receipt.write_text(original+' ')
+                with self.assertRaisesRegex(ValueError,'identity drift'):_validate_a2_comparisons(cfg,out)
+                receipt.write_text(original)
+                decision_path=receipt.parent/'decision.json';decision=common.read(decision_path)
+                decision['comparisons']['A2_GTC_minus_A2_GT']['delta_P']=.1
+                common.atomic_json(decision_path,decision)
+                with self.assertRaisesRegex(ValueError,'summary differs'):_validate_a2_comparisons(cfg,out)
 
 if __name__=='__main__':unittest.main()

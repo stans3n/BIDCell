@@ -133,11 +133,12 @@ def interface_band(baseline):
     return ndi.distance_transform_edt(~boundary)<=2.0
 
 
-def fixed_domain(baseline,nuclei,pixels,offsets,rows,ids,eligible,donor,pixel_counts):
+def fixed_domain(baseline,nuclei,pixels,offsets,rows,ids,eligible,donor,pixel_counts,notify=None):
     """One frozen candidate universe and abstention decision for all A2 arms."""
     h,w=baseline.shape;band=interface_band(baseline);pos=[];candidate_rows=[];out_offsets=[0];reasons={}
     def reject(reason):reasons[reason]=reasons.get(reason,0)+1
     for p,flat in enumerate(pixels):
+        if notify is not None and p%1000==0:notify(p,len(pixels))
         y,x=divmod(int(flat),w);owner=int(baseline[y,x])
         if not owner:reject('background');continue
         if nuclei[y,x]:reject('nuclear');continue
@@ -155,12 +156,13 @@ def fixed_domain(baseline,nuclei,pixels,offsets,rows,ids,eligible,donor,pixel_co
     return np.asarray(pos,np.int64),np.asarray(out_offsets,np.int64),np.asarray(candidate_rows,np.int32),reasons
 
 
-def score_proposals(baseline,pixels,offsets,rows,geometry,counts,ids,profiles,disabled=False):
+def score_proposals(baseline,pixels,offsets,rows,geometry,counts,ids,profiles,disabled=False,notify=None):
     """All gene records at a pixel share one owner. Scores use mean log likelihood."""
     proposals=[];under_margin=0;w=baseline.shape[1]
     score_dtype=[('pixel','<i8'),('candidate_id','<u4'),('geometry','<f8'),('expression','<f8'),('score','<f8')]
     scores=np.empty(len(rows),dtype=score_dtype)
     for p,flat in enumerate(pixels):
+        if notify is not None and p%1000==0:notify(p,len(pixels))
         lo,hi=offsets[p:p+2];cand=rows[lo:hi];current=int(baseline.ravel()[flat]);pc=counts.getrow(p)
         if not len(cand) or pc.sum()<=0:raise ValueError('frozen scoring domain lacks candidate/expression')
         expression=np.log(profiles[cand][:,pc.indices])@pc.data/float(pc.sum())

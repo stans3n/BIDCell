@@ -75,9 +75,9 @@ native-grid fixture; its scale=1 CSV is not silently substituted into formal dat
 
 ## Validation status
 
-Focused unit tests: 8 passed at initial implementation. Actual mini receipt,
-measured full-node/disk estimate and final local commit will be appended after
-real validation finishes. No formal science node has been run by this agent.
+Initial implementation passed eight focused tests; final focused suite passes
+12 tests. Real validation and measured planning evidence are recorded below.
+No formal science node has been run by this agent.
 
 Pre-admission memory refinement: A2 candidate scores are allocated directly as a
 36-byte structured record per candidate edge, avoiding a Python tuple/object
@@ -106,3 +106,116 @@ Mini CSV qv=20 is an explicit eligibility token for molecules already selected b
 the original processed-input contract; the original qv values are not a mini
 score feature. Original transcript IDs, genes, integer native coordinates and
 row order are preserved before local coordinate translation.
+
+
+## Real validation evidence (2026-10-15)
+
+All paths below are relative to the isolated output root
+`/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/`.
+
+- `mini/a_core/mini_receipt.json`: **passed**, on source commit `5216b32`.
+  The original receipt is preserved. Its source manifest records actual executed
+  source; the draft config's null source/input digest is not represented as a
+  final frozen-source receipt.
+- The real 384×384 native-grid ROI contains 693 complete nuclei and complete
+  baseline cells, 125,283 original eligible molecules and all 313 spatial genes.
+  Mini coordinates were mapped in the original native coordinate system before
+  integer translation. The A1 mini has 555 paired cells in one 1000µm block;
+  its unchanged gate correctly returns **INCONCLUSIVE**. A2 mini execution is an
+  engineering exercise, not a GO claim or an exception to the formal gate.
+- Exact Core chunk stop/resume matched uninterrupted integer counts. An actual
+  A2 interruption occurred, and recovery matched final masks, sorted proposals
+  and all candidate scores. The independent complete-image topology oracle
+  checked every proposed transfer in all three arms. Accepted transfers were
+  GT=239, GTC=308 and SHUFFLED=293; these counts document exercised mechanics.
+- Four actual mini endpoints each built its own 693×313 integer matrix and ran
+  the full evaluator. Every arm assigned exactly 60,682 of 125,283 eligible
+  molecules. The ROI native endpoint is explicitly `A2_MINI_NATIVE`; formal
+  `A2_NATIVE` remains a validated historical reuse.
+- Measured mini wall=675.49s, including compute=127.89s and serialized resource
+  wait=547.60s. Python peak RSS=854,769,664 bytes. This is **not** a measurement of
+  aggregate Python plus child-R peak memory. Four fresh full evaluator runs took
+  25.52s, 24.57s, 24.49s and 24.59s. A1 execution took 5.23s; uninterrupted A2
+  mask/domain/topology mechanics took 3.28s. Total retained mini data was 68.93MB
+  before the final input-only probe and validation evidence were added.
+- The ROI's observed maximum K=13 is not relabeled as global K=14. Complete-cell
+  retention removed one contributing candidate. A separate bounded original-input
+  probe, `mini/a_core/maximum_support/receipt.json`, queried the frozen global
+  maximum using **all 107,955 complete nuclei**, recovered exactly 14 candidates,
+  and matched each geometry value to brute distance over the entire nucleus.
+  It computed no expression efficacy score, loaded no DAPI, took 73.77s compute
+  (61.35s complete support scan), and used peak Python RSS=854,712,320 bytes.
+- `mini/a_core/validation_after_mini/source_binding.json`, its executable
+  `verify_binding.py`, and `source_delta.patch` bind the passed mini's unchanged
+  calculations to final source. Exact AST comparison passes after explicitly
+  removing only progress callbacks/arguments and an unused chunk-index rename.
+  The mini-used A1 validation branch is unchanged. New formal A2 comparison
+  completion validation and the parent report-path fix are separately tested;
+  the old mini receipt is not relabeled as executing those additions.
+
+The final comparison validator requires exactly GTC–GT, GTC–NATIVE and
+GTC–SHUFFLED, binds each report under its candidate endpoint directory, checks
+its receipt identity, calls the full shared comparison validator, checks the
+population/contrast names and requires exact agreement with the persisted
+scientific decision. Missing comparisons, receipt corruption and altered
+summary values fail bounded unit tests.
+
+Additional stop/progress callbacks now cover every secondary molecule scan,
+A2 domain/score generation and A2 geometry. They do not persist partial state:
+those deterministic stages restart. Tests verify callback/no-callback equality,
+actual bounded interruption and exact recomputation. Proposal application retains
+its existing committed cursor, decisions and full-mask snapshot every 1,000
+proposals. The calculation/recovery format and all scientific gates are unchanged.
+
+## Conservative full-node resource forecast
+
+Machine-readable inputs, formulas, per-phase timings and limitations are in
+`mini/a_core/resource_forecast.json`. These are planning estimates, **not measured
+formal runtimes**. The mini/full ratios are 155.78× cells, 274.92× molecules and
+430.10× the A1 worst support-edge population. Full input support memberships
+are bounded by 77,913,750. The input-only A2 bound is 3,001,399 possible band
+pixels and 10,388,161 support edges before type/donor/adjacency restrictions;
+three 36-byte score tables therefore require at most 1,121,921,388 bytes.
+
+| Node | Nominal measured scaling | Conservative admission allowance | Incremental retained/transient disk | RAM allowance |
+|---|---:|---:|---:|---:|
+| A1 | 1,271s total over all measured phases | 3,600s, including hashes/I/O and one deterministic diagnostic restart | 6GiB | 20GiB analytical Python allowance |
+| Conditional A2 | 20,476s for all mask mechanics using the largest candidate-edge ratio | 85,352s (23.71h) over all phases below | 12GiB | 20GiB analytical aggregate allowance; child-R peak unmeasured |
+
+The conservative A2 allowance explicitly includes complete-support/domain/
+geometry scoring, all three proposal/topology passes, all three own matrices,
+three fresh full R evaluations, validated native reuse, three complete
+comparisons at 1,800s each, one deterministic pre-proposal restart and I/O.
+The parent measured an actual shared complete report at 212,511,669 bytes;
+its observed 147s file-timestamp span is only a lower-bound inference, so it is
+not used as a whole-run timing measurement. Historical per-arm matrix and
+full-evaluation sizes are 479,485,398 and 191,060,052 bytes, respectively.
+
+Checkpoint traffic is material: a native uint32 mask is 164,909,840 bytes.
+The all-domain upper bound permits 9,006 snapshot batches across three arms,
+up to **1.485TB cumulative mask writes plus equal SHA readback**. The forecast
+uses an explicitly assumed combined 100MiB/s I/O rate; no bandwidth guarantee
+is claimed. Obsolete generations are deleted after atomic publication, so
+peak retained/live mask snapshots are approximately 660MB, not terabytes.
+The mask-scaling allowance also includes some mini checkpoint overhead; adding
+full traffic separately deliberately errs conservatively.
+
+Actual A2 may be far smaller, or legally zero-action, after unchanged type/donor/
+adjacency restrictions. The 23.71h envelope is not a prediction that actual A2
+will take a day. It prevents a false guarantee that the whole chain fits the
+plan's initial eight-hour budget. Budget deferral remains distinct from a legal
+scientific negative and an engineering failure. The runtime must account for
+current stage completion, resources and reserve before formal admission.
+
+## Local implementation commits and remaining audit
+
+- `0cde5d2`: complete A1 and conditional four-arm A2 implementation, tests and
+  plan mapping; parent integrated as `94e4945`.
+- `5216b32`: bounded structured score allocations, support/geometry restart
+  disclosure and expanded frozen-support tests; source used by the real mini.
+- Final follow-up commit adds strict comparison completion validation, bounded
+  progress callbacks, the input-only global maximum probe and final evidence.
+
+No A1/A2 formal outcome, efficacy ranking or adopted method is reported here.
+Independent review must adjudicate the explicit type-scope clarification,
+conditional A2 budget envelope and source correspondence before formal admission.

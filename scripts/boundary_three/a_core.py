@@ -26,6 +26,8 @@ from .core_scores import (PARAMETERS,SHUFFLE_SEEDS,reference_arrays,legal_types,
 from .core_refine import (NuclearSupport,atomic_npy,atomic_npz,interface_band,fixed_domain,
                           score_proposals,apply_proposals)
 
+A2_COMPARISONS=(('A2_GTC','A2_GT'),('A2_GTC','A2_NATIVE'),('A2_GTC','A2_SHUFFLED'))
+
 LIMITATIONS=[
     'Rep1 is the development specimen; molecular splitting is not independent tissue validation.',
     'Historical nuclear types may reflect all nuclear RNA: this is conditional information given those labels.',
@@ -166,13 +168,13 @@ def _count_core(cfg,data,out,stop_after=None):
     return counts,dict(complete=True,totals=totals,core_area=area)
 
 
-def _pixel_expression(data,pixels,core=None):
+def _pixel_expression(data,pixels,core=None,notify=None):
     """Sparse 313/intersection expression in exact native pixel order."""
     ng=len(data['gene_indices']);lookup=np.full(len(data['genes']),-1,int);lookup[data['gene_indices']]=np.arange(ng)
     mats=[sparse.csr_matrix((len(pixels),ng),dtype=np.int64) for _ in range(3)]
     if not len(pixels):return mats
     w=data['nuclei'].shape[1]
-    for _,_,a in _coordinates(data):
+    for chunk,_,a in _coordinates(data):
         good=(a['x']>=0)&(a['y']>=0)&(lookup[a['gene']]>=0);ix=np.flatnonzero(good)
         flat=a['y'][ix].astype(np.int64)*w+a['x'][ix];p=np.searchsorted(pixels,flat);keep=p<len(pixels)
         ix=ix[keep];flat=flat[keep];p=p[keep];keep=pixels[p]==flat;ix=ix[keep];p=p[keep]
@@ -182,13 +184,15 @@ def _pixel_expression(data,pixels,core=None):
             inside=core[a['y'][ix],a['x'][ix]]>0;ix=ix[inside];p=p[inside];gene=gene[inside];fold=molecule_fold(a['transcript_id'][ix])
             for f in (0,1):
                 use=fold==f;mats[1+f]+=sparse.coo_matrix((np.ones(int(use.sum()),np.int64),(p[use],gene[use])),shape=mats[0].shape).tocsr()
+        if notify is not None:notify(chunk+1,len(data['records']))
     return mats
 
 
-def _query_pixels(data,core=None,band=None):
+def _query_pixels(data,core=None,band=None,notify=None):
     occupied=np.zeros(data['nuclei'].shape,bool)
-    for _,_,a in _coordinates(data):
+    for chunk,_,a in _coordinates(data):
         good=(a['x']>=0)&(a['y']>=0);occupied[a['y'][good],a['x'][good]]=True
+        if notify is not None:notify(chunk+1,len(data['records']))
     if band is not None:occupied&=band&(data['baseline']>0)&(data['nuclei']==0)
     elif core is not None:occupied&=(core>0)|(data['nuclei']==0)
     return np.flatnonzero(occupied.ravel())
@@ -221,7 +225,7 @@ def _winner(scores,offsets,ids,rows):
 def _support_diagnostics(cfg,data,counts,stats,out):
     """Population-wide fixed support diagnostics; no invented outer owner labels."""
     stage_start=time.monotonic();timings={}
-    support=data['support'];core,_=support.core_image();pixels=_query_pixels(data,core=core)
+    support=data['support'];core,_=support.core_image();pixels=_query_pixels(data,core=core,notify=lambda i,n:_notify(cfg,'A1_CORE','diagnostic_query_chunks',chunk=i,total=n))
     timings['query_pixels_seconds']=time.monotonic()-stage_start;stage_start=time.monotonic()
     offsets,rows,coverage=support.candidate_csr(pixels,lambda i,n:_notify(cfg,'A1_CORE','complete_support',nuclei=i,total=n))
     timings['support_seconds']=time.monotonic()-stage_start;stage_start=time.monotonic()
@@ -229,7 +233,7 @@ def _support_diagnostics(cfg,data,counts,stats,out):
     timings['geometry_seconds']=time.monotonic()-stage_start;stage_start=time.monotonic()
     # Keep every candidate and geometry score, including unavailable profiles.
     atomic_npz(out/'candidate_geometry.npz',pixels=pixels,offsets=offsets,candidate_rows=rows,candidate_ids=data['ids'][rows],geometry=geom)
-    expression,f0,f1=_pixel_expression(data,pixels,core);nuclear=data['nuclei'].ravel()[pixels]>0
+    expression,f0,f1=_pixel_expression(data,pixels,core,notify=lambda i,n:_notify(cfg,'A1_CORE','diagnostic_expression_chunks',chunk=i,total=n));nuclear=data['nuclei'].ravel()[pixels]>0
     owner=data['nuclei'].ravel()[pixels].astype(np.int64);owner_rows=np.searchsorted(data['ids'],owner)
     valid_owner=nuclear&(owner_rows<len(data['ids']));k=np.diff(offsets);edge_pixel=np.repeat(np.arange(len(pixels)),k)
     owner_safe=np.minimum(owner_rows,len(data['ids'])-1)
@@ -429,10 +433,10 @@ def _a2_masks(cfg,data,counts,eligible,out,oracle=False,interrupt_after=None):
     full=counts.sum(0);prior=data['theta'][np.where(legal_types(data['types'],data['valid']),data['types'],0)]
     donor,bins=matched_donors(full,data['types'],eligible,SHUFFLE_SEEDS[0]);q=profile(full,prior);shuf=prior.copy();good=donor>=0
     shuf[good]=profile(full[donor[good]],prior[good])
-    pixels=_query_pixels(data,band=interface_band(baseline));expression=_pixel_expression(data,pixels)[0]
+    pixels=_query_pixels(data,band=interface_band(baseline),notify=lambda i,n:_notify(cfg,'A2_CORE','query_chunks',chunk=i,total=n));expression=_pixel_expression(data,pixels,notify=lambda i,n:_notify(cfg,'A2_CORE','expression_chunks',chunk=i,total=n))[0]
     offsets,rows,support_stats=sup.candidate_csr(pixels,lambda i,n:_notify(cfg,'A2_CORE','fixed_support',nuclei=i,total=n))
-    pos,offsets,rows,reasons=fixed_domain(baseline,nuclei,pixels,offsets,rows,data['ids'],eligible,donor,expression)
-    pixels=pixels[pos];expression=expression[pos];geometry=sup.candidate_geometry(pixels,offsets,rows)
+    pos,offsets,rows,reasons=fixed_domain(baseline,nuclei,pixels,offsets,rows,data['ids'],eligible,donor,expression,notify=lambda i,n:_notify(cfg,'A2_CORE','fixed_domain',pixels=i,total=n))
+    pixels=pixels[pos];expression=expression[pos];geometry=sup.candidate_geometry(pixels,offsets,rows,lambda i,n:_notify(cfg,'A2_CORE','fixed_geometry',nuclei=i,total=n))
     atomic_npz(out/'fixed_domain.npz',pixels=pixels,offsets=offsets,candidate_rows=rows,candidate_ids=data['ids'][rows],geometry=geometry,
         full_count_donors=donor,full_count_bins=bins,eligible=eligible,ids=data['ids'])
     sparse.save_npz(out/'fixed_domain_expression.npz',expression)
@@ -443,7 +447,7 @@ def _a2_masks(cfg,data,counts,eligible,out,oracle=False,interrupt_after=None):
     results={};summary=[]
     for name,prof in [('A2_GT',prior),('A2_GTC',q),('A2_SHUFFLED',shuf)]:
         arm=out/'endpoints'/name;arm.mkdir(parents=True,exist_ok=True)
-        proposals,scores,below=score_proposals(baseline,pixels,offsets,rows,geometry,expression,data['ids'],prof)
+        proposals,scores,below=score_proposals(baseline,pixels,offsets,rows,geometry,expression,data['ids'],prof,notify=lambda i,n:_notify(cfg,'A2_CORE','score_'+name,pixels=i,total=n))
         atomic_npy(arm/'proposals.npy',proposals);atomic_npy(arm/'candidate_scores.npy',scores)
         deps=dict(config=common.digest(cfg),inputs=common.digest(data['source']),domain=common.sha256(out/'fixed_domain.npz'),
             proposals=common.sha256(arm/'proposals.npy'),source=common.sha256(Path(__file__).with_name('core_refine.py')),profile=name)
@@ -490,7 +494,7 @@ def _run_a2(cfg):
         _notify(cfg,'A2_CORE','evaluated_'+name,assigned=evaluations[name]['assigned'])
     from .reports import compare_endpoints
     comparisons={}
-    for candidate,control in [('A2_GTC','A2_GT'),('A2_GTC','A2_NATIVE'),('A2_GTC','A2_SHUFFLED')]:
+    for candidate,control in A2_COMPARISONS:
         comparisons[candidate+'_vs_'+control]=compare_endpoints(cfg,candidate,control)
     science='EXPLORATORY_FIXED_REFINEMENT_EVALUATED'
     common.atomic_json(out/'comparison.json',dict(execution_status='COMPLETED',science_status=science,
@@ -509,6 +513,34 @@ def run_node(config,node):
         common.atomic_json(common.output_path(cfg,node,'failure.json'),dict(execution_status='FAILED_INTEGRITY' if isinstance(exc,ValueError) else 'FAILED_RUNTIME',
             science_status='INVALID',exception_type=type(exc).__name__,reason=str(exc),dependencies=common.receipt_dependencies(cfg,node)))
         raise
+
+
+def _validate_a2_comparisons(cfg,out):
+    """Completion requires exactly the three frozen, independently validated reports."""
+    from .reports import validate_comparison
+    summary=common.read(Path(out)/'comparison.json')
+    if summary.get('execution_status')!='COMPLETED' or not summary.get('capture_exactly_equal'):
+        raise ValueError('A2 comparison summary is not complete')
+    recorded=summary.get('comparisons',{})
+    if set(recorded)!={candidate+'_vs_'+control for candidate,control in A2_COMPARISONS}:
+        raise ValueError('A2 requires exactly the three frozen comparisons')
+    for candidate,control in A2_COMPARISONS:
+        item=recorded[candidate+'_vs_'+control]
+        expected=(Path(common.endpoint_spec(cfg,candidate)['root'])/('comparison_'+control)).resolve()
+        if item.get('candidate')!=candidate or item.get('control')!=control or Path(item.get('report_root','')).resolve()!=expected:
+            raise ValueError('A2 comparison endpoint/path mismatch')
+        identity=item.get('report_receipt',{})
+        if Path(identity.get('path','')).resolve()!=expected/'complete.json':
+            raise ValueError('A2 comparison receipt path mismatch')
+        common.check_identity(identity)
+        receipt=validate_comparison(cfg,expected)
+        key=candidate+'_minus_'+control
+        if receipt.get('endpoint_ids')!=[control,candidate] or receipt.get('comparisons')!={key:[candidate,control]}:
+            raise ValueError('A2 comparison population/contrast mismatch')
+        decision=common.read(expected/'decision.json')['comparisons'][key]
+        if item!={**decision,'candidate':candidate,'control':control,'report_root':str(expected),'report_receipt':identity}:
+            raise ValueError('A2 comparison summary differs from validated decision')
+    return summary
 
 
 def validate_node(config,node):
@@ -530,6 +562,7 @@ def validate_node(config,node):
         if not np.isfinite(scores.loc[paired,['core','type','shuffle_mean']].to_numpy()).all():raise ValueError('invalid paired finite scores')
         if common.read(out/'input_manifest.json')['DAPI_loaded']:raise ValueError('A1 irrelevant DAPI load')
     elif node=='A2_CORE':
+        _validate_a2_comparisons(cfg,out)
         from .evaluation import validate_endpoint
         results=[validate_endpoint(cfg,name) for name in A2_ENDPOINTS]
         if len({(r['eligible'],r['assigned']) for r in results})!=1:raise ValueError('A2 capture not constant')
@@ -590,6 +623,39 @@ def _make_mini(cfg,out):
         original_native_maximum_support_K=int(frozen.max()),ROI_selection='384 native px around input-only maximum complete-support count',
         local_coordinates='historical exact native lookup, then integer translation; mini scale=1',complete_cells=True,formal=False),outputs=outputs))
     return str(manifest_path)
+
+
+def validate_maximum_support(config,output):
+    """Input-only full-population support/geometry probe at the frozen maximum K."""
+    cfg=common.load_run(config);out=Path(output).resolve();root=Path(cfg['output_root']).resolve()
+    if cfg.get('a_core_mini_inputs') or 'mini' not in out.parts or root not in out.parents:
+        raise ValueError('maximum-support probe requires original inputs and isolated mini output')
+    out.mkdir(parents=True,exist_ok=True);start=time.monotonic()
+    with common.compute_lock(timeout=3600):
+        acquired=time.monotonic();data=_inputs(cfg);sup=data['support']
+        frozen_path=Path(cfg['inputs']['frozen_strata'])/'support_counts.npy'
+        frozen=np.load(frozen_path,mmap_mode='r');pixel=int(np.argmax(frozen));maximum=int(frozen.ravel()[pixel])
+        if maximum!=14 or frozen.shape!=data['nuclei'].shape:raise ValueError('frozen full-support maximum/shape drift')
+        def notify(i,n):
+            common.atomic_json(out/'progress.json',dict(stage='complete_support_query',nuclei=i,total=n))
+            if common.stop_requested(cfg):raise SafeStop('maximum-support probe stopped')
+        phase=time.monotonic();offsets,rows,stats=sup.candidate_csr(np.array([pixel],np.int64),notify)
+        support_seconds=time.monotonic()-phase
+        if len(rows)!=maximum or offsets.tolist()!=[0,maximum]:raise ValueError('complete support does not recover frozen global maximum')
+        geometry=sup.candidate_geometry(np.array([pixel],np.int64),offsets,rows)
+        y,x=divmod(pixel,data['nuclei'].shape[1]);oracle=[];areas=[]
+        for row in rows:
+            yy,xx=sup.nucleus(int(data['ids'][row]));area=len(yy);radius=max(np.sqrt(area/np.pi),.5)
+            oracle.append(-min(float(np.sqrt((yy-y)**2+(xx-x)**2).min())/radius,4));areas.append(area)
+        if not np.allclose(geometry,oracle,rtol=0,atol=1e-12):raise ValueError('global maximum geometry differs from complete-nucleus brute distance')
+        receipt=dict(status='passed',scope='original-input support/geometry only; no new expression efficacy scores',
+            source={name:common.sha256(Path(__file__).with_name(name)) for name in ('a_core.py','core_scores.py','core_refine.py')},
+            inputs=data['source'],frozen_support=common.identity(frozen_path),population=len(data['ids']),
+            pixel_xy=[x,y],expected_maximum_K=maximum,observed_maximum_K=len(rows),candidate_ids=data['ids'][rows].tolist(),
+            candidate_complete_nuclear_areas=areas,geometry=geometry.tolist(),brute_complete_nucleus_geometry=oracle,
+            support_seconds=support_seconds,compute_wall_seconds=time.monotonic()-acquired,resource_wait_seconds=acquired-start,
+            peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,DAPI_loaded=False)
+        common.atomic_json(out/'receipt.json',receipt);return receipt
 
 
 def validate_mini(config,output):
