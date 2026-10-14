@@ -21,6 +21,12 @@ from .p2_diagnostics import transfer_diagnostics
 BASES = dict(P2_BASE='BASE_MATCH', P2_MORPH='V2_MORPH')
 
 
+def stop_boundary(cfg, next_stage):
+    """Leave classification of user/budget/resource stops to the queue owner."""
+    if stop_requested(cfg):
+        raise InterruptedError('P2 stopped at resumable boundary before ' + next_stage)
+
+
 def copy_exact(source, dest):
     dest = isolated(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -118,6 +124,7 @@ def run_node(config,node):
     cfg = load_run(config)
     if output_path(cfg,node,'complete.json').exists():
         return validate_node(cfg,node)
+    stop_boundary(cfg,'preparation')
     started = time.monotonic()
     cfg,e,base,machine = prepare_node(cfg,node)
     root,pred = Path(e['root']),Path(e['final']).parent
@@ -135,6 +142,7 @@ def run_node(config,node):
     # Never rebase attribution onto a newly obtained native result.
     if not np.array_equal(tifffile.imread(replay_pred/'final.tif'),tifffile.imread(base['final'])):
         raise ValueError('FULL native replay differs from historical final; migration refused')
+    stop_boundary(cfg,'native replay matrix')
     progress(cfg,node,'native_replay_matrix')
     matrix_only(replay_machine,replay_matrix,cfg)
     equality = assert_matrix_equal(replay_matrix,base['matrix'])
@@ -143,25 +151,27 @@ def run_node(config,node):
         outputs=dict(postprocess=identity(replay_pred/'postprocess/complete.json'),
                      final=identity(replay_pred/'final.tif'),matrix=identity(replay_matrix/'complete.json')))
     atomic_json(replay_root/'complete.json',replay)
-    if stop_requested(cfg):
-        raise InterruptedError('stopped after complete native replay')
+    stop_boundary(cfg,'P2 postprocess')
     progress(cfg,node,'P2_postprocess')
     p2 = process(e['pre'],machine['nuclei_mask'],machine['nuclei_mask'],pred,'P2',
         native_pred=replay_pred,workers=cfg['resources']['cpu_workers'],cfg=cfg,node=node)
     validate_process(pred)
-    if stop_requested(cfg):
-        raise InterruptedError('stopped after complete P2 postprocess')
+    stop_boundary(cfg,'own matrix and full evaluation')
     progress(cfg,node,'own_matrix_and_full_evaluation')
     from .evaluation import build_and_evaluate
     evaluation = build_and_evaluate(cfg,node)
+    stop_boundary(cfg,'stage transfer diagnostics')
     progress(cfg,node,'stage_transfer_diagnostics')
     diagnostics = transfer_diagnostics(cfg,node,pred,replay_pred,machine,e['matrix'])
+    stop_boundary(cfg,'complete scientific comparison')
     from .reports import compare_endpoints,factorial_report
     comparison = compare_endpoints(cfg,node,BASES[node],out=root/'comparison')
     atomic_json(root/'comparison.json',comparison)
+    stop_boundary(cfg,'factorial comparison or completion')
     if node == 'P2_MORPH':
         validate_node(cfg,'P2_BASE')
         factorial_report(cfg,out=root/'factorial')
+    stop_boundary(cfg,'node completion')
     tile_recs = [read(p['path']) for p in read(pred/'postprocess/manifest.json')['tiles']]
     cost = dict(wall_seconds=time.monotonic()-started,native_replay_postprocess_seconds=native_rec['wall_seconds'],
         P2_postprocess_seconds=p2['wall_seconds'],full_native_replay_included=True,
