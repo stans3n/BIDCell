@@ -17,10 +17,13 @@ from scripts.crgf.common import atomic_npy
 from scripts.paired_v2_pipeline.math import finite_mean,spatial,spatial_flags,guard_values,decide,EPS
 from .common import *
 from .contracts import NODES,A2_ENDPOINTS
-from .evaluation import METRICS,validate_endpoint,verify_legacy_receipt
+from .evaluation import METRICS,validate_endpoint,verify_legacy_receipt,check_legacy_identity
 from .freeze import validate_inputs,stream_coordinates
 DOMAINS=('no_support','single_candidate','unknown_competition','same_type_competition',
          'heterotypic_competition','nuclear','out_of_bounds')
+
+def verify_outputs(rec):
+    for obj in rec['outputs'].values():check_legacy_identity(obj)
 
 def numeric_env():
     return dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONUNBUFFERED='1',
@@ -94,7 +97,7 @@ def load_endpoint(arm,ids,q):
         median_cell_area_um2=aggregate['area_median'],p95_cell_area_um2=aggregate['area_p95'],disconnected_cells_8=aggregate['disconnected8'],
         disconnected_cells_4=int((c4>1).sum()),scclassify_qc_cells=qc_n,scclassify_qc_retention_pct=100*aggregate['qc_retention'],
         scclassify_unassigned_pct=None if aggregate['unassigned'] is None else 100*aggregate['unassigned'],
-        fixed_population_cells=int(fixed.anchor_label.notna().sum()),geometry_source='own_final_native_mask',
+        fixed_population_cells=int(fixed.anchor_label.notna().sum()),geometry_source='validated_reuse_original_final' if arm=='A2_NATIVE' else 'own_final_native_mask',
         matrix_path=str(e['matrix']),matrix_sha256=sha256(e['matrix']/'counts.npy'),evaluation_path=str(e['evaluation']),
         evaluation_sha256=sha256(e['evaluation']/'complete.json'),checkpoint_sha256=sha256(e['checkpoint']),
         nuclear_preservation_fraction=1.0,new_IDs=0)
