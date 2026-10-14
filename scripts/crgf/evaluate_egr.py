@@ -8,6 +8,7 @@ import time
 import numpy as np
 import pandas as pd
 import tifffile
+from scripts.boundary_three.runtime import inherited_lock_fds
 from scipy import ndimage as ndi
 from scipy.spatial import cKDTree
 from skimage.measure import regionprops_table
@@ -36,7 +37,7 @@ def checked_r(protocol, script, args, out):
     env = dict(os.environ, OMP_NUM_THREADS='4', OPENBLAS_NUM_THREADS='4', MKL_NUM_THREADS='4')
     with (out/(script+'.log')).open('w') as log:
         p = subprocess.run([protocol['rscript'], str(HERE/script), *map(str,args)],
-                           stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, env=env)
+                           stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, env=env,pass_fds=inherited_lock_fds())
     if p.returncode:
         raise RuntimeError(f'{script} failed ({p.returncode}); {out/(script+".log")}')
     if (out/'execution_status.txt').read_text().strip() != 'succeeded':

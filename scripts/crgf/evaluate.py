@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import tifffile
+from scripts.boundary_three.runtime import inherited_lock_fds
 from scipy import ndimage as ndi
 from .common import atomic_json,identity,sha256,Monitor,verify_outputs
 from . import structural
@@ -65,7 +66,7 @@ def evaluate(machine,reference,protocol,matrix,out,profile='EP-CORE'):
         if annotation.exists():
             cmd=[r['rscript'],str(Path(__file__).with_name('cellspa.R')),r['official_sources'],c['final_matrix'],r['reference'],r['positive_markers'],r['negative_markers'],str(annotation),str(out/'cellspa')]
             with (out/'cellspa.log').open('w') as log:
-                proc=subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,cwd=Path(__file__).resolve().parents[2],stdin=subprocess.DEVNULL)
+                proc=subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,cwd=Path(__file__).resolve().parents[2],stdin=subprocess.DEVNULL,pass_fds=inherited_lock_fds())
             if proc.returncode: failures['cellspa']=f'R exit code {proc.returncode}; see cellspa.log'
             cor=out/'cellspa/official_expression_max_pearson.csv'
             if cor.exists():

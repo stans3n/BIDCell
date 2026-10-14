@@ -20,6 +20,7 @@ from .contracts import NODES,A2_ENDPOINTS
 from .evaluation import METRICS,validate_endpoint,verify_legacy_receipt,check_legacy_identity
 from .freeze import validate_inputs,stream_coordinates
 from .external import spatial_bindings,snapshot_spatial_library
+from .runtime import inherited_lock_fds
 DOMAINS=('no_support','single_candidate','unknown_competition','same_type_competition',
          'heterotypic_competition','nuclear','out_of_bounds')
 
@@ -131,7 +132,7 @@ def spatial_diversity(q,out,arms=None):
         atomic_json(d/'input.json',dict(annotation=str(e['evaluation']/'paper_aligned_v1/annotation.csv')))
         atomic_json(d/'scoring_complete.json',dict(status='identity_verified_own_QC_inputs'))
     with (work/'execution.log').open('w') as log:
-        subprocess.run([RSCRIPT,q['bindings']['spatial_wrapper']['path'],str(work)],env=numeric_env(),stdout=log,stderr=subprocess.STDOUT,check=True)
+        subprocess.run([RSCRIPT,q['bindings']['spatial_wrapper']['path'],str(work)],env=numeric_env(),stdout=log,stderr=subprocess.STDOUT,check=True,pass_fds=inherited_lock_fds())
     results=pd.read_csv(work/'spatial_diversity_all_methods.csv')
     if set(results.method)!=set(arms) or len(results)!=6*len(arms):raise ValueError('author spatial diversity outputs incomplete')
     return results

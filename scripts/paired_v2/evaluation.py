@@ -1,6 +1,7 @@
 """Authoritative 18-method scientific core, own matrix and own scClassify."""
 import subprocess
 import time
+from scripts.boundary_three.runtime import inherited_lock_fds
 import numpy as np
 import pandas as pd
 from .common import *
@@ -93,7 +94,7 @@ def replay_historical_scores(dest):
         size_factors=str(historical/'paper_aligned_v1/size_factors.csv'),output=str(dest/'paper'))
     atomic_json(dest/'input.json',spec)
     with (dest/'scoring.log').open('w') as log:
-        subprocess.run([read(protocol)['rscript'],str(script),str(dest/'input.json')],stdout=log,stderr=subprocess.STDOUT,check=True,
+        subprocess.run([read(protocol)['rscript'],str(script),str(dest/'input.json')],stdout=log,stderr=subprocess.STDOUT,check=True,pass_fds=inherited_lock_fds(),
             env={**os.environ,'OMP_NUM_THREADS':'4','OPENBLAS_NUM_THREADS':'4','MKL_NUM_THREADS':'4'})
     comparisons={};historical_table=AUTHORITY.parent/'methods/V2_MORPH/paper'
     for name in ('qc_all_cells.csv','annotation.csv','markers_per_cell.csv','size_factors.csv'):
