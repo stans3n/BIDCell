@@ -38,6 +38,39 @@ class CoreStatisticsTests(unittest.TestCase):
                 if np.any((y==p//17)&(x==p%17)):expected.add(cid)
             self.assertEqual(got,expected)
 
+    def test_complete_support_matches_frozen_evidence_without_dapi(self):
+        # Construct only the nuclear part of the legacy object; do not run its
+        # DAPI-loading initializer. Includes a long nucleus beyond a 48px view.
+        from scripts.new_methods.data import Evidence
+        from scipy import ndimage as ndi
+        nuc=np.zeros((75,150),np.int32);nuc[20:27,10:120]=1;nuc[40:47,90:99]=2
+        actual=NuclearSupport(nuc,[1,2],[0,1],['Fibroblasts','B'],['Fibroblasts'])
+        legacy=Evidence.__new__(Evidence);legacy.nuclei=nuc;legacy.boxes=ndi.find_objects(nuc)
+        legacy.meta={'type_index':np.array([0,1])};legacy.id_to_row={1:0,2:1}
+        legacy.type_names=['Fibroblasts','B'];legacy.elongated={'Fibroblasts'}
+        for cid in (1,2):
+            got=actual.support(cid);expected=legacy.support(cid)
+            for a,b in zip(got[:3],expected[:3]):self.assertTrue(np.array_equal(a,b))
+            self.assertEqual(got[3],expected[3])
+        pixels=np.array([15*150+110,30*150+20,48*150+97],np.int64)
+        offsets=np.array([0,2,4,6]);rows=np.array([0,1,0,1,0,1])
+        geometry=actual.candidate_geometry(pixels,offsets,rows)
+        expected=[]
+        for pixel in pixels:
+            y,x=divmod(int(pixel),150)
+            for row,cid in enumerate((1,2)):
+                yy,xx=np.where(nuc==cid);d=np.sqrt((yy-y)**2+(xx-x)**2).min()
+                expected.append(-min(d/actual.radius[row],4))
+        self.assertTrue(np.allclose(geometry,expected,rtol=0,atol=1e-12))
+
+    def test_vector_candidate_ties_and_empty_support(self):
+        from scripts.boundary_three.a_core import _winner
+        offsets=np.array([0,0,2,3,3,6]);rows=np.array([2,0,1,0,1,2]);ids=np.array([10,20,30])
+        scores=np.array([1.,1.,-.5,0.,2.,2.])
+        winner,gap=_winner(scores,offsets,ids,rows)
+        self.assertEqual(winner.tolist(),[0,10,20,0,20])
+        self.assertTrue(np.isnan(gap[0]));self.assertEqual(gap[1],0);self.assertTrue(np.isinf(gap[2]));self.assertEqual(gap[4],0)
+
     def test_sha_split_reference_and_profile(self):
         ids=np.array([0,1,23,24,2**63+99],np.uint64)
         folds=molecule_fold(ids)
@@ -117,6 +150,7 @@ class RefinementTests(unittest.TestCase):
             resumed,rs=apply_proposals(base,nuc,proposals,Path(tmp)/'resume',{'fixture':'a'},oracle=True)
             self.assertTrue(np.array_equal(full,resumed));self.assertEqual(fs,rs)
             self.assertTrue(np.array_equal(full>0,base>0));self.assertTrue(np.array_equal(full[nuc>0],base[nuc>0]))
+            with self.assertRaises(ValueError):apply_proposals(base,nuc,proposals,Path(tmp)/'resume',{'fixture':'changed'})
         # Single bridge pixel removal would split the donor's nucleus-connected arm.
         bridge=np.zeros((7,9),np.uint32);bridge[3,1:8]=1;bridge[2,4]=2
         nuclei=np.zeros_like(bridge);nuclei[3,1]=1;nuclei[2,4]=2

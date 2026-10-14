@@ -157,23 +157,25 @@ def fixed_domain(baseline,nuclei,pixels,offsets,rows,ids,eligible,donor,pixel_co
 
 def score_proposals(baseline,pixels,offsets,rows,geometry,counts,ids,profiles,disabled=False):
     """All gene records at a pixel share one owner. Scores use mean log likelihood."""
-    proposals=[];scores=[];under_margin=0;w=baseline.shape[1]
+    proposals=[];under_margin=0;w=baseline.shape[1]
+    score_dtype=[('pixel','<i8'),('candidate_id','<u4'),('geometry','<f8'),('expression','<f8'),('score','<f8')]
+    scores=np.empty(len(rows),dtype=score_dtype)
     for p,flat in enumerate(pixels):
         lo,hi=offsets[p:p+2];cand=rows[lo:hi];current=int(baseline.ravel()[flat]);pc=counts.getrow(p)
-        if not len(cand) or pc.sum()<=0:continue
+        if not len(cand) or pc.sum()<=0:raise ValueError('frozen scoring domain lacks candidate/expression')
         expression=np.log(profiles[cand][:,pc.indices])@pc.data/float(pc.sum())
         value=geometry[lo:hi]+BETA*expression;current_index=np.flatnonzero(ids[cand]==current)
         if len(current_index)!=1:raise ValueError('current owner not exactly once in frozen candidates')
         best=float(value.max());ci=int(current_index[0]);ties=np.flatnonzero(value==best)
         winner=ci if ci in ties else int(ties[np.argmin(ids[cand[ties]])])
         margin=best-float(value[ci]);target=int(ids[cand[winner]])
-        for row,g,e,s in zip(cand,geometry[lo:hi],expression,value):
-            scores.append((int(flat),int(ids[row]),float(g),float(e),float(s)))
+        scores['pixel'][lo:hi]=flat;scores['candidate_id'][lo:hi]=ids[cand]
+        scores['geometry'][lo:hi]=geometry[lo:hi];scores['expression'][lo:hi]=expression;scores['score'][lo:hi]=value
         if target!=current and margin>=MARGIN and not disabled:
             y,x=divmod(int(flat),w);proposals.append((margin,y,x,current,target))
         else:under_margin+=1
     proposals.sort(key=lambda t:(-t[0],t[1],t[2],t[4]))
-    return np.asarray(proposals,dtype=[('margin','<f8'),('y','<i4'),('x','<i4'),('source','<u4'),('target','<u4')]), np.asarray(scores,dtype=[('pixel','<i8'),('candidate_id','<u4'),('geometry','<f8'),('expression','<f8'),('score','<f8')]),under_margin
+    return np.asarray(proposals,dtype=[('margin','<f8'),('y','<i4'),('x','<i4'),('source','<u4'),('target','<u4')]), scores,under_margin
 
 
 def rooted(mask,nucleus):
