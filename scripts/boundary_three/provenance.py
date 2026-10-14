@@ -41,6 +41,17 @@ def capture_inputs(cfg,dest):
     for name in cfg['endpoints']:
         e=endpoint_spec(cfg,name);machine=read(e['machine'])
         for key in ('machine','pre','final','checkpoint'):add(e[key])
+        prediction=Path(e['pre']).parent
+        for relative in ('complete.json','postprocess/complete.json','postprocess/manifest.json'):
+            receipt=prediction/relative
+            if receipt.exists():
+                add(receipt);saved=read(receipt)
+                for obj in _objects(saved):add(obj['path'],obj)
+                for obj in saved.get('tiles',[]):
+                    path=Path(obj['path'])
+                    if path.suffix=='.json':
+                        tile=verify_legacy_receipt(path)
+                        for item in _objects(tile):add(item['path'],item)
         for key in ('nuclei_mask','transcripts','genes','preannotation','baseline_config','reference','positive_markers','negative_markers','nuclear_matrix'):
             add(machine[key])
         for stage in ('matrix','evaluation'):
