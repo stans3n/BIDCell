@@ -1,6 +1,8 @@
 """Pinned external author spatial scorer and immutable isolated R library."""
 from pathlib import Path
+import os
 import shutil
+import tempfile
 from .common import identity,read,sha256,check_identity,output_path
 from .evaluation import check_legacy_identity
 
@@ -51,7 +53,22 @@ def snapshot_spatial_library(cfg,work,bound):
         check_identity(obj);target=lib/relative;target.parent.mkdir(parents=True,exist_ok=True)
         if target.exists():
             if sha256(target)!=obj['sha256']:raise ValueError('existing spatial library snapshot drift')
-        else:shutil.copyfile(obj['path'],target)
+        else:
+            # A killed writer must leave only uncommitted staging outside the
+            # exact R-library inventory. Existing final files remain immutable.
+            staging=work/'sources/.library_copy_staging';staging.mkdir(parents=True,exist_ok=True)
+            fd,name=tempfile.mkstemp(prefix=target.name+'.',dir=staging);os.close(fd)
+            temp=Path(name)
+            try:
+                shutil.copyfile(obj['path'],temp)
+                if sha256(temp)!=obj['sha256']:raise ValueError('staged spatial library copy differs')
+                with temp.open('rb') as stream:os.fsync(stream.fileno())
+                os.replace(temp,target)
+                directory=os.open(target.parent,os.O_DIRECTORY)
+                try:os.fsync(directory)
+                finally:os.close(directory)
+            finally:
+                if temp.exists():temp.unlink()
         if sha256(target)!=obj['sha256']:raise ValueError('spatial library copy differs')
     actual={p.relative_to(lib).as_posix() for p in lib.rglob('*') if p.is_file()}
     if actual!=set(bound['library_files']):raise ValueError('spatial library snapshot contains foreign files')
