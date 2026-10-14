@@ -53,12 +53,23 @@ def postprocess(cfg,method):
     coords=[(y,x) for y in hs for x in ws];tasks=[];started=time.monotonic()
     for y,x in coords:
         tasks.append((y,x,size,cfg.seed,str(out/f'tile_{y}_{x}.tif'),dict(base=dep,coords=[y,x])))
+    # Optional orchestration callbacks do not change native tile computation or
+    # RNG. Bound submitted work so a stop leaves only durable completed groups.
+    stop=getattr(cfg,'stop_requested',lambda:False)
+    on_progress=getattr(cfg,'progress_callback',None)
+    def report_boundary(stage,completed,total):
+        atomic_json(out/'progress.json',dict(stage=stage,completed=completed,total=total))
+        if on_progress is not None:on_progress(stage=stage,completed=completed,total=total)
+        if stop():raise InterruptedError('native postprocess stopped at durable '+stage+' boundary')
     # Executor propagates exceptions; fork shares read-only full arrays.
     import multiprocessing as mp
     with ProcessPoolExecutor(max_workers=cfg.cpu_workers,mp_context=mp.get_context('fork')) as pool:
         receipts=[]
-        for i,rec in enumerate(pool.map(tile_task,tasks)):
-            receipts.append(identity(rec));atomic_json(out/'progress.json',dict(stage='tiles',completed=i+1,total=len(tasks)))
+        report_boundary('tiles',0,len(tasks))
+        for start in range(0,len(tasks),cfg.cpu_workers):
+            group=tasks[start:start+cfg.cpu_workers]
+            for rec in pool.map(tile_task,group):receipts.append(identity(rec))
+            report_boundary('tiles',min(start+len(group),len(tasks)),len(tasks))
     seg=np.zeros(_WHOLE.shape,np.uint32);all_ids=[]
     for y,x in coords:
         tile=tifffile.imread(out/f'tile_{y}_{x}.tif');seg[y:y+size,x:x+size]=tile
@@ -76,6 +87,7 @@ def postprocess(cfg,method):
     splitdeps=digest(dict(base=dep,tiles=receipts,ids=check))
     # Independent chunks, then rebuild from immutable merged tiles on every resume.
     for start in range(0,len(check),128):
+        if stop():raise InterruptedError('native postprocess stopped before split chunk')
         ids=check[start:start+128];dest=splitdir/f'{start:06d}.npz';receipt=dest.with_suffix('.json')
         d=dict(base=splitdeps,ids=ids)
         if receipt.exists():
@@ -92,7 +104,7 @@ def postprocess(cfg,method):
             with tmp.open('wb') as f: np.savez_compressed(f,**arrays);f.flush();__import__('os').fsync(f.fileno())
             __import__('os').replace(tmp,dest)
             atomic_json(receipt,dict(status='succeeded',dependencies=d,outputs={'split':identity(dest)}))
-        atomic_json(out/'progress.json',dict(stage='splits',completed=min(start+128,len(check)),total=len(check)))
+        report_boundary('splits',min(start+128,len(check)),len(check))
     manifest_path=out/'manifest.json'
     manifest=json.loads(manifest_path.read_text())
     manifest['split_chunks']=[dict(start=start,ids=check[start:start+128],receipt=identity(splitdir/f'{start:06d}.json'),output=identity(splitdir/f'{start:06d}.npz')) for start in range(0,len(check),128)]
@@ -103,6 +115,7 @@ def postprocess(cfg,method):
             for cell_id in check[start:start+128]:
                 box=boxes[cell_id-1];patch=seg[box];patch[patch==cell_id]=0;patch[z[str(cell_id)]]=cell_id
     seg=np.where(_NUCLEI>0,_NUCLEI,seg).astype(np.uint32)
+    if stop():raise InterruptedError('native postprocess stopped before final commit')
     atomic_tiff(pred/'final.tif',seg)
     atomic_json(out/'complete.json',dict(status='succeeded',dependencies=dep,outputs={'final_mask':identity(pred/'final.tif'),
                 'manifest':identity(out/'manifest.json')},tiles=len(coords),split_ids=len(check),wall_seconds=time.monotonic()-started))
