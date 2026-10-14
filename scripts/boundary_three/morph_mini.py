@@ -179,7 +179,8 @@ def pilot(cfg,node,out):
         if updates%10==0:print(node,'isolated pilot',updates,'/100',flush=True)
     torch.cuda.synchronize();train_seconds=time.monotonic()-started;peak=torch.cuda.max_memory_allocated()
     checkpoint=out/'pilot_final.pth'
-    atomic_torch(checkpoint,m.snapshot(model,opt,header,updates,cursor,skips,seq,pilot=True))
+    final=m.snapshot(model,opt,header,updates,cursor,skips,seq,pilot=True);m.validate_cursor(cfg,final)
+    atomic_torch(checkpoint,final);del final
     # Complete maximum training candidate group enters one backbone forward.
     # It runs after the pilot endpoint is archived and cannot alter its BN/RNG.
     maxview=max(views,key=lambda v:v['K']);torch.cuda.reset_peak_memory_stats()
@@ -259,7 +260,7 @@ def roi_predict(cfg,node,checkpoint,root,roi,original,shared,legacy=False):
         if shift==24:shifted=[f"{v['row']-y0}_{v['col']-x0}.hdf5" for v in chosen]
         patches.append(dict(shift=shift,views=chosen));del data
     pre,fill=m.merge_native(*maps,shifted);atomic_tiff(out/'pre.tif',pre);atomic_tiff(out/'fill.tif',fill)
-    machine=dict(original,nuclei_mask=str(shared/'nuclei.tif'),transcripts=str(shared/'transcripts_processed.csv'),pre_mask=str(out/'pre.tif'),final_mask=str(out/'final.tif'),baseline_final_mask=str(out/'pre.tif'),final_matrix=str(root/'matrix'/node/'expr_mat.csv'))
+    machine=dict(original,nuclei_mask=str(shared/'nuclei.tif'),transcripts=str(shared/'transcripts_processed.csv'),pre_mask=str(out/'pre.tif'),final_mask=str(out/'final.tif'),baseline_final_mask=str(out/'pre.tif'),final_matrix=str(root/'matrix'/node/'expr_mat.csv'),checkpoint=str(checkpoint),checkpoint_scope='historical replay' if node=='V2_MORPH' else 'isolated temporary pilot; discarded after successful mini evaluation')
     atomic_json(root/'machine.json',machine)
     spec=dict(root=str(root),machine=str(root/'machine.json'),pre=str(out/'pre.tif'),final=str(out/'final.tif'),matrix=str(root/'matrix'/node),evaluation=str(root/'evaluation'/node),cost_root=str(root))
     rec=dict(checkpoint=identity(checkpoint),logits=logit_hashes,patches=patches,wall_seconds=time.monotonic()-started,
@@ -303,6 +304,10 @@ def validate_mini(config,output):
     if not torch.cuda.is_available():raise RuntimeError('real admission requires authorized host CUDA')
     print('Waiting for shared compute lock (mini-only timeout3600s; formal policy unchanged)',flush=True)
     with compute_lock(timeout=3600):
+        canonical=m.canonical_full();canonical_path=out/'canonical_full_seed20261013.pth'
+        atomic_torch(canonical_path,dict(model=canonical.state_dict(),seed=20261013,tensor_sha256=m.CANONICAL_SHA,
+            limitation='frozen-code reconstruction, not independently archived historical step zero'))
+        del canonical
         original,roi=roi_inputs(cfg,out/'shared');replay=historical_replay(cfg,out/'full_replay',roi,original,out/'shared')
         results={};discarded=[]
         for node in m.NODES:
@@ -316,7 +321,7 @@ def validate_mini(config,output):
             checkpoint=Path(pilotrec['checkpoint']['path']);discarded.append(identity(checkpoint));checkpoint.unlink()
             print(node,'mini full evaluator complete; temporary trained checkpoint discarded',flush=True)
         rec=dict(status='passed',source=m.scientific_source(),config_digest=m.digest(cfg),scope='real isolated ROI and 100 updates per variant; no scientific endpoint or formal initial',
-            roi=roi,historical_full_replay=replay,variants=results,discarded_temporary_trained_checkpoints=discarded,
+            roi=roi,canonical_full_archive=identity(canonical_path),historical_full_replay=replay,variants=results,discarded_temporary_trained_checkpoints=discarded,
             wall_seconds=time.monotonic()-started,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
-            outputs=inventory(out))
+            outputs={k:v for k,v in inventory(out).items() if k!='validation.log'})
         atomic_json(out/'complete.json',rec);return rec
