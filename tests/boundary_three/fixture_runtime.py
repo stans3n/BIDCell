@@ -61,7 +61,6 @@ def main():
     module=SimpleNamespace(run_node=run_node,validate_node=validate_complete)
     resources=dict(ram_available_bytes=10**12,gpu_free_bytes=10**12,disk_free_bytes=10**12)
     with patch.object(runtime,'validated_launch',return_value={}), \
-         patch.object(runtime,'verify_worker_authorization',return_value=None), \
          patch.object(runtime,'verify_source',return_value={}), \
          patch.object(runtime,'node_module',return_value=module), \
          patch.object(runtime,'resources_now',return_value=resources), \
