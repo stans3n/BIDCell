@@ -87,7 +87,10 @@ def resume_check(cfg,node,model,opt,data,base,state,view,out):
         if fresh:
             del model,opt,data;gc.collect();torch.cuda.empty_cache()
             model,opt,data=m.setup(cfg,node)
-        model.load_state_dict(before['model']);opt.load_state_dict(before['optimizer']);m.restore_rng(before['rng']);model.train()
+        # Adam retains its CPU step tensors when loading a state dictionary.
+        # Each trial needs independent counters; otherwise opt.step() mutates
+        # the reference snapshot and later trials are no longer at update 32.
+        model.load_state_dict(before['model']);opt.load_state_dict(copy.deepcopy(before['optimizer']));m.restore_rng(before['rng']);model.train()
         b=data.get_view(view,'cuda');opt.zero_grad(set_to_none=True);z=m.forward(model,b,node);loss,_=base(z,b);loss.backward()
         gradients={n:p.grad.detach().cpu().clone() for n,p in model.named_parameters() if p.grad is not None}
         opt.step();torch.cuda.synchronize()
@@ -102,6 +105,7 @@ def resume_check(cfg,node,model,opt,data,base,state,view,out):
             for key,row in rows.items():
                 if row['rms']>floor[key]['rms']:floor[key]=row
         del repeat;gc.collect()
+    assert m.state_equal(before,torch.load(path,map_location='cpu'))
     # Construction must not replace the restored cursor, BN, optimizer or RNG.
     model,opt,data=m.setup(cfg,node)
     restored=m.restore(cfg,path,model,opt,before['header'],pilot=True)
