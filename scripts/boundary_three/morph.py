@@ -280,7 +280,9 @@ def predict(config,node):
 def native_postprocess(cfg,node,spec=None):
     from scripts.crgf.postprocess import postprocess
     spec=spec or endpoint_spec(cfg,node);machine=read(spec['machine']);root=Path(spec.get('cost_root',spec['root']))
-    adapter=SimpleNamespace(output_root=str(root),seed=1234,postprocess_size=1024,cpu_workers=1,
+    adapter=SimpleNamespace(output_root=str(root),seed=1234,postprocess_size=1024,cpu_workers=int(cfg['resources']['cpu_workers']),
+        stop_requested=lambda:stop_requested(cfg),
+        progress_callback=lambda **values:progress(cfg,node,'native_postprocess',native_progress=values),
         native=lambda:SimpleNamespace(files=SimpleNamespace(data_dir=str(Path(machine['nuclei_mask']).parent))))
     postprocess(adapter,node)
     final=tifffile.imread(machine['final_mask']);nuc=tifffile.imread(machine['nuclei_mask'])
@@ -305,13 +307,19 @@ def run_node(config,node):
         expected=dict(checkpoint=identity(endpoint_spec(cfg,node)['checkpoint']),source=scientific_source(),variant=variant_spec(node))
         if stages['prediction']['dependencies']!=expected:raise ValueError('completed prediction identity drift')
     else:stages['prediction']=predict(cfg,node)
-    gc.collect();torch.cuda.empty_cache();progress(cfg,node,'native_postprocess')
+    gc.collect();torch.cuda.empty_cache()
+    if stop_requested(cfg):raise InterruptedError('safe stop before native postprocess')
+    progress(cfg,node,'native_postprocess')
     stages['postprocess']=native_postprocess(cfg,node)
     from .evaluation import build_and_evaluate,validate_endpoint
+    if stop_requested(cfg):raise InterruptedError('safe stop before own matrix/evaluation')
     progress(cfg,node,'matrix_and_evaluation');stages['evaluation']=build_and_evaluate(cfg,node)
     validate_endpoint(cfg,node)
     from .reports import compare_endpoints
-    for control in ('BASE_MATCH','V2_MORPH'):compare_endpoints(cfg,node,control,out=root/f'comparison_{control}')
+    for control in ('BASE_MATCH','V2_MORPH'):
+        if stop_requested(cfg):raise InterruptedError('safe stop before comparison '+control)
+        progress(cfg,node,'comparison',control_endpoint=control)
+        compare_endpoints(cfg,node,control,out=root/f'comparison_{control}')
     # Required top-level artifacts contain the actual pairwise tables, not empty markers.
     import pandas as pd
     strata=[];pairs=[];alias_sources={}
@@ -326,6 +334,7 @@ def run_node(config,node):
     pd.concat(pairs,ignore_index=True).to_csv(root/'paired_comparisons.csv',index=False)
     atomic_json(root/'comparison_alias_provenance.json',alias_sources)
     atomic_json(root/'runtime_cost.json',dict(wall_seconds_this_invocation=time.monotonic()-started,stages=stages))
+    if stop_requested(cfg):raise InterruptedError('safe stop before node completion receipt')
     write_complete(cfg,node,'MEASURED_AWAITING_INDEPENDENT_ANALYSIS',morph_variant=variant_spec(node))
     return validate_node(cfg,node)
 
