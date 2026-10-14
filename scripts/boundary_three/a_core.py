@@ -194,12 +194,13 @@ def _query_pixels(data,core=None,band=None):
     return np.flatnonzero(occupied.ravel())
 
 
-def _candidate_expression(counts,pixels,offsets,rows,log_profiles):
+def _candidate_expression(counts,pixels,offsets,rows,log_profiles,notify=None):
     edge_pixel=np.repeat(np.arange(len(pixels)),np.diff(offsets));out=np.zeros(len(rows),float)
     totals=np.asarray(counts.sum(1)).ravel();order=np.argsort(rows,kind='stable');sorted_rows=rows[order]
     if not len(rows):return out
     starts=np.r_[0,1+np.flatnonzero(sorted_rows[1:]!=sorted_rows[:-1]),len(rows)]
-    for a,b in zip(starts[:-1],starts[1:]):
+    for group,(a,b) in enumerate(zip(starts[:-1],starts[1:])):
+        if notify is not None and group%1000==0:notify(group,len(starts)-1)
         ix=order[a:b];p=edge_pixel[ix];out[ix]=np.asarray(counts[p]@log_profiles[int(sorted_rows[a])]).ravel()/np.maximum(totals[p],1)
     return out
 
@@ -219,9 +220,13 @@ def _winner(scores,offsets,ids,rows):
 
 def _support_diagnostics(cfg,data,counts,stats,out):
     """Population-wide fixed support diagnostics; no invented outer owner labels."""
+    stage_start=time.monotonic();timings={}
     support=data['support'];core,_=support.core_image();pixels=_query_pixels(data,core=core)
+    timings['query_pixels_seconds']=time.monotonic()-stage_start;stage_start=time.monotonic()
     offsets,rows,coverage=support.candidate_csr(pixels,lambda i,n:_notify(cfg,'A1_CORE','complete_support',nuclei=i,total=n))
+    timings['support_seconds']=time.monotonic()-stage_start;stage_start=time.monotonic()
     geom=support.candidate_geometry(pixels,offsets,rows,lambda i,n:_notify(cfg,'A1_CORE','complete_geometry',nuclei=i,total=n))
+    timings['geometry_seconds']=time.monotonic()-stage_start;stage_start=time.monotonic()
     # Keep every candidate and geometry score, including unavailable profiles.
     atomic_npz(out/'candidate_geometry.npz',pixels=pixels,offsets=offsets,candidate_rows=rows,candidate_ids=data['ids'][rows],geometry=geom)
     expression,f0,f1=_pixel_expression(data,pixels,core);nuclear=data['nuclei'].ravel()[pixels]>0
@@ -229,10 +234,11 @@ def _support_diagnostics(cfg,data,counts,stats,out):
     valid_owner=nuclear&(owner_rows<len(data['ids']));k=np.diff(offsets);edge_pixel=np.repeat(np.arange(len(pixels)),k)
     owner_safe=np.minimum(owner_rows,len(data['ids'])-1)
     prior=data['theta'][np.where(legal_types(data['types'],data['valid']),data['types'],0)]
-    type_expr=_candidate_expression(expression,pixels,offsets,rows,np.log(prior))
+    score_notify=lambda i,n:_notify(cfg,'A1_CORE','candidate_expression',nuclei=i,total=n)
+    type_expr=_candidate_expression(expression,pixels,offsets,rows,np.log(prior),score_notify)
     full=counts.sum(0);q=profile(full,prior);donor,bins=matched_donors(full,data['types'],stats['eligible'],SHUFFLE_SEEDS[0])
     shuf=prior.copy();available=donor>=0;shuf[available]=profile(full[donor[available]],prior[available])
-    core_expr=_candidate_expression(expression,pixels,offsets,rows,np.log(q));shuf_expr=_candidate_expression(expression,pixels,offsets,rows,np.log(shuf))
+    core_expr=_candidate_expression(expression,pixels,offsets,rows,np.log(q),score_notify);shuf_expr=_candidate_expression(expression,pixels,offsets,rows,np.log(shuf),score_notify)
     available_edges=stats['eligible'][rows]&(donor[rows]>=0)
     unavailable=np.bincount(edge_pixel,weights=~available_edges,minlength=len(pixels))>0
     outer=(~nuclear)&(k>=2);outer_common=outer&~unavailable
@@ -257,7 +263,7 @@ def _support_diagnostics(cfg,data,counts,stats,out):
             d=stats['donors'][si,fold]
             for start in range(0,len(rr),4096):
                 ix=rr[start:start+4096];logshuffle[ix]+=np.log(profile(counts[fold,d[ix]],prior[ix]))/20
-        ce=_candidate_expression(held,pixels,offsets,rows,np.log(qp));te=_candidate_expression(held,pixels,offsets,rows,np.log(prior));se=_candidate_expression(held,pixels,offsets,rows,logshuffle)
+        ce=_candidate_expression(held,pixels,offsets,rows,np.log(qp),score_notify);te=_candidate_expression(held,pixels,offsets,rows,np.log(prior),score_notify);se=_candidate_expression(held,pixels,offsets,rows,logshuffle,score_notify)
         hn=np.asarray(held.sum(1)).ravel();use=nuclear&(same_n>0)&(hn>0)&stats['paired'][owner_safe]
         for p in np.flatnonzero(use):
             a,b=offsets[p:p+2];ix=np.arange(a,b);own=ix[data['ids'][rows[ix]]==owner[p]];other=ix[alternatives[ix]]
@@ -268,7 +274,15 @@ def _support_diagnostics(cfg,data,counts,stats,out):
     pd.DataFrame(dict(cell_id=data['ids'],heldout_molecules=nuclear_molecules,core_expression_margin=values[:,0],
         type_expression_margin=values[:,1],shuffle_expression_margin=values[:,2])).to_csv(out/'nuclear_candidate_diagnostic.csv',index=False)
     for name,scores in [('type',type_expr),('core',core_expr),('shuffled',shuf_expr)]:atomic_npy(out/f'outer_{name}_expression_scores.npy',scores)
-    diag=dict(**coverage,query_pixels=len(pixels),outer_overlap_pixels=int(outer.sum()),outer_overlap_G_molecules=int(molecule_n[outer].sum()),
+    present=np.zeros(len(pixels),bool)
+    np.logical_or.at(present,edge_pixel,data['ids'][rows]==owner[edge_pixel])
+    timings['expression_and_diagnostic_seconds']=time.monotonic()-stage_start
+    common.atomic_json(out/'diagnostic_timings.json',timings)
+    diag=dict(**coverage,query_pixels=len(pixels),candidate_edges=len(rows),
+        nuclear_current_owner_missing_pixels=int((nuclear&~present).sum()),
+        nuclear_current_owner_missing_G_molecules=int(molecule_n[nuclear&~present].sum()),
+        paired_core_G_molecules=int(counts[:,stats['paired']].sum()),
+        paired_core_pixels_without_evaluable_same_type_alternative=int((nuclear&stats['paired'][owner_safe]&(same_n==0)).sum()),outer_overlap_pixels=int(outer.sum()),outer_overlap_G_molecules=int(molecule_n[outer].sum()),
         outer_common_pixels=int(outer_common.sum()),outer_common_G_molecules=int(molecule_n[outer_common].sum()),
         outer_missing_core_or_donor_pixels=int((outer&unavailable).sum()),
         outer_G_vs_GT_disagreement_pixels=int((outer_common&(wg!=wt)).sum()),
@@ -380,7 +394,7 @@ def _strata(data,stats,coverage,scores,out):
 def _run_a1(cfg):
     out=common.output_path(cfg,'A1_CORE');out.mkdir(parents=True,exist_ok=True)
     if (out/'complete.json').exists():return validate_node(cfg,'A1_CORE')
-    start=time.monotonic();data=_inputs(cfg)
+    start=time.monotonic();data=_inputs(cfg);phase_times={'input_seconds':time.monotonic()-start};phase_start=time.monotonic()
     manifest=dict(inputs=data['source'],parameters=PARAMETERS,genes=[data['genes'][i] for i in data['gene_indices']],
         reference_used_fields=['theta','gene_indices','gene_names','type_names','valid'],DAPI_loaded=False,
         nuclear_population=len(data['ids']),eligible_molecules=data['expected'],coordinate='verified historical original native INTER_NEAREST cache in original row order',
@@ -388,16 +402,18 @@ def _run_a1(cfg):
     if (out/'input_manifest.json').exists() and common.read(out/'input_manifest.json')!=manifest:raise ValueError('A1 input manifest drift')
     common.atomic_json(out/'input_manifest.json',manifest)
     counts,count_info=_count_core(cfg,data,out)
+    phase_times['core_count_seconds']=time.monotonic()-phase_start;phase_start=time.monotonic()
     stats,coverage,scores,decision=_write_statistics(cfg,data,counts,count_info,out)
     _notify(cfg,'A1_CORE','primary_statistics',paired_cells=int(stats['paired'].sum()))
+    phase_times['statistics_seconds']=time.monotonic()-phase_start;phase_start=time.monotonic()
     diagnostics=_support_diagnostics(cfg,data,counts,stats,out);strata=_strata(data,stats,coverage,scores,out)
     # Type restrictions are descriptive, never an adaptive gate or donor population change.
     type_values=[r for r in strata if r['population']=='paired' and r['family']=='type' and r['n_cells']]
     positive_types=[r['group'] for r in type_values if r['core_minus_type']>=.01 and r['core_minus_shuffle']>0]
     decision.update(descriptively_positive_types=positive_types,scope_caveat='Descriptive means do not decide applicability; only the unchanged A1 gate applied per type establishes scope.')
     common.atomic_json(out/'decision.json',decision)
-    elapsed=time.monotonic()-start
-    common.atomic_json(out/'runtime.json',dict(wall_seconds=elapsed,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,maximum_K=diagnostics['maximum_K']))
+    elapsed=time.monotonic()-start;phase_times['support_diagnostics_and_strata_seconds']=time.monotonic()-phase_start
+    common.atomic_json(out/'runtime.json',dict(phase_seconds=phase_times,wall_seconds=elapsed,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,maximum_K=diagnostics['maximum_K']))
     (out/'report.md').write_text('# A1 Core information test\n\nExecution: COMPLETED. Science: '+decision['science_status']+'.\n\n'
         f"Original nuclei: {len(data['ids'])}; evaluable: {int(stats['eligible'].sum())}; paired: {int(stats['paired'].sum())}.\n\n"
         'The primary statistic is cell-equal held-out log predictive gain, with no geometry term. '
@@ -409,7 +425,7 @@ def _run_a1(cfg):
 
 
 def _a2_masks(cfg,data,counts,eligible,out,oracle=False,interrupt_after=None):
-    out=Path(out);out.mkdir(parents=True,exist_ok=True);baseline=data['baseline'];nuclei=data['nuclei'];sup=data['support']
+    out=Path(out);out.mkdir(parents=True,exist_ok=True);baseline=data['baseline'];nuclei=data['nuclei'];sup=data['support'];start=time.monotonic()
     full=counts.sum(0);prior=data['theta'][np.where(legal_types(data['types'],data['valid']),data['types'],0)]
     donor,bins=matched_donors(full,data['types'],eligible,SHUFFLE_SEEDS[0]);q=profile(full,prior);shuf=prior.copy();good=donor>=0
     shuf[good]=profile(full[donor[good]],prior[good])
@@ -449,7 +465,7 @@ def _a2_masks(cfg,data,counts,eligible,out,oracle=False,interrupt_after=None):
             accepted_G_molecules=int(table.loc[accepted,'G_molecules'].sum()),**info['reasons'])
         common.atomic_json(arm/'transfer_summary.json',record);summary.append(record);results[name]=dict(final=str(final),summary=record)
     pd.DataFrame(summary).fillna(0).to_csv(out/'proposal_and_rejection_counts.csv',index=False)
-    return results,dict(support=support_stats,domain_pixels=len(pixels),same_domain=True)
+    return results,dict(support=support_stats,domain_pixels=len(pixels),candidate_edges=len(rows),same_domain=True,wall_seconds=time.monotonic()-start)
 
 
 def _run_a2(cfg):
@@ -622,6 +638,7 @@ def validate_mini(config,output):
             counts_recovery_equal=True,count_interruption=partial_info,A2_recovery_equal=True,A2_interruption=interruption,
             A2_actual_interruption_exercised=interrupted is None,complete_image_topology_oracle='every actual proposal in every mini arm',
             four_arm_same_domain=True,constant_capture=True,own_matrix_shapes=dimensions,evaluations=evaluations,
+            A2_uninterrupted_timing=dinfo,A2_recovered_timing=rinfo,
             maximum_K=max(dinfo['support']['maximum_K'],a1['maximum_K']),
             wall_seconds=time.monotonic()-start,compute_wall_seconds=time.monotonic()-acquired,resource_wait_seconds=acquired-start,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
             parameters=PARAMETERS,limitations=LIMITATIONS)

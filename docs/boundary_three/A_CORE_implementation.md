@@ -78,3 +78,31 @@ native-grid fixture; its scale=1 CSV is not silently substituted into formal dat
 Focused unit tests: 8 passed at initial implementation. Actual mini receipt,
 measured full-node/disk estimate and final local commit will be appended after
 real validation finishes. No formal science node has been run by this agent.
+
+Pre-admission memory refinement: A2 candidate scores are allocated directly as a
+36-byte structured record per candidate edge, avoiding a Python tuple/object
+copy of the complete score table. Full support has 77,913,750 native memberships
+and maximum K=14 in the verified frozen input. Query pixels are expression-bearing
+subsets, so this is an upper bound, not a measured new-result population.
+
+Support CSR, complete geometry and sparse-expression diagnostics emit progress
+and honor stop requests at bounded nuclear-group boundaries. These subphases do
+**not** save partial CSR/geometry/score accumulators; after interruption, their
+current deterministic subphase is rebuilt from its inputs. Previously committed
+molecule chunks are reused exactly. The restart cost can include one complete
+support/geometry/diagnostics pass and must be included in conservative budgeting.
+No progress counter is advertised as a persisted scientific cursor for these
+subphases. Bootstrap restarts from its fixed RNG seed if interrupted before its
+artifact is published.
+
+Additional tests now compare complete/elongated support against the actual frozen
+`Evidence.support` implementation, constructing only its nuclear fields and never
+running its DAPI initializer. Complete nuclear distances are checked against a
+brute-force full-nucleus oracle for a nucleus longer than a decoder view. Vector
+winner reduction is tested for empty support and exact ties; recovery rejects
+changed dependencies. Focused suite: 10 passed.
+
+Mini CSV qv=20 is an explicit eligibility token for molecules already selected by
+the original processed-input contract; the original qv values are not a mini
+score feature. Original transcript IDs, genes, integer native coordinates and
+row order are preserved before local coordinate translation.
