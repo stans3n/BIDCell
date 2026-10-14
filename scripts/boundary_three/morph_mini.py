@@ -20,6 +20,10 @@ from scripts.new_methods.common import make_model as legacy_model
 from tests.new_methods.contracts import compare_tensors,adam_formula
 
 def historical_model(initial,device='cuda'):
+    # Match the new constructor's frozen seed/thread/FP32 backend setup. Without
+    # this, an OMP_NUM_THREADS=1 launcher compares a one-thread historical CPU
+    # forward with the new constructor's explicit four-thread CPU forward.
+    m.seed_all()
     source=Path('/home/zwan0726/work/projects/BIDCell_new_methods_20261013/bidcell/model/model')
     modules={}
     for name in ('model','morphology'):
