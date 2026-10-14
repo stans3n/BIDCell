@@ -82,15 +82,13 @@ def augmentation_checks(data,view):
 def resume_check(cfg,node,model,opt,data,base,state,view,out):
     """Actual uninterrupted/resumed next update, native five-repeat noise envelope."""
     before=cpu_copy(state);path=out/'resume_temporary.pth';atomic_torch(path,before)
-    def trial(fresh=False):
+    def trial(reload=True):
         nonlocal model,opt,data
-        if fresh:
-            del model,opt,data;gc.collect();torch.cuda.empty_cache()
-            model,opt,data=m.setup(cfg,node)
         # Adam retains its CPU step tensors when loading a state dictionary.
         # Each trial needs independent counters; otherwise opt.step() mutates
         # the reference snapshot and later trials are no longer at update 32.
-        model.load_state_dict(before['model']);opt.load_state_dict(copy.deepcopy(before['optimizer']));m.restore_rng(before['rng']);model.train()
+        if reload:
+            model.load_state_dict(before['model']);opt.load_state_dict(copy.deepcopy(before['optimizer']));m.restore_rng(before['rng']);model.train()
         b=data.get_view(view,'cuda');opt.zero_grad(set_to_none=True);z=m.forward(model,b,node);loss,_=base(z,b);loss.backward()
         gradients={n:p.grad.detach().cpu().clone() for n,p in model.named_parameters() if p.grad is not None}
         opt.step();torch.cuda.synchronize()
@@ -112,7 +110,8 @@ def resume_check(cfg,node,model,opt,data,base,state,view,out):
     assert m.state_equal(before['model'],model.state_dict()) and m.state_equal(before['optimizer'],opt.state_dict())
     assert m.state_equal(before['rng'],m.rng_state())
     for key in ('view_cursor','actual_updates','empty_skips','effective_sequence'):assert m.state_equal(before[key],restored[key])
-    resumed=trial(fresh=True)
+    # Execute directly from the actual disk-restored model/Adam/RNG above.
+    resumed=trial(reload=False)
     assert torch.equal(original['logits'],resumed['logits'])
     bn=[n for n in original['model'] if n.endswith(('running_mean','running_var','num_batches_tracked'))]
     assert all(torch.equal(original['model'][n],resumed['model'][n]) for n in bn)
@@ -128,7 +127,7 @@ def resume_check(cfg,node,model,opt,data,base,state,view,out):
             max_first_moment_formula_error=max(v['max_first_moment_formula_error'] for v in formula['tensors'].values()),
             max_second_moment_formula_error=max(v['max_second_moment_formula_error'] for v in formula['tensors'].values()),
             bound=formula['moment_rounding_bound'])
-    rec=dict(restored_model_BN_optimizer_RNG_cursor_exact=True,next_logits_BN_RNG_exact=True,
+    rec=dict(restored_model_BN_optimizer_RNG_cursor_exact=True,actual_disk_restored_next_update=True,next_logits_BN_RNG_exact=True,
         next_model_exact=m.state_equal(original['model'],resumed['model']),
         next_optimizer_exact=m.state_equal(original['optimizer'],resumed['optimizer']),
         native_repeat_gradient_max_rms=repeat_summaries,
@@ -146,7 +145,7 @@ def pilot(cfg,node,out):
     out.mkdir(parents=True,exist_ok=True);started=time.monotonic();model,opt,data=m.setup(cfg,node)
     header=m.initial_header(cfg,node);views=read(cfg['inputs']['views'])['views']
     hashes={v['path']:v['identity']['sha256'] for v in read(cfg['inputs']['predict_shift0'])}
-    initial=m.snapshot(model,opt,header,pilot=True);atomic_torch(out/'step_zero.pth',initial)
+    initial=cpu_copy(m.snapshot(model,opt,header,pilot=True));atomic_torch(out/'step_zero.pth',initial)
     atomic_json(out/'initialization_map.json',m.initialization_map(model.morphology,m.canonical_full()))
     first=next(v for v in views if v['K']);batch=data.get_view(first,'cuda');model.eval()
     with torch.no_grad():
@@ -185,7 +184,7 @@ def pilot(cfg,node,out):
             model,opt,data,resume=resume_check(cfg,node,model,opt,data,base,state,nextview,out)
             del state
         if updates%10==0:print(node,'isolated pilot',updates,'/100',flush=True)
-    torch.cuda.synchronize();train_seconds=time.monotonic()-started;peak=torch.cuda.max_memory_allocated()
+    torch.cuda.synchronize();train_seconds=time.monotonic()-started;peak=torch.cuda.max_memory_allocated();maximum_started=time.monotonic()
     checkpoint=out/'pilot_final.pth'
     final=m.snapshot(model,opt,header,updates,cursor,skips,seq,pilot=True);m.validate_cursor(cfg,final)
     atomic_torch(checkpoint,final);del final
@@ -213,7 +212,8 @@ def pilot(cfg,node,out):
         del preddata,batch,z;gc.collect();torch.cuda.empty_cache()
     rec=dict(node=node,variant=m.variant_spec(node),step_zero_logits_exact=True,augmentation=augmentation,
         no_dapi_file_access_absent=node=='MORPH_NO_DAPI',checks=checks,resume=resume,max_K=max_k,prediction_max_K=prediction_maxima,
-        actual_updates=updates,view_cursor=cursor,empty_skips=skips,wall_seconds=train_seconds,
+        actual_updates=updates,view_cursor=cursor,empty_skips=skips,wall_seconds=time.monotonic()-started,
+        training_and_resume_diagnostic_seconds=train_seconds,maximum_K_diagnostic_seconds=time.monotonic()-maximum_started,
         production_update_seconds=sum(row['seconds'] for row in seq),
         peak_vram_bytes=peak,parameter_count=sum(p.numel() for p in model.parameters()),
         added_parameter_count=sum(p.numel() for p in model.morphology.parameters()),checkpoint=identity(checkpoint))
@@ -312,6 +312,7 @@ def validate_mini(config,output):
     if not torch.cuda.is_available():raise RuntimeError('real admission requires authorized host CUDA')
     print('Waiting for shared compute lock (mini-only timeout3600s; formal policy unchanged)',flush=True)
     with compute_lock(timeout=3600):
+        acquired=time.monotonic()
         canonical=m.canonical_full();canonical_path=out/'canonical_full_seed20261013.pth'
         atomic_torch(canonical_path,dict(model=canonical.state_dict(),seed=20261013,tensor_sha256=m.CANONICAL_SHA,
             limitation='frozen-code reconstruction, not independently archived historical step zero'))
@@ -330,6 +331,7 @@ def validate_mini(config,output):
             print(node,'mini full evaluator complete; temporary trained checkpoint discarded',flush=True)
         rec=dict(status='passed',source=m.scientific_source(),config_digest=m.digest(cfg),scope='real isolated ROI and 100 updates per variant; no scientific endpoint or formal initial',
             roi=roi,canonical_full_archive=identity(canonical_path),historical_full_replay=replay,variants=results,discarded_temporary_trained_checkpoints=discarded,
-            wall_seconds=time.monotonic()-started,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
+            wall_seconds=time.monotonic()-started,compute_wall_seconds=time.monotonic()-acquired,
+            resource_wait_seconds=acquired-started,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
             outputs={k:v for k,v in inventory(out).items() if k!='validation.log'})
         atomic_json(out/'complete.json',rec);return rec
