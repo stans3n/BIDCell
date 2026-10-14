@@ -391,7 +391,7 @@ def compare_many(cfg,names,comparisons,out):
 
 def compare_endpoints(cfg,candidate,control,out=None):
     cfg=load_run(cfg);key=candidate+'_minus_'+control
-    out=Path(out or output_path(cfg,candidate,'comparison_'+control))
+    out=Path(out or Path(endpoint_spec(cfg,candidate)['root'])/('comparison_'+control))
     compare_many(cfg,[control,candidate],{key:(candidate,control)},out)
     decision=read(out/'decision.json')['comparisons'][key]
     return dict(decision,candidate=candidate,control=control,report_root=str(out),report_receipt=identity(out/'complete.json'))
