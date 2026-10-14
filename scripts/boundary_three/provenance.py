@@ -27,10 +27,13 @@ def capture_inputs(cfg,dest):
         files.setdefault(path,None)
     add(OBJECTIVE)
     for name in PLAN_FILES.values():add(WORK/'docs'/name)
+    for obj in cfg.get('scientific_addenda',{}).values():add(obj['path'],obj)
     add(WORK/'context/07_evaluation_dual_annotation_20261013.md')
     for key,path in cfg['inputs'].items():
         p=Path(path)
         if p.is_file():add(p)
+    from .external import spatial_bindings
+    for obj in _objects(spatial_bindings(cfg)):add(obj['path'],obj)
     queue,protocol,contract=evaluation_contract(cfg)
     add(protocol);add(Path(queue['prepared'])/'complete.json')
     for obj in _objects(read(Path(queue['prepared'])/'complete.json')):add(obj['path'],obj)

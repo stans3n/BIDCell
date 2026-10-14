@@ -19,6 +19,7 @@ from .common import *
 from .contracts import NODES,A2_ENDPOINTS
 from .evaluation import METRICS,validate_endpoint,verify_legacy_receipt,check_legacy_identity
 from .freeze import validate_inputs,stream_coordinates
+from .external import spatial_bindings,snapshot_spatial_library
 DOMAINS=('no_support','single_candidate','unknown_competition','same_type_competition',
          'heterotypic_competition','nuclear','out_of_bounds')
 
@@ -116,10 +117,12 @@ def load_endpoint(arm,ids,q):
 def spatial_diversity(q,out,arms=None):
     arms=list(arms or q['endpoint_ids']);work=out/'author_spatial';(work/'sources').mkdir(parents=True,exist_ok=True)
     authority=read(q['bindings']['authority']['path'])
-    source=Path(authority['spatial_diversity']['source'])
+    bound=spatial_bindings(q)
+    if bound!=q['bindings']['spatial_contract']:raise ValueError('spatial contract drift before execution')
+    source=Path(bound['author']['path'])
     shutil.copyfile(source,work/'sources/publish_spatialDiversity_metrics.R')
-    lib=work/'sources/R_library'
-    if not lib.exists():lib.symlink_to(Path(source).parent/'R_library',target_is_directory=True)
+    if sha256(work/'sources/publish_spatialDiversity_metrics.R')!=bound['author']['sha256']:raise ValueError('spatial author copy differs')
+    snapshot_spatial_library(q,work,bound)
     atomic_json(work/'protocol.json',dict(methods=list(arms)))
     for arm in arms:
         e=endpoint(q,arm);d=work/'methods'/arm;(d/'paper').mkdir(parents=True,exist_ok=True)
@@ -331,8 +334,9 @@ def purity(table):
 
 def _report_config(cfg,names,comparisons):
     q=dict(cfg,root=cfg['output_root'],endpoint_ids=list(names),comparisons=comparisons,run_config=dict(cfg))
+    spatial=spatial_bindings(cfg)
     q['bindings']=dict(authority=identity(cfg['inputs']['authoritative_protocol']),
-        spatial_wrapper=identity(WORK/'scripts/bidcell_benchmark/recompute_historical_spatial_diversity.R'))
+        spatial_wrapper=spatial['wrapper'],spatial_contract=spatial)
     return q
 
 def _dependencies(q):
