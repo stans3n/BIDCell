@@ -17,6 +17,16 @@ def _objects(value):
     elif isinstance(value,list):
         for item in value:yield from _objects(item)
 
+def tile_receipt_identities(saved):
+    """Native completion records a count; its manifest records tile identities."""
+    tiles=saved.get('tiles',[])
+    if type(tiles) is int:
+        if tiles<0:raise ValueError('negative historical native tile count')
+        return []
+    if not isinstance(tiles,list) or any(not isinstance(obj,dict) or not {'path','sha256'}<=set(obj) for obj in tiles):
+        raise ValueError('historical tile ancestry has an unexpected schema')
+    return tiles
+
 def capture_inputs(cfg,dest):
     cfg=load_run(cfg);files={};expected={};start=time.monotonic()
     def add(path,old=None):
@@ -50,7 +60,7 @@ def capture_inputs(cfg,dest):
             if receipt.exists():
                 add(receipt);saved=read(receipt)
                 for obj in _objects(saved):add(obj['path'],obj)
-                for obj in saved.get('tiles',[]):
+                for obj in tile_receipt_identities(saved):
                     path=Path(obj['path'])
                     if path.suffix=='.json':
                         tile=verify_legacy_receipt(path)
