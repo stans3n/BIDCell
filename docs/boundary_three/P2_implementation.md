@@ -70,9 +70,10 @@ Real evidence is under
   1,181,556,736 bytes. These are process maxima, not concurrent process-tree
   sums or a measured full-slide peak.
 - `candidate_inventory.json` inspects all 48 production pre tiles per base:
-  maximum K is **5,201**, at `(4096,0)`, for both. The production tile executed
-  by mini is representative, not that maximum-K tile. P2's query allocation
-  remains explicitly bounded at 262,144 pairs independent of candidate count.
+  maximum K is **5,201**, at `(4096,0)`, for both. The original chain mini used
+  representative tiles; the additional maximum-K validation below executes
+  this actual maximum for both bases. P2's query allocation remains explicitly
+  bounded at 262,144 pairs independent of candidate count.
 - `unit_tests.log`: five tests passed, including 24 exhaustive full-coordinate
   cases, an ineligible nearby nucleus, a strict squared-distance difference of
   one at 10¹⁰, and a real stop file that prevents node preparation/completion.
@@ -89,14 +90,85 @@ The frozen transplant source SHA256 is
 Apart from its explanatory header, the sole copied-rule diff is the native ID
 enumeration described above.
 
-`resource_estimate.json` records **17,130 seconds for P2_BASE** and
-**18,890 seconds for P2_MORPH**, before the queue's separate 1.25 contingency and
-30-minute package reserve. Components include historical full native replay
-time (~3,386 seconds), conservative P2 cost at 2.5× native, two validated own
-matrix builds, full evaluator, stage diagnostics, comparisons, hashing/I/O and
-the second node's four-cell report. Disk estimates are 14 / 16 GiB respectively.
-The P2 multiplier and full-slide peak remain estimates; the mini does not claim
-to have measured a formal full P2 node or maximum-K P2 tile.
+The initial `resource_estimate.json` is preserved as provisional history. Its
+timing estimates are superseded by `resource_estimate_maxk.json`, described
+below. Neither is a measured formal full-node timing or full-slide peak.
+
+## Actual maximum-K resource admission
+
+`tests/boundary_three/p2_maxk.py` executed the real `(4096,0)` production tile
+for **both historical bases**, each with **5,201 candidates**. Both runs used
+fresh processes, one worker thread, and the shared compute lock. This adds no
+formal endpoint, new algorithm, matrix build, or scientific score. The previous
+complete mask-to-matrix-to-all-evaluator and interrupted-recovery evidence is
+retained unchanged.
+
+`maxK_5201/complete.json` and both child receipts passed. Actual native
+postconnect plus native island cleanup matched each saved historical tile
+pixel-for-pixel. P2 then matched every native candidate mask hash, candidate
+order, proposal count, RNG state entering islands, and native counterfactual.
+Postconnect foreground was identical, and owner changes were confined to
+extranuclear multiproposal pixels. Complete global nuclei supplied all int64
+distances. The maximum observed query allocation was 49,468 pairs, below the
+262,144-pair limit.
+
+| Actual maximum-K measurement | BASE_MATCH | Old V2_MORPH |
+| --- | ---: | ---: |
+| Native connection seconds | 250.892 | 249.322 |
+| Native island cleanup seconds | 202.120 | 203.432 |
+| Full-nucleus index seconds | 0.337 | 0.338 |
+| P2 connection seconds | 502.433 | 500.996 |
+| P2 island cleanup seconds | 199.015 | 201.358 |
+| Conflict pixels / exact ties | 68,892 / 1,978 | 63,959 / 1,960 |
+| Changed postconnect owner pixels | 29,474 | 28,761 |
+| Worker wall after input preparation, seconds | 1,155.154 | 1,155.787 |
+| Exact compute-stage worker HWM, bytes | 1,200,898,048 | 1,202,380,800 |
+| Sampled worker HWM including output writing, bytes | 1,201,254,400 | 1,202,651,136 |
+
+Both fresh workers, startup/input checks, and output writing occupied the lock
+for **2,325.227 seconds**, excluding lock wait. The read-only 50 ms observer
+`observe_p2_memory.py` measured a maximum concurrent driver-plus-worker RSS of
+**1,955,385,344 bytes**. This sampled concurrent sum is distinct from each
+process's HWM and does not claim an unsampled process-tree maximum.
+
+`summarize_p2_maxk.py` revalidated all numerical artifacts, original input
+identities, producer identities, prior complete-chain receipt, and observer
+source before writing `resource_estimate_maxk.json`. Updated complete-chain
+estimates are **22,601.959 seconds (6.278 hours) for P2_BASE** and
+**24,411.696 seconds (6.781 hours) for P2_MORPH**. They charge all 48 tiles the
+observed maximum-K cost, divided by four workers with 25% internal overhead,
+and retain the previous historical-native/2.5× P2 floors. Both postprocessing
+passes, both own matrix builds, full evaluation, diagnostics, comparisons,
+hashing/I/O and Morph's factorial report are included. The queue's separate
+1.25 contingency and 30-minute package reserve remain additional.
+
+The four-worker-plus-parent extrapolation is **6,013,255,680 bytes**, using
+five copies of the largest observed worker HWM and ignoring fork sharing.
+The recommended **20 GiB whole-node analytical reservation** separately
+allocates 8 GiB to four workers, 4 GiB to parent/stage buffers, and 8 GiB to an
+evaluator or R child, with a further **6 GiB available-RAM reserve**. These are
+analytical reservations, not measured full-slide peaks; runtime resource checks
+remain required.
+
+Conservative retained-disk reservations remain **14 / 16 GiB**. An explicitly
+itemized artifact forecast is **7.272 / 8.613 GiB**: twelve full rasters,
+192 tile rasters, two matrices with size allowance, twice historical evaluation
+size, generous prior-report-based allowances, and 2 GiB for diagnostics,
+splits and receipts. Full-slide conflict CSV and split sizes remain unmeasured,
+so this forecast does not replace the conservative reservations. The queue
+accounts for shared coordinate cache, atomic-write space and disk reserve
+separately.
+
+Executed scientific producer SHA256 values match the integrated tree exactly:
+
+- `p2_rules.py`: `36027ec4f4b90d507ad8d54db4a263735dc62020dba82ca878d7fad22f85a834`
+- `p2_native.py`: `dded0c32253c25a3bed0319c38cf876567e24b436ddf157a853fdbc06838b8fe`
+- Current native `postprocess_predictions.py`: `63248eb20d19b451c9c215d2e5b5397251888bd74734ddcff56640c3348e0ca5`
+
+The integrated callback wrapper is bound by its own receipt SHA256;
+`split_patch` and `tile_task` mathematical ASTs matched the isolated native
+wrapper. Maximum-K validation calls the actual unchanged native connect and
+island functions. This evidence does not substitute for independent code audit.
 
 A mini passing does not omit full native final/matrix replay at each formal
 node. `validate_mini` expects a valid config whose `output_root` is its isolated
