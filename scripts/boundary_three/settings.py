@@ -1,5 +1,6 @@
 """Preparation defaults; budget is frozen from measured complete-chain estimates."""
 from .contracts import *
+from .common import identity
 
 def default_config(output_root=None,run_id='boundary-three-20261015-r01'):
     root = str(output_root or OUTPUT_ROOT/run_id)
@@ -20,6 +21,7 @@ def default_config(output_root=None,run_id='boundary-three-20261015-r01'):
             historical_reuse=str(PAIRED_INPUT/'reviews/historical_endpoint_reuse.json'),
             environment_lock=str(PAIRED_INPUT/'reviews/environment_lock.json'),
             paper_R_environment=str(PAIRED_INPUT/'tests/paper_R_runtime_lock.json')),
+        scientific_addenda={'a2_type_scope':identity(SOURCE_ROOT/'docs/boundary_three/A_CORE_SCOPE_ADDENDUM_20261015.md')},
         enabled_nodes={n:True for n in NODES},
         seeds=dict(training=1234,canonical_morph=20261013,simple_fusion=2026101501,
             a1_split=20261015,a1_shuffles=list(range(2026101500,2026101520)),

@@ -59,6 +59,10 @@ def load_run(config):
         raise ValueError('frozen version/node order drift')
     if cfg['endpoints'] != endpoint_registry():
         raise ValueError('historical endpoint registry drift')
+    if cfg.get('source_digest') is not None:
+        expected=SOURCE_ROOT/'docs/boundary_three/A_CORE_SCOPE_ADDENDUM_20261015.md'
+        if cfg.get('scientific_addenda',{}).get('a2_type_scope')!=identity(expected):
+            raise ValueError('frozen A2 type-scope addendum missing or changed')
     return cfg
 
 def output_path(cfg, *parts):
