@@ -19,6 +19,7 @@ scientific fixes and obtains a new independent final script/integrated audit.
 | Strict serialization and orphan protection | queue flock + workspace compute flock once/node; worker inherits both descriptions; closing supervisor descriptor retains child lock |
 | Internal entrypoint protection | _node requires active lease/current node, direct live supervisor parent and inherited descriptor inode identity; _run requires STARTING plus exclusive one-time lease claim |
 | Supervisor failure | worker watchdog requests resumable stop if bound supervisor exits, retains inherited locks until safe exit, and records orphan result/status; execution deadline backup remains active |
+| R descendants | inherited_lock_fds validates worker-only metadata and queue/compute inode identities; exact R subprocess callsites pass these FDs so locks survive Python worker death; status exposes held descendant locks |
 | Durable state and observation | atomic queue_state, result/checkpoint receipts, fsynced events/logs, PID+boot+start ticks; real progress file separate from heartbeat |
 | Detach/duplicate protection | unique actual tmux session; launch guard + queue lock + bound process checks; actual host fixture exercises duplicate rejection |
 | Stop/failure distinction | SafeStop RuntimeError and InterruptedError are controlled pauses; other exceptions remain runtime/integrity failures |
