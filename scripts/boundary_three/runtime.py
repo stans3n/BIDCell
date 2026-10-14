@@ -35,6 +35,7 @@ PAUSED = {'PAUSED_USER', 'PAUSED_BUDGET', 'PAUSED_RESOURCE', 'PAUSED_INTERRUPTED
 MODULES = {n: ('a_core' if n in ('A1_CORE', 'A2_CORE') else
               'p2_transfer' if n.startswith('P2_') else 'morph') for n in NODES}
 TRANSIENT_IO = {errno.EIO, errno.ESTALE, errno.ETIMEDOUT}
+LOCK_ENV = ('BOUNDARY_THREE_LOCK_FDS','BOUNDARY_THREE_RUN_ROOT','BOUNDARY_THREE_LEASE')
 
 
 def process_identity(pid=None):
@@ -233,6 +234,8 @@ def check_run_config(cfg):
         raise ValueError('resource waits require a bounded positive limit <=600s')
     if r['disk_reserve_bytes']<10*1024**3 or r['min_ram_available_bytes']<6*1024**3 or r['min_gpu_free_bytes']<1024**3:
         raise ValueError('formal resource reserves cannot be reduced below frozen plan minima')
+    if (r.get('paper_R_threads'),r.get('paper_R_processes'),r.get('spatial_R_threads'))!=(4,1,1):
+        raise ValueError('accepted-R threading policy must be frozen: paper1 process/4threads, spatial1thread')
     if not math.isfinite(cfg['budget_seconds']) or cfg['budget_seconds'] <= 0:
         raise ValueError('invalid initial execution budget')
     estimates(cfg)
@@ -460,9 +463,42 @@ def verify_worker_authorization(cfg, config, node, lease_id, queue_fd, compute_f
         raise ValueError('internal node state is not RUNNING')
 
 
+def inherited_lock_fds():
+    """Preserve verified worker queue/compute locks across exact R subprocesses.
+
+    Empty outside the boundary worker. Partial, stale, or mismatched markers
+    fail before spawning. A protected orphan is allowed to reach a safe boundary;
+    it must not require its already exited supervisor to remain alive.
+    """
+    values=[os.environ.get(k) for k in LOCK_ENV]
+    if not any(values):return ()
+    if not all(values):raise ValueError('partial boundary inherited-lock environment')
+    fds=json.loads(values[0])
+    if set(fds)!={'queue','compute'} or any(type(v) is not int or v<3 for v in fds.values()) or fds['queue']==fds['compute']:
+        raise ValueError('invalid inherited queue/compute descriptor map')
+    root=Path(values[1]).resolve();cfg=load_run(root/'configs/run.json')
+    if root!=Path(cfg['output_root']).resolve() or not cfg.get('source_digest') or not cfg.get('input_digest') or cfg.get('engineering_fixture'):
+        raise ValueError('inherited-lock markers do not bind a formal frozen run')
+    state=bound_state(cfg);lease=read(output_path(cfg,'control/leases',values[2]+'.json'))
+    if state['active_lease']!=values[2] or lease['config_digest']!=digest(cfg):
+        raise ValueError('inherited R locks belong to a stale execution lease')
+    if state['execution_status']!='RUNNING' or state.get('current_node') not in NODES:
+        raise ValueError('inherited R locks lack an active scientific node')
+    for key,path in (('queue',root/'control/queue.lock'),('compute',GPU_LOCK)):
+        actual=os.fstat(fds[key]);expected=path.stat()
+        if (actual.st_dev,actual.st_ino)!=(expected.st_dev,expected.st_ino):
+            raise ValueError('inherited R '+key+' lock inode drift')
+        fcntl.flock(fds[key],fcntl.LOCK_EX|fcntl.LOCK_NB)
+    return (fds['queue'],fds['compute'])
+
+
 def node_worker(config, node, result_path, lease_id=None, queue_fd=None, compute_fd=None):
     cfg = load_run(config)
     verify_worker_authorization(cfg,config,node,lease_id,queue_fd,compute_fd)
+    previous_environment={k:os.environ.get(k) for k in LOCK_ENV}
+    if lease_id is not None:
+        os.environ.update(BOUNDARY_THREE_LOCK_FDS=json.dumps(dict(queue=queue_fd,compute=compute_fd)),
+                          BOUNDARY_THREE_RUN_ROOT=cfg['output_root'],BOUNDARY_THREE_LEASE=lease_id)
     atomic_json(output_path(cfg, 'control', 'worker.json'), process_identity())
     started = time.monotonic()
     watchdog_done=threading.Event(); watchdog=None
@@ -500,6 +536,9 @@ def node_worker(config, node, result_path, lease_id=None, queue_fd=None, compute
     result['elapsed_seconds'] = time.monotonic() - started
     watchdog_done.set()
     if watchdog: watchdog.join(timeout=6)
+    for key,value in previous_environment.items():
+        if value is None:os.environ.pop(key,None)
+        else:os.environ[key]=value
     atomic_json(result_path, result)
     if lease_id is not None and not process_alive(supervisor):
         orphan=bound_state(cfg)
@@ -767,6 +806,13 @@ def status(config):
     cfg=load_run(config); state=bound_state(cfg)
     live=process_alive(state.get('supervisor')); worker_live=process_alive(state.get('worker'))
     state['process_alive']=live; state['worker_alive']=worker_live
+    def held(path):
+        if not path.exists():return False
+        with path.open('a+') as stream:
+            try:fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB);return False
+            except BlockingIOError:return True
+    state['queue_lock_held']=held(output_path(cfg,'control/queue.lock'))
+    state['compute_lock_held']=held(GPU_LOCK)
     heartbeat=output_path(cfg,'control/heartbeat.json')
     if heartbeat.exists():
         observed=read(heartbeat)
@@ -780,7 +826,9 @@ def status(config):
     if live:
         state['liveness']='LIVE_NO_PROGRESS' if age is None or age>cfg['resources'].get('no_progress_seconds',900) else 'LIVE_WITH_PROGRESS'
     elif worker_live: state['liveness']='SUPERVISOR_EXITED_WORKER_ALIVE'
+    elif state['queue_lock_held']:state['liveness']='PROCESS_EXITED_DESCENDANT_LOCK_HELD'
     else: state['liveness']='PROCESS_EXITED' if state['leases'] else 'NOT_LAUNCHED'
+    state['untracked_descendant_lock_owner']=bool(not live and not worker_live and state['queue_lock_held'])
     state['completed_nodes']=[n for n in NODES if state['nodes'][n]['execution_status']=='COMPLETED']
     state['deferred_nodes']=[n for n in NODES if state['nodes'][n]['execution_status'].startswith('DEFERRED')]
     state['skipped_nodes']=[n for n in NODES if state['nodes'][n]['execution_status']=='SKIPPED_SCIENTIFIC_GATE']

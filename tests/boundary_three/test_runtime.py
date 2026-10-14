@@ -171,6 +171,25 @@ class RuntimeTests(unittest.TestCase):
         with runtime.lock_file(self.root/'control/queue.lock'):
             with self.assertRaisesRegex(RuntimeError,'lock held'):runtime.complete_check(path)
 
+    def test_inherited_R_descriptor_markers_empty_partial_stale_and_valid(self):
+        with patch.dict(os.environ,{},clear=True):self.assertEqual(runtime.inherited_lock_fds(),())
+        with patch.dict(os.environ,{'BOUNDARY_THREE_LEASE':'invalid'},clear=True):
+            with self.assertRaisesRegex(ValueError,'partial'):runtime.inherited_lock_fds()
+        path=self.root/'configs/run.json';atomic_json(path,self.cfg)
+        state=runtime.bound_state(self.cfg);state.update(active_lease='fd-lease',current_node='P2_BASE',execution_status='RUNNING')
+        runtime.save_state(self.cfg,state)
+        atomic_json(self.root/'control/leases/fd-lease.json',dict(config_digest=digest(self.cfg)))
+        with runtime.lock_file(self.root/'control/queue.lock') as queue, runtime.lock_file(self.root/'compute.lock') as compute:
+            markers=dict(BOUNDARY_THREE_LOCK_FDS=runtime.json.dumps(dict(queue=queue.fileno(),compute=compute.fileno())),
+                         BOUNDARY_THREE_RUN_ROOT=str(self.root),BOUNDARY_THREE_LEASE='fd-lease')
+            with patch.dict(os.environ,markers,clear=True),patch.object(runtime,'GPU_LOCK',self.root/'compute.lock'):
+                self.assertEqual(runtime.inherited_lock_fds(),(queue.fileno(),compute.fileno()))
+                os.environ['BOUNDARY_THREE_LEASE']='missing'
+                with self.assertRaises(FileNotFoundError):runtime.inherited_lock_fds()
+                os.environ['BOUNDARY_THREE_LEASE']='fd-lease'
+                os.environ['BOUNDARY_THREE_LOCK_FDS']=runtime.json.dumps(dict(queue=compute.fileno(),compute=queue.fileno()))
+                with self.assertRaisesRegex(ValueError,'inode drift'):runtime.inherited_lock_fds()
+
     def test_package_preserves_scientific_table_set_and_never_creates_a1_mask_row(self):
         self._queue()
         state=runtime.bound_state(self.cfg);node='P2_BASE';folder=self.root/node/'comparison'

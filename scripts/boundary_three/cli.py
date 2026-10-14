@@ -13,6 +13,7 @@ def human_status(value):
     lines=[f"Run: {value['run_id']}  Host: {value['host']}",
            f"Queue: {value['execution_status']}  Process: {value['liveness']}",
            f"Supervisor alive: {value['process_alive']}  Worker alive: {value['worker_alive']}",
+           f"Queue lock held: {value['queue_lock_held']}  Workspace compute lock held: {value['compute_lock_held']}",
            f"Current node: {value.get('current_node')}  Stage: {value.get('stage')}",
            f"Heartbeat: {value.get('heartbeat_utc')}  Last scientific progress: {value.get('last_progress_utc')}",
            f"Progress: {json.dumps(value.get('progress'),ensure_ascii=False)}",
