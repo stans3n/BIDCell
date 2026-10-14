@@ -44,9 +44,74 @@ nuclear-coordinate oracle cases, native output/proposal/RNG checks, the
 no-background edge case, complete multicomponent distances, exact and near ties,
 missing IDs, bounded query memory, and native tile/merge order.
 
-Real mini receipts, timings, recovery evidence, resource estimates and final
-local commit are recorded below when the run finishes. A mini passing is not
-permission to omit the full native final/matrix replay at each formal node.
+Real evidence is under
+`/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/mini/p2`:
+
+- `attempt_01/complete.json`: both real chains passed in **1201.48 seconds**.
+- Each chain replayed production tile `(0,2048)`, size 1024, using its exact
+  historical seed. Native postislands pixels matched the saved historical tile;
+  a separate uninstrumented native call also matched the candidate output and
+  RNG. Observed candidate counts were 3,346 (BASE) and 3,342 (Morph).
+- Both actual 144×144 ROI pre masks came from their respective formal historical
+  pre rasters. The 18,469 molecule IDs, genes and quantized global coordinates
+  were independently checked against full production coordinate records before
+  exact local rebasing. No fresh prediction/training was needed for P2.
+- Native ROI final masks and all integer counts, ID/gene maps, CSV and transcript
+  owners matched separately run current native pipelines. Each new P2 final
+  then built its own matrix and passed all authoritative evaluator profiles.
+  BASE had 63 matrix IDs / 58 own-QC IDs; Morph had 62 / 56.
+- BASE exercised 1,295 conflict pixels, 48 exact ties and 611 postconnect owner
+  changes. Morph exercised 1,389 conflicts, 57 ties and 591 changes. These are
+  development coverage diagnostics, not formal efficacy results.
+- Both bases were interrupted after a tile boundary and after a split chunk on
+  a real overlapping-tile ROI. All five stage TIFF SHA256 values matched the
+  uninterrupted run exactly in both recovery cases.
+- Peak measured parent RSS was 1,183,498,240 bytes; peak child RSS was
+  1,181,556,736 bytes. These are process maxima, not concurrent process-tree
+  sums or a measured full-slide peak.
+- `candidate_inventory.json` inspects all 48 production pre tiles per base:
+  maximum K is **5,201**, at `(4096,0)`, for both. The production tile executed
+  by mini is representative, not that maximum-K tile. P2's query allocation
+  remains explicitly bounded at 262,144 pairs independent of candidate count.
+- `unit_tests.log`: five tests passed, including 24 exhaustive full-coordinate
+  cases, an ineligible nearby nucleus, a strict squared-distance difference of
+  one at 10¹⁰, and a real stop file that prevents node preparation/completion.
+- `final_validation.json` revalidates real artifact hashes, own evaluation and
+  every recovery stage using final code. The expensive mini's exact producer
+  commit is **`a4ff61c`**. A subsequent change adds only formal-run stop guards;
+  AST equality verifies that all transfer helpers used by the mini stayed
+  identical, while its numerical producer files retain their exact hashes.
+  The control-only difference is explicit rather than represented as a rerun
+  of a full formal node.
+
+The frozen transplant source SHA256 is
+`779e134aa2b665f38ba05488e42c49a8ab17ea7a87353aa2ee36ce040b2a822e`.
+Apart from its explanatory header, the sole copied-rule diff is the native ID
+enumeration described above.
+
+`resource_estimate.json` records **17,130 seconds for P2_BASE** and
+**18,890 seconds for P2_MORPH**, before the queue's separate 1.25 contingency and
+30-minute package reserve. Components include historical full native replay
+time (~3,386 seconds), conservative P2 cost at 2.5× native, two validated own
+matrix builds, full evaluator, stage diagnostics, comparisons, hashing/I/O and
+the second node's four-cell report. Disk estimates are 14 / 16 GiB respectively.
+The P2 multiplier and full-slide peak remain estimates; the mini does not claim
+to have measured a formal full P2 node or maximum-K P2 tile.
+
+A mini passing does not omit full native final/matrix replay at each formal
+node. `validate_mini` expects a valid config whose `output_root` is its isolated
+mini output directory. Formal `run_node` acquires no compute lock recursively;
+the queue owns that lock. It raises `InterruptedError` at resumable tile/split
+or between-stage boundaries, leaving the queue to distinguish a user stop,
+budget pause or resource pause.
+
+The final local commit SHA and integration list are recorded in
+`mini/p2/P2_handoff.json`; the separately committed shared parent files should
+not be cherry-picked again. Final artifact validation command (already run):
+
+```bash
+PYTHONPATH=/home/zwan0726/work/projects/BIDCell_boundary_three_p2_20261015 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/zwan0726/miniforge3/envs/bidcell_local/bin/python /home/zwan0726/work/projects/BIDCell_boundary_three_p2_20261015/tests/boundary_three/validate_p2_receipts.py --root /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/mini/p2/attempt_01 --output /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/mini/p2/final_validation.json
+```
 
 ## Scope and limitations
 

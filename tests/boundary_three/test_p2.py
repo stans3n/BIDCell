@@ -1,6 +1,8 @@
 """Independent native and exhaustive complete-nucleus oracle tests for P2."""
 import random
 import unittest
+import tempfile
+from pathlib import Path
 import numpy as np
 from bidcell.model.postprocess_predictions import postprocess_connect,remove_islands
 from scripts.boundary_three.p2_rules import connect,FullNucleusIndex
@@ -16,6 +18,7 @@ class P2Tests(unittest.TestCase):
             for cid in (3,9,17):
                 for _ in range(5):
                     nuclei[rng.integers(44),rng.integers(53)] = cid
+            nuclei[18,25] = 99  # Complete nucleus with no proposal in this pre.
             image = rng.choice([0,0,0,3,9,17],size=(24,29)).astype(np.uint32)
             origin = (7,11)
             nuc = nuclei[7:31,11:40]
@@ -37,6 +40,8 @@ class P2Tests(unittest.TestCase):
             self.assertEqual(state,random.getstate())
             random.seed(seed)
             p2,diag,arrays,masks = connect(image,nuc,'P2',index,origin,capture=True)
+            self.assertNotIn(99,masks)
+            self.assertFalse(np.any((p2==99)&(nuc==0)))
             self.assertEqual(state,random.getstate())
             self.assertEqual(diag['candidate_hashes'],observed_diag['candidate_hashes'])
             self.assertEqual(diag['candidate_order'],observed_diag['candidate_order'])
@@ -87,6 +92,15 @@ class P2Tests(unittest.TestCase):
             connect(np.array([[0,99],[2,2]],np.uint32),n[:2,:2],'P2',index)
         with self.assertRaisesRegex(ValueError,'outside global grid'):
             index.squared(7,[[-1,3]])
+        # Squared distances differ by exactly one at a scale where float32
+        # comparison would turn the strict nearest candidate into a tie.
+        tall = np.zeros((100001,2),np.uint32)
+        tall[0,0],tall[0,1] = 7,2
+        exact = FullNucleusIndex(tall,2)
+        near = exact.squared(7,[[100000,0]])[0]
+        farther = exact.squared(2,[[100000,0]])[0]
+        self.assertEqual(int(near),10000000000)
+        self.assertEqual(int(farther-near),1)
 
     def test_native_tile_order_overlap(self):
         size,ys,xs,coords = tile_coordinates((140,190),96)
@@ -94,6 +108,20 @@ class P2Tests(unittest.TestCase):
         self.assertEqual(ys,[0,44])
         self.assertEqual(xs,[0,94])
         self.assertEqual(coords,[(0,0),(0,94),(44,0),(44,94)])
+
+    def test_pending_stop_prevents_preparation_and_completion(self):
+        from scripts.boundary_three.settings import default_config
+        from scripts.boundary_three.p2_transfer import run_node
+        root = Path('/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/mini/p2')
+        root.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='stop_test_',dir=root) as temp:
+            cfg = default_config(temp,'stop-boundary-test')
+            control = Path(temp)/'control'
+            control.mkdir()
+            (control/'stop.json').write_text('{}')
+            with self.assertRaisesRegex(InterruptedError,'before preparation'):
+                run_node(cfg,'P2_BASE')
+            self.assertFalse((Path(temp)/'P2_BASE').exists())
 
 
 if __name__ == '__main__':
