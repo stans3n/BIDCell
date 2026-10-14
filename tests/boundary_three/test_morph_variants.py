@@ -58,5 +58,17 @@ class MorphVariantsTest(unittest.TestCase):
             m.load_state_dict(saved[0]);o.load_state_dict(saved[1]);torch.set_rng_state(saved[2]);step()
             from scripts.paired_v2.common import state_equal
             self.assertTrue(state_equal(expected,(m.state_dict(),o.state_dict(),torch.get_rng_state())))
+    def test_checkpoint_reference_survives_diagnostic_optimizer_trials(self):
+        from scripts.boundary_three.morph_mini import cpu_copy
+        from scripts.paired_v2.common import state_equal
+        m=MorphologyVariant('simple_fusion',self.full);o=torch.optim.Adam(m.parameters(),lr=1e-5,weight_decay=1e-4)
+        h=torch.randn(2,256,12,12);g=torch.randn(2,16,48,48);d=torch.randn(1,3,48,48)
+        def step():o.zero_grad();m(h,g,d).square().mean().backward();o.step()
+        step();saved=cpu_copy(dict(model=m.state_dict(),optimizer=o.state_dict()))
+        with tempfile.TemporaryDirectory(prefix='morph-state-') as tmp:
+            path=Path(tmp)/'reference.pth';torch.save(saved,path)
+            for _ in range(3):
+                m.load_state_dict(saved['model']);o.load_state_dict(copy.deepcopy(saved['optimizer']));step()
+                self.assertTrue(state_equal(saved,torch.load(path,map_location='cpu')))
 
 if __name__=='__main__':unittest.main()
