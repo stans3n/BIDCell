@@ -9,7 +9,7 @@ import unittest
 from datetime import datetime,timezone,timedelta
 from unittest.mock import patch
 from scripts.rep1_bt_gt_fusion import runtime as rt, execution as ex
-from scripts.rep1_bt_gt_fusion.common import atomic_json,identity,digest,dependencies
+from scripts.rep1_bt_gt_fusion.common import atomic_json,identity,digest,dependencies,write_receipt
 from scripts.rep1_bt_gt_fusion.context_sync import commit_append_journal,context_block
 
 
@@ -106,6 +106,37 @@ class ControllerContracts(unittest.TestCase):
             data2=folder/'data2';data2.write_text('new-output')
             p2=folder/'commit2.json';atomic_json(p2,dict(status='succeeded',dependencies=dependencies(cfg,'fixture'),outputs={'data':identity(data2)}))
             self.assertEqual(rt.new_checkpoint(cfg,baseline)['path'],str(p2));self.assertIsNone(rt.new_checkpoint(cfg,baseline))
+
+    def test_real_R_commit_adapter_progress_reuse_and_binding(self):
+        from scripts.rep1_bt_gt_fusion.evaluation import commit_r_chunks
+        with tempfile.TemporaryDirectory(prefix='runtime-fixture-') as tmp:
+            root=Path(tmp);cfg=dict(run_root=tmp,run_id='fixture',source_digest='x',input_digest='x',plan_sha256='x')
+            data=root/'production.data';data.write_bytes(b'synthetic production')
+            write_receipt(root/'production_complete.json',dependencies(cfg,'PRODUCTION_VALIDATE'),{'data':identity(data)})
+            grant=root/'control/manual_resume.json'
+            atomic_json(grant,dict(authorization='explicit_user_resume',user_instruction_utc=rt.utc(),
+                        dependencies=dependencies(cfg,'MANUAL_RESUME'),production_complete=identity(root/'production_complete.json')))
+            endpoint=root/'endpoints/P2_BASE_GT';endpoint.mkdir(parents=True)
+            atomic_json(endpoint/'production_complete.json',dict(status='synthetic_fixture_production'))
+            deps=dependencies(cfg,'P2_BASE_GT_EVALUATION');deps.update(production=identity(endpoint/'production_complete.json'),manual_resume=identity(grant))
+            folder=endpoint/'evaluation/paper_aligned_v1/prediction_chunks';folder.mkdir(parents=True)
+            baseline=rt.checkpoint_baseline(cfg);target=folder/'batch_0001.rds';target.write_bytes(b'opaque RDS fixture identity')
+            atomic_json(folder/'batch_0001.pending.json',dict(file=str(target),dependencies_digest=digest(deps),cursor=4,total=12))
+            observed=[]
+            commit_r_chunks(folder,digest(deps),lambda value:observed.append(rt.new_checkpoint(cfg,baseline)))
+            self.assertEqual(len(observed),1);self.assertEqual(observed[0]['path'],str(target)+'.committed.json')
+            self.assertIsNone(rt.new_checkpoint(cfg,baseline))
+            commit_r_chunks(folder,digest(deps),lambda value:self.fail('reused R batch was reported as new'))
+            committed=Path(str(target)+'.committed.json');saved=json.loads(committed.read_text());saved['dependencies_digest']='other-endpoint'
+            atomic_json(committed,saved)
+            with self.assertRaisesRegex(ValueError,'endpoint dependency'):rt.new_checkpoint(cfg,baseline)
+
+    def test_tmux_controlled_environment_has_only_explicit_safe_values(self):
+        cfg=dict(run_root='/fixture/run',r_libs_user='/fixed/R_library')
+        with patch.dict(os.environ,{'TMPDIR':'/old','OPENBLAS_NUM_THREADS':'7','UNRELATED_SECRET':'not-for-command'}):
+            controlled=rt.controlled_environment(cfg);child=rt.child_environment(cfg)
+        self.assertEqual(controlled['TMPDIR'],'/fixture/run/tmp');self.assertEqual(controlled['OPENBLAS_NUM_THREADS'],'1')
+        self.assertNotIn('UNRELATED_SECRET',controlled);self.assertEqual(child['UNRELATED_SECRET'],'not-for-command')
 
 
 if __name__=='__main__':unittest.main()

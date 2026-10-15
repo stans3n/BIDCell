@@ -10,14 +10,14 @@ from . import execution as ex
 def parser():
     p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
     prepare=sub.add_parser('prepare');prepare.add_argument('--plan',required=True);prepare.add_argument('--output-root',required=True);prepare.add_argument('--run-id',required=True)
-    for name in ('validate','launch','resume-production','status','tail','complete-check','grant-resume','evaluate','publish','recover-historical-mask','_supervise','_worker'):
+    for name in ('validate','launch','resume-production','status','tail','complete-check','grant-resume','evaluate','resume-evaluation','publish','recover-historical-mask','_supervise','_worker'):
         q=sub.add_parser(name);q.add_argument('--config',required=True)
         if name=='validate':q.add_argument('--admission',required=True)
         if name=='status':q.add_argument('--json',action='store_true')
         if name=='tail':q.add_argument('--lines',type=int,default=80)
         if name=='complete-check':q.add_argument('--phase',choices=['production'],required=True)
         if name=='grant-resume':q.add_argument('--user-instruction-utc',required=True)
-        if name in ('evaluate','publish','recover-historical-mask'):q.add_argument('--manual-resume',required=True)
+        if name in ('evaluate','resume-evaluation','publish','recover-historical-mask'):q.add_argument('--manual-resume',required=True)
         if name=='recover-historical-mask':q.add_argument('--method',choices=['C','SP'],required=True);q.add_argument('--source',required=True)
         if name in ('_supervise','_worker'):q.add_argument('--attempt',required=True)
         if name=='_supervise':q.add_argument('--mode',choices=['production','evaluation'],required=True)
@@ -40,9 +40,9 @@ def main(argv=None):
         elif command in ('launch','resume-production'):result=rt.launch(args.config,resume=command=='resume-production')
         elif command=='complete-check':result=rt.complete_check(args.config)
         elif command=='grant-resume':result=rt.grant_resume(args.config,args.user_instruction_utc)
-        elif command=='evaluate':
+        elif command in ('evaluate','resume-evaluation'):
             from .common import require_manual_resume
-            require_manual_resume(cfg,args.manual_resume);result=rt.launch(args.config,mode='evaluation')
+            require_manual_resume(cfg,args.manual_resume);result=rt.launch(args.config,mode='evaluation',resume=command=='resume-evaluation')
         elif command=='publish':result=rt.publish(args.config,args.manual_resume)
         elif command=='recover-historical-mask':
             from contextlib import ExitStack

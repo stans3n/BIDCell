@@ -20,9 +20,9 @@ import shutil
 import signal
 import subprocess
 import time
-from scripts.rep1_bt_gt_fusion import NODE_ORDER
+from scripts.rep1_bt_gt_fusion import NODE_ORDER, NEW
 from scripts.rep1_bt_gt_fusion import runtime as rt, execution as ex, science
-from scripts.rep1_bt_gt_fusion.common import atomic_json,identity,read,digest,dependencies,check_receipt,write_receipt
+from scripts.rep1_bt_gt_fusion.common import atomic_json,identity,read,digest,dependencies,check_identity,check_receipt,write_receipt,require_manual_resume
 
 
 def fixture_receipt(cfg,node):
@@ -66,6 +66,30 @@ def fixture_stage(cfg,node,progress=None,lock_fds=(),validate_execution=None):
                          {p.name:identity(p) for p in out.iterdir() if p.is_file() and p.name!='complete.json'})
 
 
+def fixture_evaluate(cfg,grant,callback,lock_fds,validate_execution):
+    """Synthetic manual phase using real RDS commits, real R and real locks."""
+    from scripts.rep1_bt_gt_fusion.evaluation import run_r
+    require_manual_resume(cfg,grant);root=Path(cfg['run_root'])
+    outputs={}
+    for name in NEW:
+        endpoint=root/'endpoints'/name;out=endpoint/'evaluation';out.mkdir(exist_ok=True)
+        deps=dependencies(cfg,name+'_EVALUATION');deps.update(production=identity(endpoint/'production_complete.json'),manual_resume=identity(grant))
+        complete=out/'complete.json'
+        if complete.exists():check_receipt(complete,deps,root)
+        else:
+            paper=out/'paper_aligned_v1';paper.mkdir(exist_ok=True)
+            for cursor in (4,8,12):
+                committed=paper/'prediction_chunks'/f'batch_{cursor:04d}.rds.committed.json'
+                if committed.exists():
+                    assert read(committed)['dependencies_digest']==digest(deps);check_identity(read(committed));continue
+                script=REPO/'tests/rep1_bt_gt_runtime_prediction.R'
+                run_r(cfg,script,[paper,cursor,12,digest(deps)],paper,lock_fds,validate_execution,callback,digest(deps))
+                time.sleep(2)
+            write_receipt(complete,deps,{p.name:identity(p) for p in (paper/'prediction_chunks').glob('*.committed.json')})
+        outputs[name]=identity(complete)
+    return write_receipt(root/'evaluation8/complete.json',dependencies(cfg,'EVALUATION8'),outputs)
+
+
 def install_fixture(config):
     cfg=read(config)
     if cfg.get('schema')!='rep1-bt-gt-engineering-fixture-v1':raise ValueError('not an engineering fixture')
@@ -84,6 +108,8 @@ def install_fixture(config):
         return dict(origin,engineering_only=True)
     rt.load_config=load;rt.verify_execution=verify
     science.run_stage=fixture_stage;science.validate_stage=fixture_validate;science.receipt_path=fixture_receipt
+    from scripts.rep1_bt_gt_fusion import evaluation
+    evaluation.evaluate=fixture_evaluate
     entry=str(REPO/'tests/rep1_bt_gt_runtime_fixture.py')
     rt.worker_command=lambda c,n,a,f,p:[ex.PYTHON,'-I','-S','-B',entry,'worker',str(p),n,a,','.join(map(str,f))]
     rt.supervisor_command=lambda c,a,m,p:[ex.PYTHON,'-I','-S','-B',entry,'supervise',str(p),a,m]
@@ -152,8 +178,20 @@ def actual_suite(root):
     root=Path(root).resolve();root.mkdir(parents=True,exist_ok=False);checks={};evidence=[]
     # Normal real tmux queue, two fresh heartbeats and committed calculation.
     cfg=initialize(root/'normal');config=Path(cfg['run_root'])/'configs/run.json'
-    run_command(config,'launch');run_command(config,'launch',success=False)
-    running=wait_state(config,lambda s:s.get('heartbeat_sequence',0)>=2 and s.get('new_scientific_progress_sequence',0)>0)
+    # Seed an existing server with prior-run paths. Remove only our keeper.
+    keeper='btgt-fixture-env-'+str(os.getpid())
+    prior=dict(os.environ,TMPDIR=str(root/'prior_run'),MPLCONFIGDIR=str(root/'prior_run/mpl'),
+               XDG_CACHE_HOME=str(root/'prior_run/cache'),NUMBA_CACHE_DIR=str(root/'prior_run/numba'),OPENBLAS_NUM_THREADS='7')
+    (root/'prior_run').mkdir()
+    subprocess.run(['tmux','new-session','-d','-s',keeper,'exec sleep 180'],env=prior,check=True)
+    try:
+        run_command(config,'launch');run_command(config,'launch',success=False)
+        running=wait_state(config,lambda s:s.get('heartbeat_sequence',0)>=2 and s.get('new_scientific_progress_sequence',0)>0)
+        actual=dict(x.split('=',1) for x in Path(f"/proc/{running['supervisor']['pid']}/environ").read_text().split('\0') if '=' in x)
+        controlled=rt.controlled_environment(cfg)
+        assert all(actual.get(k)==v for k,v in controlled.items())
+        atomic_json(root/'tmux_controlled_environment.json',dict(requested=controlled,observed={k:actual.get(k) for k in controlled}))
+    finally:subprocess.run(['tmux','kill-session','-t',keeper],check=False,capture_output=True)
     assert rt.alive(running['supervisor'])
     held=[rt.lock_held(p) for p in rt.paths(cfg)];assert all(held)
     before=snapshot_tree(cfg['run_root']);run_command(config,'status');run_command(config,'tail')
@@ -165,7 +203,29 @@ def actual_suite(root):
     assert snapshot_tree(cfg['run_root'])==baseline
     for n in NODE_ORDER:assert (Path(cfg['run_root'])/'endpoints'/n/'visits.txt').read_text().splitlines()==list(map(str,range(1,7)))
     checks.update(actual_detached_tmux=True,duplicate_start_rejected=True,two_heartbeats_and_new_checkpoint=True,
-                  identity_and_three_locks=True,serial_four_nodes_and_hold=True,status_tail_read_only=True)
+                  identity_and_three_locks=True,serial_four_nodes_and_hold=True,status_tail_read_only=True,
+                  existing_tmux_server_controlled_environment=True)
+    # Only this engineering run receives a synthetic grant after its hold.
+    run_command(config,'resume-evaluation',success=False)
+    run_command(config,'grant-evaluation')
+    run_command(config,'resume-evaluation',success=False)
+    run_command(config,'evaluate')
+    second=Path(cfg['run_root'])/'endpoints'/NEW[1]/'evaluation/paper_aligned_v1/prediction_chunks/batch_0004.rds.committed.json'
+    active=wait_state(config,lambda s:second.exists() and s.get('worker') is not None)
+    first_complete=identity(Path(cfg['run_root'])/'endpoints'/NEW[0]/'evaluation/complete.json')
+    for key in ('supervisor','worker'):
+        assert rt.alive(active[key]);os.kill(active[key]['pid'],signal.SIGKILL)
+    release_wait(cfg)
+    assert json.loads(run_command(config,'status').stdout)['observed_status']=='STALE'
+    run_command(config,'resume',success=False);run_command(config,'evaluate',success=False)
+    run_command(config,'resume-evaluation')
+    wait_state(config,lambda s:s['status']=='EVALUATION_COMPLETE_AWAITING_PUBLICATION');release_wait(cfg)
+    assert identity(first_complete['path'])==first_complete
+    for name in NEW:
+        visits=Path(cfg['run_root'])/'endpoints'/name/'evaluation/paper_aligned_v1/prediction_visits.txt'
+        assert visits.read_text().splitlines()==['4','8','12']
+    checks.update(explicit_same_phase_evaluation_resume_after_kill=True,complete_endpoint_and_R_batch_reused=True,
+                  evaluation_retry_requires_prior_evaluation_and_grant=True,production_cannot_roll_back_evaluation=True)
     # Failed child halts successors; explicit retry skips valid complete node and
     # reuses committed chunks without duplicate visits.
     failed=initialize(root/'failure',dict(fail_node='P2_BASE_GT_PRODUCE'));fc=Path(failed['run_root'])/'configs/run.json'
@@ -242,6 +302,13 @@ def entry():
     if command=='supervise':rt.supervise(config,sys.argv[3],sys.argv[4]);return
     if command=='launch':result=rt.launch(config)
     elif command=='resume':result=rt.launch(config,resume=True)
+    elif command=='evaluate':result=rt.launch(config,mode='evaluation')
+    elif command=='resume-evaluation':result=rt.launch(config,mode='evaluation',resume=True)
+    elif command=='grant-evaluation':
+        for name in NEW:
+            endpoint=Path(cfg['run_root'])/'endpoints'/name;endpoint.mkdir()
+            atomic_json(endpoint/'production_complete.json',dict(engineering_only=True,endpoint=name))
+        result=rt.grant_resume(config,rt.utc())
     elif command=='status':result=rt.status(config)
     elif command=='tail':
         with (Path(cfg['run_root'])/'logs/queue.log').open() as f:print(f.read()[-4000:])

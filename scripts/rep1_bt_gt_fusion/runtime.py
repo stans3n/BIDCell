@@ -18,7 +18,7 @@ import time
 import traceback
 import uuid
 from . import NODE_ORDER
-from .common import atomic_json, check_identity, dependencies, digest, identity, read, require_manual_resume, within
+from .common import atomic_json, check_identity, check_receipt, dependencies, digest, identity, read, require_manual_resume, within
 from . import execution as ex
 
 HOLD='PRODUCTION_COMPLETE_AWAITING_MANUAL_RESUME'
@@ -166,12 +166,16 @@ def resource_forecast(cfg,state=None):
                 admitted=free>=peak+r['reserve_bytes'] and available>=r['ram_allowance_bytes']+r['ram_reserve_bytes'])
 
 
-def child_environment(cfg):
+def controlled_environment(cfg):
     root=Path(cfg['run_root'])
-    return dict(os.environ,PYTHONPATH='',PYTHONNOUSERSITE='1',PYTHONDONTWRITEBYTECODE='1',PYTHONHASHSEED='0',LC_ALL='C.UTF-8',
+    return dict(PYTHONPATH='',PYTHONNOUSERSITE='1',PYTHONDONTWRITEBYTECODE='1',PYTHONHASHSEED='0',LC_ALL='C.UTF-8',
                 OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1',
                 MPLCONFIGDIR=str(root/'cache/matplotlib'),XDG_CACHE_HOME=str(root/'cache'),NUMBA_CACHE_DIR=str(root/'cache/numba'),
                 TMPDIR=str(root/'tmp'),R_LIBS_USER=cfg['r_libs_user'],R_LIBS_SITE='',R_PROFILE_USER='/dev/null',R_ENVIRON_USER='/dev/null')
+
+
+def child_environment(cfg):
+    return dict(os.environ,**controlled_environment(cfg))
 
 
 def prepare(plan,output_root,run_id):
@@ -284,7 +288,24 @@ def new_checkpoint(cfg,baseline):
             try:r=read(p)
             except (ValueError,OSError):continue
             if r.get('status')=='succeeded' and r.get('dependencies',{}).get('config_digest')==digest(cfg) and r.get('outputs'):
+                check_receipt(p,r['dependencies'],cfg['run_root'])
                 witness=identity(p)
+            elif p.name.endswith('.rds.committed.json'):
+                # R prediction commits deliberately use the scientific adapter's
+                # identity format, rather than the general Python receipt schema.
+                from . import NEW, N_CELLS
+                relative=p.relative_to(Path(cfg['run_root']))
+                if len(relative.parts)!=6 or relative.parts[0]!='endpoints' or relative.parts[1] not in NEW or relative.parts[2:5]!=('evaluation','paper_aligned_v1','prediction_chunks'):
+                    raise ValueError('R prediction commit is outside the endpoint checkpoint namespace')
+                target=Path(str(p)[:-len('.committed.json')])
+                if Path(r['path']).resolve()!=target.resolve() or target.is_symlink():raise ValueError('R prediction commit target mismatch')
+                grant=within(cfg['run_root'],'control/manual_resume.json');require_manual_resume(cfg,grant)
+                deps=dependencies(cfg,relative.parts[1]+'_EVALUATION')
+                deps.update(production=identity(within(cfg['run_root'],'endpoints',relative.parts[1],'production_complete.json')),manual_resume=identity(grant))
+                if r.get('dependencies_digest')!=digest(deps):raise ValueError('R prediction commit endpoint dependency mismatch')
+                if type(r.get('cursor')) is not int or type(r.get('total')) is not int or not 0<r['cursor']<=r['total']<=N_CELLS:
+                    raise ValueError('R prediction commit cursor mismatch')
+                check_identity(r);witness=identity(p)
     return witness
 
 
@@ -345,7 +366,8 @@ def supervise(config,attempt,mode='production'):
     with ExitStack() as stack:
         fds=tuple(stack.enter_context(wait_launch_lock(p) if i==0 else lock(p)) for i,p in enumerate(paths(cfg)))
         state=bound_state(cfg)
-        if state.get('active_attempt')!=attempt or state['status']!='STARTING':raise PermissionError('supervisor lease mismatch')
+        if state.get('active_attempt')!=attempt or state['status']!='STARTING' or not state['attempts'] or state['attempts'][-1]['attempt']!=attempt or state['attempts'][-1]['mode']!=mode:
+            raise PermissionError('supervisor lease/phase mismatch')
         state.update(supervisor=process_identity(),worker=None,status='STARTING',phase='STARTUP',failure=None)
         writer=StateWriter(cfg,state);writer.start()
         try:
@@ -406,11 +428,13 @@ def launch(config,mode='production',resume=False):
         validated=read(within(cfg['run_root'],'admission/validated.json'))
         check_identity(validated['admission']);check_identity(validated['source_manifest'])
         if validated['config_digest']!=digest(cfg):raise ValueError('validated admission differs from config')
+        previous_mode=state['attempts'][-1]['mode'] if state['attempts'] else None
+        if resume and state['status']=='STARTING' and state['attempts'] and (datetime.now(timezone.utc)-datetime.fromisoformat(state['attempts'][-1]['created_utc'])).total_seconds()<60:
+            raise RuntimeError('a fresh detached dispatch is still starting')
         if mode=='production':
+            if previous_mode=='evaluation':raise PermissionError('production cannot resume a manual evaluation attempt')
             if state['status']=='ADMITTED' and not resume:pass
-            elif resume and state['status'] in ('FAILED','RUNNING','STARTING'):
-                if state['status']=='STARTING' and state['attempts'] and (datetime.now(timezone.utc)-datetime.fromisoformat(state['attempts'][-1]['created_utc'])).total_seconds()<60:
-                    raise RuntimeError('a fresh detached dispatch is still starting')
+            elif resume and previous_mode=='production' and state['status'] in ('FAILED','RUNNING','STARTING'):
                 from .science import validate_stage,receipt_path
                 for n in NODE_ORDER:
                     if state['nodes'][n]['status']=='validated_complete':validate_stage(cfg,n)
@@ -418,7 +442,9 @@ def launch(config,mode='production',resume=False):
             else:raise ValueError('production launch state requires admission or explicit failed-attempt recovery')
         else:
             require_manual_resume(cfg,within(cfg['run_root'],'control/manual_resume.json'))
-            if state['status'] not in (HOLD,'FAILED'):raise ValueError('evaluation requires completed production and inactive queue')
+            if state['status']==HOLD and not resume:pass
+            elif resume and previous_mode=='evaluation' and state['status'] in ('FAILED','RUNNING','STARTING'):pass
+            else:raise ValueError('evaluation requires exited production hold or explicit same-phase resume-evaluation')
             from .science import validate_stage
             validate_stage(cfg,'PRODUCTION_VALIDATE')
         forecast=resource_forecast(cfg,state)
@@ -432,7 +458,9 @@ def launch(config,mode='production',resume=False):
         session='rep1-bt-gt-'+attempt[:12]
         argv=supervisor_command(cfg,attempt,mode,config)
         command='exec '+shlex.join(argv)+' >> '+shlex.quote(str(Path(cfg['run_root'])/'logs/queue.log'))+' 2>&1'
-        try:subprocess.run(['tmux','new-session','-d','-s',session,'-c',cfg['source_snapshot'],command],check=True,env=child_environment(cfg),stdin=subprocess.DEVNULL)
+        tmux=['tmux','new-session','-d','-s',session,'-c',cfg['source_snapshot']]
+        for key,value in controlled_environment(cfg).items():tmux+=['-e',key+'='+value]
+        try:subprocess.run(tmux+[command],check=True,env=child_environment(cfg),stdin=subprocess.DEVNULL)
         except BaseException as exc:
             state.update(status='FAILED',failure=dict(reason='detached launch failed: '+str(exc),time=utc()))
             atomic_json(within(cfg['run_root'],'state.json'),state);raise

@@ -224,6 +224,8 @@ imports against the snapshot manifest. The worker starts an independent session
 so tmux parent death cannot send HUP to its R descendants. Launch/writer/workspace
 locks are inherited as the same open file descriptions; they are closed without
 an explicit unlock. Actual orphan-R fixtures test parent, worker and both deaths.
+All controlled environment values also use tmux `new-session -e`, so an existing
+server cannot replace temp/cache paths or thread limits before Python imports.
 
 The final auditor creates `admission/final.json`; the controller never signs its
 own admission. Required bindings are source commit/digest, actual snapshot root,
@@ -239,6 +241,9 @@ already-completed terminal receipt). Revalidation of old chunks does not count
 as new scientific computation. `resume-production` is an explicit tracked retry;
 it validates identities and completed receipts, skips only valid completions,
 and refuses surviving descendants/corrupt outputs. It never authorizes evaluation.
+Real R prediction commits are recognized separately, with their RDS identity,
+endpoint dependency digest, production/grant bindings and cursor checked. Reused
+prediction batches do not advance the scientific progress counter.
 
 `status --config --json` and `tail --config` are strictly read-only. They report
 observed STALE separately from disk state; no restart, grant or control-file
@@ -255,6 +260,11 @@ its completed result and a primary results-analysis record. That derived
 `results_analysis.json` must bind EVALUATION8 and all prespecified comparisons,
 document the parallel F1 interpretation and local RNA limitations, and retain
 negative results. This is results review, not another user approval request.
+An interrupted manual evaluation uses the explicit `resume-evaluation` command
+with the same valid manual grant and source/config/production identity. It only
+accepts a previous evaluation attempt, retains the fresh STARTING grace, and
+reuses valid complete endpoints/R batches. Production retry cannot roll evaluation
+back into the production hold. These recovery commands never create a grant.
 
 Publication then performs the scientific bundle validation and an atomic,
 recoverable append of the eight context entry files, new experiment record and
