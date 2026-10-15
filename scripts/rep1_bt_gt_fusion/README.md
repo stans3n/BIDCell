@@ -150,6 +150,19 @@ reference correlations, author 500-um spatial metrics, and local RNA transfers
 by type, spatial block, density and gene. Guardrails and negative results remain
 visible; no significance or multimetric winner gate exists.
 
+Spatial evaluation preserves the author's `cut()` range-based binning (nominal
+500 um, at least two cuts per axis), entropy, CV of log10 values and SD of raw
+values. The adapter retains matrix dimensions for a single observed class and
+uses a common complete-finite bin population for all three CV metrics, and
+separately for all three SD metrics. Single-cell SD/CV, zero log-mean CV,
+constant correlation vectors and fewer than two common finite bins retain NA
+with explicit per-bin/per-metric reasons and denominators. Unexpected R errors
+still fail. The six author statistic names map explicitly to the existing
+`scclassify_spatial_entropy_vs_*` table columns; unknown, duplicate or missing
+statistics are rejected. Real-R fixtures compare normal and partially undefined
+multi-type data with the untouched author implementation and feed the actual
+CSV through both new table rows and prespecified endpoint comparisons.
+
 Publication stages and atomically installs the new 30-entry directory only at
 `/home/zwan0726/work/outputs/bidcell_historical_dual_bt_gt_fusion_20261017`.
 It preserves all 28 old non-Purity data strings, accepts the old CSV's UTF-8 BOM,
@@ -174,6 +187,14 @@ located; this is an unresolved data dependency, not a successful publication.
 Run the deterministic fixtures from the repository root with:
 
 `/home/zwan0726/miniforge3/envs/bidcell_local/bin/python -m unittest tests.test_rep1_bt_gt_fusion_science -v`
+
+The suite includes small actual-R spatial calls with inherited lock FDs. Set
+`REP1_BT_GT_R_FIXTURE_ROOT` to an empty evidence directory to retain their exact
+inputs, snapshot copies, R logs, author comparisons and downstream consumer
+receipts; without it those fixtures use temporary directories. Existing fixture
+destinations are never overwritten. The separate tiny real-model prediction
+recovery fixture accepts an explicit evidence directory and frozen input manifest
+via `tests/rep1_bt_gt_prediction_fixture.py`.
 
 Fixtures cover hand-calculated B/T panels/bins/ties/empty pools, two rebuilt parent
 GT domains against the unmodified definition, margin and topology rejection,

@@ -237,29 +237,81 @@ class ScientificFixtures(unittest.TestCase):
 
     def test_new_publication_row_matches_full_real_schema(self):
         from scripts.rep1_bt_gt_fusion.evaluation import new_spec
-        from scripts.rep1_bt_gt_fusion.reports import METRICS
+        from scripts.rep1_bt_gt_fusion.reports import METRICS,endpoint_comparison_tables
+        from scripts.rep1_bt_gt_fusion.publication import SPATIAL_COLUMNS
+        from tests.rep1_bt_gt_spatial_fixture import fixture_destination,spatial_fixture
+        actual_r,bins,correlations=spatial_fixture(fixture_destination(self.root,'normal_spatial'),'normal',compare_author=True)
+        self.assertTrue(correlations.status.eq('computed').all())
+        self.assertTrue(correlations.pearson.notna().all())
         columns,_=read_strings(TABLE)
         cfg=dict(run_id='fixture',run_root=str(self.root),source_digest='s',input_digest='i',plan_sha256='p')
-        spec=new_spec(cfg,'P2_BASE_GT');matrix=Path(spec['matrix']);ev=Path(spec['evaluation'])
-        matrix.mkdir(parents=True);(ev/'paper_aligned_v1').mkdir(parents=True)
-        for rel in ('counts.npy','cell_mapping.csv','gene_mapping.csv'):(matrix/rel).write_bytes(b'fixture')
-        atomic_json(matrix/'complete.json',dict(totals={'assigned':21654424}))
-        atomic_json(ev/'complete.json',{'fixture':True});(ev/'paper_aligned_v1/annotation.csv').write_text('cell_id\n1\n')
         structure={key:1 for key in ('mean_transcripts_per_cell','mean_genes_per_cell','mean_cell_area_um2',
             'median_cell_area_um2','p95_cell_area_um2','disconnected_cells_4','disconnected_cells_8','nuclear_preservation_fraction')}
         metrics={profile+'_'+metric:dict(mean=.1,n_finite=7,n_population=8) for profile in ('scclassify','fixed') for metric in METRICS}
-        atomic_json(ev/'summary.json',dict(structure=structure,metrics=metrics,n_after_qc=8,qc_retention=.8,unassigned_fraction=.2,wall_seconds=.1))
-        pd.DataFrame(dict(definition=['mean_logcounts','detection'],pearson=[.6,.7])).to_csv(ev/'paper_aligned_v1/type_correlations.csv',index=False)
-        spatial=[c.removeprefix('scclassify_spatial_') for c in columns if c.startswith('scclassify_spatial_') and c!='scclassify_spatial_bins_n']
-        pd.DataFrame(dict(metric=spatial,pearson=np.arange(len(spatial))*.1,n_bins=[30]*len(spatial))).to_csv(ev/'paper_aligned_v1/spatial_diversity_correlations.csv',index=False)
         checkpoint=self.root/'parent_checkpoint';checkpoint.write_bytes(b'parent checkpoint')
         machine=self.root/'parent_machine.json';atomic_json(machine,dict(checkpoint=str(checkpoint)))
-        row=new_table_row(cfg,dict(endpoints={'P2_BASE':{'machine':str(machine)}}),'P2_BASE_GT',columns)
-        self.assertEqual(set(row),set(columns));self.assertEqual(row['method'],'P2_BASE_GT')
-        self.assertEqual(row['checkpoint_parent'],'P2_BASE');self.assertEqual(row['fixed_positive_F1_n'],'7')
-        for key in ['matrix_receipt_sha256','evaluation_receipt_sha256','annotation_sha256','checkpoint_sha256']:
-            self.assertEqual(len(row[key]),64)
-        self.assertTrue(all(isinstance(v,str) for v in row.values()))
+        manifest=dict(endpoints={p:{'machine':str(machine)} for p in ('P2_BASE','V2_MORPH')})
+        actual_rows={}
+        for name in NEW:
+            spec=new_spec(cfg,name);matrix=Path(spec['matrix']);ev=Path(spec['evaluation'])
+            matrix.mkdir(parents=True);(ev/'paper_aligned_v1').mkdir(parents=True)
+            for rel in ('counts.npy','cell_mapping.csv','gene_mapping.csv'):(matrix/rel).write_bytes(b'fixture')
+            atomic_json(matrix/'complete.json',dict(totals={'assigned':21654424 if name=='P2_BASE_GT' else 21449617}))
+            atomic_json(ev/'complete.json',{'fixture':True});(ev/'paper_aligned_v1/annotation.csv').write_text('cell_id\n1\n')
+            atomic_json(ev/'summary.json',dict(structure=structure,metrics=metrics,n_after_qc=8,qc_retention=.8,unassigned_fraction=.2,wall_seconds=.1))
+            pd.DataFrame(dict(definition=['mean_logcounts','detection'],pearson=[.6,.7])).to_csv(ev/'paper_aligned_v1/type_correlations.csv',index=False)
+            target=ev/'paper_aligned_v1/spatial_diversity_correlations.csv'
+            shutil.copyfile(actual_r/'paper_aligned_v1/spatial_diversity_correlations.csv',target)
+            row=new_table_row(cfg,manifest,name,columns)
+            self.assertEqual(set(row),set(columns));self.assertEqual(row['method'],name)
+            self.assertEqual(row['fixed_positive_F1_n'],'7')
+            for key in ['matrix_receipt_sha256','evaluation_receipt_sha256','annotation_sha256','checkpoint_sha256']:
+                self.assertEqual(len(row[key]),64)
+            for record in correlations.to_dict('records'):
+                self.assertAlmostEqual(float(row[SPATIAL_COLUMNS[record['metric']]]),record['pearson'])
+            self.assertTrue(all(isinstance(v,str) for v in row.values()))
+            actual_rows[name]=row
+        endpoint_comparison_tables(cfg,manifest,self.root)
+        contrasts=pd.read_csv(self.root/'structure_reference_spatial_comparisons.csv')
+        direct=contrasts[(contrasts.candidate==NEW[0])&(contrasts.control==NEW[1])&contrasts.metric.isin(SPATIAL_COLUMNS.values())]
+        self.assertEqual(len(direct),6);self.assertTrue(direct.candidate_minus_control.eq(0).all())
+        # A typo, duplicate or omitted actual producer metric must still fail.
+        bad=correlations.copy();bad.loc[0,'metric']='unregistered_metric'
+        for invalid in (bad,correlations.iloc[:-1],pd.concat([correlations,correlations.iloc[:1]],ignore_index=True)):
+            invalid.to_csv(target,index=False)
+            with self.assertRaises(ValueError):new_table_row(cfg,manifest,NEW[-1],columns)
+        shutil.copyfile(actual_r/'paper_aligned_v1/spatial_diversity_correlations.csv',target)
+        shutil.copyfile(self.root/'structure_reference_spatial_comparisons.csv',actual_r.parent/'consumer_comparisons.csv')
+        atomic_json(actual_r.parent/'consumer_receipt.json',dict(status='passed',synthetic=True,
+            new_table_rows=actual_rows,real_table_columns=columns,explicit_spatial_mapping=SPATIAL_COLUMNS,
+            original_R_spatial_output=identity(actual_r/'paper_aligned_v1/spatial_diversity_correlations.csv'),
+            comparisons=identity(actual_r.parent/'consumer_comparisons.csv'),
+            unknown_duplicate_missing_metric_rejected=True,no_publication_run=True))
+
+    def test_real_R_spatial_degeneracies_and_common_family_population(self):
+        from tests.rep1_bt_gt_spatial_fixture import fixture_destination,spatial_fixture
+        for case in ('single_known','all_unassigned','constant_entropy','one_cell_bins','one_bin','mixed_nonfinite'):
+            with self.subTest(case=case):
+                out,bins,cor=spatial_fixture(fixture_destination(self.root,case),case,compare_author=(case=='mixed_nonfinite'))
+                self.assertEqual(len(cor),6);self.assertTrue(cor.bin_width.eq(500).all())
+                if case in ('single_known','all_unassigned','constant_entropy'):
+                    self.assertTrue(cor.pearson.isna().all());self.assertTrue(cor.reason.eq('constant_entropy').all())
+                    self.assertTrue(cor.n_common_finite_bins.eq(6).all())
+                    if case!='constant_entropy':self.assertTrue(bins.entropy.eq(0).all())
+                    self.assertTrue(np.isfinite(bins.filter(regex='^(cv|sd)_(total_transciprts|total_genes|cell_area)$')).all().all())
+                elif case in ('one_cell_bins','one_bin'):
+                    self.assertTrue(cor.pearson.isna().all());self.assertTrue(cor.reason.eq('fewer_than_two_common_finite_bins').all())
+                    self.assertTrue(cor.n_common_finite_bins.eq(0 if case=='one_cell_bins' else 1).all())
+                    if case=='one_cell_bins':self.assertTrue(bins.filter(regex='^(cv|sd)_(total_transciprts|total_genes|cell_area)$').isna().all().all())
+                else:
+                    cv=cor[cor.family.eq('cv')];sd=cor[cor.family.eq('sd')]
+                    self.assertTrue(cv.n_common_finite_bins.eq(5).all());self.assertTrue(sd.n_common_finite_bins.eq(6).all())
+                    self.assertEqual(cv.set_index('metric').loc['cv_total_transciprts','n_metric_finite_bins'],6)
+                    self.assertEqual(bins.cv_cell_area_status.eq('zero_mean_log10_metric').sum(),1)
+                    self.assertTrue(cor.status.eq('computed').all())
+        dest=fixture_destination(self.root,'invalid_spatial_input')
+        with self.assertRaises(RuntimeError):spatial_fixture(dest,'invalid_input')
+        self.assertFalse((dest/'output/spatial_execution_status.txt').exists())
 
     def test_formal_stage_requires_execution_validator_and_locks(self):
         from scripts.rep1_bt_gt_fusion.science import run_stage

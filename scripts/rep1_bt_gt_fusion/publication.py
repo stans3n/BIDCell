@@ -21,6 +21,14 @@ RESULT_ROOT=Path('/home/zwan0726/work/outputs/bidcell_historical_dual_bt_gt_fusi
 PROTOCOL='DUAL-F1-BTGT-v1.0-30methods-20261017'
 PURITY_VERSION='PURITY-30methods-v1.0-20261017'
 PURITY_COLUMNS={'scclassify_Purity_F1','fixed_Purity_F1','purity_scaling_version','purity_scaling_path'}
+SPATIAL_COLUMNS={
+    'cv_total_transciprts':'scclassify_spatial_entropy_vs_cv_total_transciprts',
+    'cv_total_genes':'scclassify_spatial_entropy_vs_cv_total_genes',
+    'cv_cell_area':'scclassify_spatial_entropy_vs_cv_cell_area',
+    'sd_total_transciprts':'scclassify_spatial_entropy_vs_sd_total_transciprts',
+    'sd_total_genes':'scclassify_spatial_entropy_vs_sd_total_genes',
+    'sd_cell_area':'scclassify_spatial_entropy_vs_sd_cell_area',
+}
 
 
 def read_strings(path):
@@ -109,8 +117,12 @@ def new_table_row(cfg,manifest,name,columns):
         row[f'scclassify_{short}_pearson_type_mean']=str(float(values[finite].mean())) if finite.any() else 'NA'
         row[f'scclassify_{short}_pearson_types_n']=str(int(finite.sum()))
     spatial=pd.read_csv(evaluation/'paper_aligned_v1/spatial_diversity_correlations.csv')
+    if spatial.metric.duplicated().any() or set(spatial.metric)!=set(SPATIAL_COLUMNS):
+        raise ValueError('author spatial statistics must contain each of the six frozen metrics exactly once')
+    if spatial.n_bins.nunique(dropna=False)!=1 or not np.isfinite(spatial.n_bins).all() or (spatial.n_bins<0).any() or (spatial.n_bins%1!=0).any():
+        raise ValueError('author spatial bin denominator is invalid or inconsistent')
     for rec in spatial.to_dict('records'):
-        key='scclassify_spatial_'+rec['metric']
+        key=SPATIAL_COLUMNS[rec['metric']]
         if key not in row:raise ValueError('unrecognized author spatial statistic: '+key)
         row[key]=str(rec['pearson']) if np.isfinite(rec['pearson']) else 'NA'
     row['scclassify_spatial_bins_n']=str(int(spatial.n_bins.iloc[0]))
