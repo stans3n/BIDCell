@@ -1,0 +1,37 @@
+{
+  "baseline_characteristics": "recomputed from integer matrices and final masks; C/SP from exact count backups and retained final-cell geometry",
+  "expression_purity": "author marker P/R/F1 and cohort Purity recomputed under both annotations",
+  "reference_concordance": "mean-logcounts and gene-detection Pearson per type recomputed; unweighted type means explicitly named",
+  "neighbouring_contamination": "B-to-T CD4/CD8A/CD8B curves recomputed using verified final-cell centroids",
+  "local_spatial_diversity": "pinned author function recomputed with bin_width=500 um, R cut/ceiling bins, entropy 1.3.2, and log10 CV for transcript/gene/area values; unassigned retained as a category",
+  "replicability": "Not measured across seeds or samples. Single seed1234/Rep1; spatial block bootstrap describes this slide, not training-seed uncertainty.",
+  "comparison_set": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH",
+    "BASE_MATCH",
+    "V2_INTERACT"
+  ],
+  "spatial_extension": "Four new methods and B1 control recomputed by unchanged pinned author R wrapper/function.",
+  "paired_extension": {
+    "new2": "Full own matrices/QC/scClassify/six metrics, full native geometry, own reference correlations and neighboring curves, author spatial diversity; formal15stage complete-check passed",
+    "comparisons": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/results/paired_deltas.csv",
+    "strata": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/results/strata_comparisons.json",
+    "spatial": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/results/spatial_summary.json"
+  }
+}

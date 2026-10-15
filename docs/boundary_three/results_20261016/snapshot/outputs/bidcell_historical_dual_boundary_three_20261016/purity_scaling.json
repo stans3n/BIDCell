@@ -1,0 +1,60 @@
+{
+  "version": "PURITY-28methods-v1.0-20261016",
+  "comparison_set": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH",
+    "BASE_MATCH",
+    "V2_INTERACT",
+    "P2_BASE",
+    "P2_MORPH",
+    "MORPH_NO_DAPI",
+    "MORPH_SIMPLE_FUSION",
+    "MORPH_NO_GEO",
+    "A2_GT",
+    "A2_GTC",
+    "A2_SHUFFLED"
+  ],
+  "formula": "2*p*(1-n)/(p+1-n); independent profile min-max; finite harmonic 0/0 limit=0; missing/degenerate inputs stay NA",
+  "role": "Auxiliary within this declared set; raw dual-profile P/N F1 remains visible.",
+  "previous_scaling": {
+    "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/purity_scaling.json",
+    "bytes": 1171,
+    "sha256": "17e2271d7a71fcc85d66bb17716e5361878f0852903b96cbe3c2d00527999dcb"
+  },
+  "scclassify": {
+    "positive_F1": {
+      "min": 0.309609757557459,
+      "max": 0.3411139795093598
+    },
+    "negative_F1": {
+      "min": 0.0233550064921648,
+      "max": 0.02717781859571618
+    }
+  },
+  "fixed": {
+    "positive_F1": {
+      "min": 0.3884365297138604,
+      "max": 0.4084453551978994
+    },
+    "negative_F1": {
+      "min": 0.0283230365850249,
+      "max": 0.04292068073982688
+    }
+  }
+}

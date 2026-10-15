@@ -1,0 +1,317 @@
+{
+  "status": "verified_paired_artifacts",
+  "methods": [
+    "BASE_MATCH",
+    "V2_MORPH",
+    "V2_INTERACT"
+  ],
+  "endpoints": {
+    "BASE_MATCH": {
+      "shape": [
+        107955,
+        313
+      ],
+      "dtype": "int64",
+      "assigned": 21494924,
+      "qc_ids": 103286,
+      "original_ids": 107955,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3340769851706138,
+          "n_finite": 103286
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.023892621123797288,
+          "n_finite": 103286
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.39516268831508455,
+          "n_finite": 103286
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.29855783540673064,
+          "n_finite": 103286
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029246837526691313,
+          "n_finite": 103286
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020858149591519437,
+          "n_finite": 103286
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4020203532674376,
+          "n_finite": 85421
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031433682465382494,
+          "n_finite": 85421
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4757994506298433,
+          "n_finite": 85421
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.359149375646607,
+          "n_finite": 85421
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03844605001315928,
+          "n_finite": 85421
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027454154017426385,
+          "n_finite": 85421
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/counts.npy",
+        "bytes": 270319448,
+        "sha256": "232e0d458ec31292761a717e9460766efbd3008cbd2e8d76dabd57143e40fbef"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/complete.json",
+        "bytes": 50144,
+        "sha256": "56a2c91fb2c805fe946bc33ecb11d2805a9ab0dc9135906de5dac6f5649206a0"
+      },
+      "mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "genes": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/complete.json",
+        "bytes": 28423,
+        "sha256": "2d37f2fab7d648d881c0c71d302d29286f59599213d9292e3ad0edb0fb7db7d8"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/annotation.csv",
+        "bytes": 62658702,
+        "sha256": "2d00125ede9643f49e17a29815a030ba728a18fcc73aa30fce9ce986eee148e8"
+      },
+      "checkpoint": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/checkpoints/final.pth",
+        "bytes": 328015506,
+        "sha256": "d2aea1411690add227381a465937f5b9736fb435056c27b61a64af8cd03d8f34"
+      },
+      "sequence": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/effective_sequence.jsonl",
+        "bytes": 2694677,
+        "sha256": "622133c93e37eb0a1ba41a941a024e3b3d45f9ec442de329273ec86c57fff076"
+      }
+    },
+    "V2_MORPH": {
+      "shape": [
+        107955,
+        313
+      ],
+      "dtype": "int64",
+      "assigned": 21449617,
+      "qc_ids": 103282,
+      "original_ids": 107955,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3353817162773261,
+          "n_finite": 103282
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.02396763968068234,
+          "n_finite": 103282
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3966082039040189,
+          "n_finite": 103282
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.2996870889098479,
+          "n_finite": 103282
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.02931764425208352,
+          "n_finite": 103282
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.02093204261929911,
+          "n_finite": 103282
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4029859397059896,
+          "n_finite": 85421
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031126312845661478,
+          "n_finite": 85421
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4768324018622506,
+          "n_finite": 85421
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3599263551451537,
+          "n_finite": 85421
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.038022177784330285,
+          "n_finite": 85421
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027199249561281093,
+          "n_finite": 85421
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/counts.npy",
+        "bytes": 270319448,
+        "sha256": "c4dd8b7cc4243dfa1ddbd468399731e65f173f1f149d77d9858c8ec2f7111564"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/complete.json",
+        "bytes": 50290,
+        "sha256": "e93d13e983c7f9a3016b63b98022f079926212e51e511ab1503b6ef878fc9eed"
+      },
+      "mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "genes": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/complete.json",
+        "bytes": 23816,
+        "sha256": "2e25bc6c9f10c9eacb1b0a2c724e3356ec063068c9927237c8bfe5f97b919cc1"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/annotation.csv",
+        "bytes": 62682759,
+        "sha256": "bd44b35e225327daf3db0af818bb4ef5059d195f34ed18961a94e53fb37ec7e0"
+      },
+      "checkpoint": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/checkpoints/final.pth",
+        "bytes": 328490074,
+        "sha256": "6f28bed10a828c4076e43f77438b4183429dbaba9af34e81191a5705c394b69a"
+      },
+      "sequence": null
+    },
+    "V2_INTERACT": {
+      "shape": [
+        107955,
+        313
+      ],
+      "dtype": "int64",
+      "assigned": 21357160,
+      "qc_ids": 103265,
+      "original_ids": 107955,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.33530265666012715,
+          "n_finite": 103265
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.02381851147638965,
+          "n_finite": 103265
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3965838811607666,
+          "n_finite": 103265
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.2995399583640033,
+          "n_finite": 103265
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029135867758125128,
+          "n_finite": 103265
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.02079804074390504,
+          "n_finite": 103265
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4027565307184547,
+          "n_finite": 85421
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031218266221962734,
+          "n_finite": 85421
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.47650111200615264,
+          "n_finite": 85421
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.35972764247468353,
+          "n_finite": 85421
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03814133705250571,
+          "n_finite": 85421
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.02727553208000902,
+          "n_finite": 85421
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/matrix/V2_INTERACT/counts.npy",
+        "bytes": 270319448,
+        "sha256": "ffa5d55365874977c22e70c5365d9fba06bf122bc3a119b32d7839cbc9198679"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/matrix/V2_INTERACT/complete.json",
+        "bytes": 50170,
+        "sha256": "3c8966afce0fab08bf1ff633009f4f5f72405f0a947b08768f98a7dd9a1c7bfb"
+      },
+      "mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/matrix/V2_INTERACT/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "genes": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/matrix/V2_INTERACT/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/evaluation/V2_INTERACT/complete.json",
+        "bytes": 28550,
+        "sha256": "a53d662c3817d189a6cc36ff8c992b4eb3b8496fc5bddf105c411c09388f92df"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/evaluation/V2_INTERACT/paper_aligned_v1/annotation.csv",
+        "bytes": 62677574,
+        "sha256": "35f7ccc1cf13e0e5bc24ee639476e4f7b719a7166dd399c2f51d84d15b6b9f6a"
+      },
+      "checkpoint": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/checkpoints/final.pth",
+        "bytes": 330946838,
+        "sha256": "b167b342a70e8ead306db9ac0eb82a3550d5eb2933f48bd9c0d08994566cb037"
+      },
+      "sequence": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/V2_INTERACT/effective_sequence.jsonl",
+        "bytes": 3467274,
+        "sha256": "6f79ae7f4dc590846c6a81c85ab9ffa9889fb3ce01fb71ee2307eac820367dc1"
+      }
+    }
+  },
+  "run_manifest": {
+    "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/result_pack/manifest.json",
+    "bytes": 738920,
+    "sha256": "4c16898bf84480b0c1153f8ce2dd54fe888001fc531a4b9d4fee6cf8dcdf23d0"
+  },
+  "result_index": {
+    "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/result_pack/result_index.json",
+    "bytes": 1170,
+    "sha256": "257d30e84b95619625e4302d22ab7e710167c78916ba5c7fd8d2801b8db4040b"
+  },
+  "note": "Full integer cell×gene matrices remain standalone at these paths. Historical other17 artifacts are not newly revalidated here; use the archived18 provenance. Historical E1 is provenance/ROI-score audited reuse."
+}

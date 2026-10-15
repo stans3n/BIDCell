@@ -1,0 +1,97 @@
+{
+  "status": "succeeded",
+  "version": "SC-PRIMARY-FIXED-v1.2-20methods-20261014",
+  "methods": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH",
+    "BASE_MATCH",
+    "V2_INTERACT"
+  ],
+  "dependencies": {
+    "pipeline_complete": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/pipeline_complete.json",
+      "bytes": 5502,
+      "sha256": "bc2a34dcf13ce49d52d89f4d3d08084a0dcc7a471d3d24a7df2d21abe4a1db8c"
+    },
+    "sync_plan": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/sync_plan.json",
+      "bytes": 6703,
+      "sha256": "a98aa8a8f778b507bbbf41fb56dbd34c564ab78b4b893207f2d1781dabcc679d"
+    },
+    "backup": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/before_20_method_sync/baseline_ready.json",
+      "bytes": 9128,
+      "sha256": "c1d3a4704bc156510f751815b62856bdccebf93ac950fc7af2ff87b274821c23"
+    },
+    "raw_validation": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/raw_validation.json",
+      "bytes": 11059,
+      "sha256": "372616f26b4bf1830690f3265efece16931510e3249fedeeafe72488a0f70010"
+    },
+    "final_analysis_crosscheck": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/report_C_crosscheck.json",
+      "bytes": 5252,
+      "sha256": "6df210d0a38f3cd35d68fdd6e5b93ae2a4b01a4f7c846c886e0dc97b12cb73fb"
+    }
+  },
+  "outputs": {
+    "main_table.csv": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/main_table.csv",
+      "bytes": 24545,
+      "sha256": "81efb6cec87a294101a0af2ad8b7519e65a8f438b589ef27863e152c96ceb083"
+    },
+    "main_table_compact.csv": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/main_table_compact.csv",
+      "bytes": 4050,
+      "sha256": "a8d11ca10d086da844e233ab6f80881b38a612d224329d98ea89da64f5b2f994"
+    },
+    "purity_scaling.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/purity_scaling.json",
+      "bytes": 1171,
+      "sha256": "17e2271d7a71fcc85d66bb17716e5361878f0852903b96cbe3c2d00527999dcb"
+    },
+    "protocol.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/protocol.json",
+      "bytes": 6330,
+      "sha256": "6ff0f7c0dca81c065263d754dfb41f36adbe269343993b2ef2e648dcaf04edf2"
+    },
+    "artifact_registry_paired_20261014.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/artifact_registry_paired_20261014.json",
+      "bytes": 11624,
+      "sha256": "2639d780b9fae5ace6127db01507e44e466f729d56de15a6b90545ff08a96eba"
+    },
+    "metric_coverage.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/metric_coverage.json",
+      "bytes": 1778,
+      "sha256": "28ab0c7ed353504581225ab412bfd7ddefc7b95a6953ca24a7e24389fc1b53d6"
+    },
+    "validation.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/validation.json",
+      "bytes": 8169,
+      "sha256": "816ef62785272689c1ed0d5b0c29f1fafded91861ed0c2b41e3bb46e83d17f91"
+    },
+    "summary.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/summary.json",
+      "bytes": 68894,
+      "sha256": "cff13a3d63ec3fe2a931c460f48aa5a1983a43e2243c83c0f5b4747a17bf68a2"
+    }
+  },
+  "legacy_scope": "Original18 receipt/version/raw values archived; old paired_vs_B1/core/partial/status/progress files retain their dated original scope. New comparisons and full populations use the paired run.",
+  "final_research_analysis": "independent_C_and_lead_verified"
+}

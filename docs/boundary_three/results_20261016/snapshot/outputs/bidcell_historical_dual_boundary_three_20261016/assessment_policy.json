@@ -1,0 +1,11 @@
+{
+  "version": "DUAL-F1-v1.0-28methods-20261016",
+  "user_instruction_date": "2026-10-16 Australia/Sydney",
+  "F1_instruction": "在评价时，将固定指标的F1和Scclassify F1同样作为评测指标，如果固定指标上有明显突出也需要注明",
+  "comparator_instruction": "同时将需要与Base match进行比较的实验对照组中添加B0的指标；论文可能主要以B0为主要对照组",
+  "current_assessment": "Parallel fixed-label and scClassify positive/negative F1; highlight either profile standout and conflicts, with original populations. No post-hoc scalar winner score.",
+  "paper_reference": "B0 explicitly included for all BASE_MATCH-related contrasts; may serve as paper principal reference.",
+  "mechanistic_control": "Retain BASE_MATCH and A2 GT/SHUFFLED controlled contrasts; B0 has unmatched training initialization/history/order.",
+  "frozen_gate": "Original sc-primary/fixed-auxiliary software decisions are immutable historical calculations, not silently relabeled as dual-profile gates.",
+  "evaluations": "Reuse verified actual existing scores; no mask, expression matrix, annotation, reference model, NA rule or scientific thresholds changed."
+}

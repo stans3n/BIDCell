@@ -1,0 +1,50 @@
+{
+  "status": "COMPLETED",
+  "phase": "DONE",
+  "created_utc": "2026-10-15T05:22:20.405342+00:00",
+  "pid": 483799,
+  "launch_attempts": [
+    {
+      "phase": "morph",
+      "budget_hours": 16,
+      "requested_utc": "2026-10-15T05:24:35.498277+00:00"
+    },
+    {
+      "phase": "a2",
+      "budget_hours": 32,
+      "requested_utc": "2026-10-15T11:54:21.664853+00:00"
+    }
+  ],
+  "leases": [
+    {
+      "lease_id": "5aa0fec096b84b4db2873b8bfdf15dcc",
+      "created_utc": "2026-10-15T05:26:35.059431+00:00",
+      "budget_seconds": 57600.0,
+      "resume": true,
+      "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+      "independent_admission": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/reviews/final_audit/final_ccb846c_r02/launch_admission.json",
+        "bytes": 30648,
+        "sha256": "c9aaf66e6e9fb4953a5de65395ea731b809db01bca27b63c7ebe0d6fae1c46af"
+      }
+    },
+    {
+      "lease_id": "0d201a40007742d6a4e6a7eee0e91931",
+      "created_utc": "2026-10-15T11:56:19.448151+00:00",
+      "budget_seconds": 115200.0,
+      "resume": true,
+      "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+      "independent_admission": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/reviews/final_audit/final_ccb846c_r02/launch_admission.json",
+        "bytes": 30648,
+        "sha256": "c9aaf66e6e9fb4953a5de65395ea731b809db01bca27b63c7ebe0d6fae1c46af"
+      }
+    }
+  ],
+  "active_lease": "0d201a40007742d6a4e6a7eee0e91931",
+  "heartbeat_utc": "2026-10-15T14:29:14.438821+00:00",
+  "observed_node": null,
+  "observed_stage": "PACKAGE",
+  "observed_queue_status": "FINISHED",
+  "finished_utc": "2026-10-15T14:29:14.452824+00:00"
+}

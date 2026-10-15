@@ -1,0 +1,52 @@
+{
+  "status": "succeeded",
+  "methods": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH"
+  ],
+  "scope": "18-method report table core; old14 producer/core receipts retained only in explicit archive",
+  "dependencies": {
+    "archive": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_extension_20261013/archive_manifest.json",
+      "bytes": 243277,
+      "mtime_ns": 1791865514075550266,
+      "sha256": "8e8f9d5416149235771096b36e26939f888d4ba0505d7e1417b90314ba9fb734"
+    }
+  },
+  "outputs": {
+    "main_table.core.csv": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/main_table.core.csv",
+      "bytes": 13538,
+      "mtime_ns": 1791865576409110629,
+      "sha256": "a851121407f7f377b90e1e3c15453b18049e7782b1fbba3ee21b0c9d987f870d"
+    },
+    "paired_vs_B1.core.csv": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/paired_vs_B1.core.csv",
+      "bytes": 2989,
+      "mtime_ns": 1791865576619399527,
+      "sha256": "5b479b5d885354c8952c7e49c7d5ba0cf3028020fdebd39e51e58318b5200248"
+    },
+    "validation.json": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/validation.json",
+      "bytes": 56277,
+      "mtime_ns": 1791865576766396823,
+      "sha256": "517bb0035f6cc6d7c4c25a105240ea08980837016a15d3e469e9befc25d51c2e"
+    }
+  }
+}

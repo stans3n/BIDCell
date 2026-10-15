@@ -1,0 +1,254 @@
+{
+  "status": "passed",
+  "n_methods": 20,
+  "methods": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH",
+    "BASE_MATCH",
+    "V2_INTERACT"
+  ],
+  "full_columns": [
+    "method",
+    "experiment_group",
+    "n_segmented_cells",
+    "capture_pct",
+    "mean_transcripts_per_cell",
+    "mean_genes_per_cell",
+    "mean_cell_area_um2",
+    "disconnected_cells_8",
+    "scclassify_qc_cells",
+    "scclassify_unassigned_pct",
+    "fixed_population_cells",
+    "geometry_source",
+    "scclassify_expression_pearson_type_mean",
+    "scclassify_detection_pearson_type_mean",
+    "scclassify_positive_F1",
+    "scclassify_positive_F1_n",
+    "scclassify_negative_F1",
+    "scclassify_negative_F1_n",
+    "scclassify_positive_Precision",
+    "scclassify_positive_Precision_n",
+    "scclassify_positive_Recall",
+    "scclassify_positive_Recall_n",
+    "scclassify_negative_Precision",
+    "scclassify_negative_Precision_n",
+    "scclassify_negative_Recall",
+    "scclassify_negative_Recall_n",
+    "fixed_positive_F1",
+    "fixed_positive_F1_n",
+    "fixed_negative_F1",
+    "fixed_negative_F1_n",
+    "fixed_positive_Precision",
+    "fixed_positive_Precision_n",
+    "fixed_positive_Recall",
+    "fixed_positive_Recall_n",
+    "fixed_negative_Precision",
+    "fixed_negative_Precision_n",
+    "fixed_negative_Recall",
+    "fixed_negative_Recall_n",
+    "evaluation_wall_seconds",
+    "scclassify_Purity_F1",
+    "fixed_Purity_F1",
+    "scclassify_expression_pearson_types_n",
+    "scclassify_detection_pearson_types_n",
+    "scclassify_spatial_entropy_vs_cv_total_transciprts",
+    "scclassify_spatial_entropy_vs_cv_total_genes",
+    "scclassify_spatial_entropy_vs_cv_cell_area",
+    "scclassify_spatial_entropy_vs_sd_total_transciprts",
+    "scclassify_spatial_entropy_vs_sd_total_genes",
+    "scclassify_spatial_entropy_vs_sd_cell_area",
+    "scclassify_spatial_bins_n",
+    "purity_scaling_version",
+    "purity_scaling_path",
+    "median_cell_area_um2",
+    "p95_cell_area_um2",
+    "disconnected_cells_4",
+    "scclassify_qc_retention_pct",
+    "matrix_path",
+    "matrix_sha256",
+    "evaluation_path",
+    "evaluation_sha256",
+    "checkpoint_sha256",
+    "nuclear_preservation_fraction",
+    "new_IDs",
+    "paired_run_id",
+    "paired_endpoint",
+    "model_kind",
+    "training_seed",
+    "actual_updates",
+    "view_cursor",
+    "empty_skips",
+    "training_identity_scope",
+    "paired_source_bundle",
+    "matrix_counts_path",
+    "matrix_counts_sha256",
+    "matrix_receipt_path",
+    "matrix_receipt_sha256",
+    "matrix_mapping_sha256",
+    "matrix_gene_mapping_sha256",
+    "evaluation_receipt_path",
+    "evaluation_receipt_sha256",
+    "checkpoint_path",
+    "annotation_path",
+    "annotation_sha256",
+    "paired_population_path",
+    "paired_decision_path",
+    "paired_QC_entry_exit_path",
+    "paired_type_strata_path",
+    "artifact_registry_path"
+  ],
+  "compact_columns": [
+    "method",
+    "capture_pct",
+    "mean_cell_area_um2",
+    "disconnected_cells_8",
+    "scclassify_qc_cells",
+    "scclassify_unassigned_pct",
+    "scclassify_positive_F1",
+    "scclassify_negative_F1",
+    "scclassify_Purity_F1",
+    "fixed_positive_F1",
+    "fixed_negative_F1",
+    "fixed_Purity_F1",
+    "fixed_positive_F1_n"
+  ],
+  "historical_raw_strings_exact": true,
+  "only_old_mutable_columns": [
+    "scclassify_Purity_F1",
+    "fixed_Purity_F1"
+  ],
+  "missing_policy": "No raw NA/blank filled with zero; added fields for unrelated historical methods stay blank.",
+  "raw_validation": {
+    "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/raw_validation.json",
+    "bytes": 11059,
+    "sha256": "372616f26b4bf1830690f3265efece16931510e3249fedeeafe72488a0f70010"
+  },
+  "full_completion": {
+    "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/handoff/manual_resume_complete-check.json",
+    "bytes": 57314,
+    "sha256": "bb266d85da4edbf5d38d561ec190ec005ca16df6acd71426361ee650c354e017"
+  },
+  "backup": {
+    "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/before_20_method_sync/baseline_ready.json",
+    "bytes": 9128,
+    "sha256": "c1d3a4704bc156510f751815b62856bdccebf93ac950fc7af2ff87b274821c23"
+  },
+  "purity_scaling": {
+    "version": "SC-PRIMARY-FIXED-v1.2-20methods-20261014",
+    "comparison_set": [
+      "B1",
+      "B1_CONT",
+      "G_CONT",
+      "B1_COS",
+      "G_COS",
+      "A",
+      "B",
+      "C",
+      "S",
+      "SP",
+      "P1",
+      "P2",
+      "T1",
+      "T2",
+      "B0",
+      "V1_REGION",
+      "V1_BOUNDARY",
+      "V2_MORPH",
+      "BASE_MATCH",
+      "V2_INTERACT"
+    ],
+    "formula": "2*p*(1-n)/(p+1-n); independent profile min-max; finite 0/0 harmonic limit=0; missing/degenerate inputs remain NA",
+    "previous_scaling": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/before_20_method_sync/outputs/bidcell_historical_dual_20261013/purity_scaling.json",
+      "bytes": 756,
+      "sha256": "177ebda6701eb558782238fd72365757a2ce22ee72653b9ea76ed3f3a911393a"
+    },
+    "scclassify": {
+      "positive_F1": {
+        "min": 0.309609757557459,
+        "max": 0.3411139795093598
+      },
+      "negative_F1": {
+        "min": 0.0233550064921648,
+        "max": 0.02717781859571618
+      }
+    },
+    "fixed": {
+      "positive_F1": {
+        "min": 0.3884365297138604,
+        "max": 0.4084453551978994
+      },
+      "negative_F1": {
+        "min": 0.0283230365850249,
+        "max": 0.04292068073982688
+      }
+    }
+  },
+  "scope": "Original18 raw strings preserved; new2 values and E1 reused values validated against full raw population. No claim all historical artifacts were rerun.",
+  "final_analysis": {
+    "status": "passed",
+    "crosscheck": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/report_C_crosscheck.json",
+      "bytes": 5252,
+      "sha256": "6df210d0a38f3cd35d68fdd6e5b93ae2a4b01a4f7c846c886e0dc97b12cb73fb"
+    },
+    "reports": {
+      "report_C.md": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/report_C.md",
+        "bytes": 21992,
+        "sha256": "1ec9e81359f8a48d64ddfd8eed5e4034d57f1865127338b5666cf345e7ba19bc"
+      },
+      "report_C.json": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/report_C.json",
+        "bytes": 49881,
+        "sha256": "d88a810e4bf7a9126fe92e8187b0a5931fb4c6ad3567f7aecbaa9f769fef0ea4"
+      },
+      "verification_C.json": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/verification_C.json",
+        "bytes": 2705876,
+        "sha256": "ab8b40a8e716045568a76d13b466596fd74d8e02e54a4d7dec70202200871a3f"
+      },
+      "independent_calculations_C.json": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/independent_calculations_C.json",
+        "bytes": 841299,
+        "sha256": "9f26ca28588f951ab3c231677b078f69b8a595ca89afd2abdd107a4e23525bb5"
+      },
+      "model_configuration_C.json": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/model_configuration_C.json",
+        "bytes": 1408,
+        "sha256": "5489b05305634cc1cd037073afe6fd5fb95c8b15136f313f4970f8f8b6baec9b"
+      },
+      "artifacts_C.json": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/artifacts_C.json",
+        "bytes": 3728,
+        "sha256": "e885749f091271154ae0dc5b0aae3a601bcbce76d9b3de5a97b9ab24146f0980"
+      },
+      "verify_C.py": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/verify_C.py",
+        "bytes": 38396,
+        "sha256": "b8a1a382b88c90edb2ab0b519454391f8315d2123bafd64c9b1405baf4b385ef"
+      },
+      "supplement_C.py": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/final_analysis/supplement_C.py",
+        "bytes": 7702,
+        "sha256": "a593566af7cfb3d392ed4d562312b83f711c52495a62880bfdbfda9ee8a2da7b"
+      }
+    }
+  }
+}

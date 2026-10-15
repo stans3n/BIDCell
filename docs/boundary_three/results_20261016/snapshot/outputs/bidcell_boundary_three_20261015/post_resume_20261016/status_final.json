@@ -1,0 +1,330 @@
+{
+  "schema": "boundary-three-queue-state-v1",
+  "run_id": "boundary-three-20261015-r02",
+  "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+  "source_digest": "8b4b6957b34f8e2d13ad26fd57ab359e6c21b0a496176d00153173300063c9f7",
+  "input_digest": "06b74091929acc1f80dcff1643e710863c02a4b1566d22eca2fb8ce8543af455",
+  "host": "MCV-CGB4",
+  "execution_status": "FINISHED",
+  "current_node": null,
+  "stage": "PACKAGE",
+  "heartbeat_utc": "2026-10-15T14:29:09.723714+00:00",
+  "last_progress_utc": "2026-10-15T14:15:10.622724+00:00",
+  "progress": {
+    "node": "A2_CORE",
+    "stage": "evaluated_A2_SHUFFLED",
+    "host": "MCV-CGB4",
+    "updated_utc": "2026-10-15T14:15:10.622724+00:00",
+    "assigned": 21494924
+  },
+  "supervisor": {
+    "host": "MCV-CGB4",
+    "boot_id": "491eb15c-c3bc-42e6-846d-d93370859e7b",
+    "pid": 491433,
+    "start_ticks": 73157309,
+    "process_state": "R"
+  },
+  "worker": null,
+  "tmux_session": "boundary-three-0d201a400077",
+  "leases": [
+    {
+      "lease_id": "b071843ba41e4321be98825693cad50f",
+      "created_utc": "2026-10-14T18:00:14.341404+00:00",
+      "budget_seconds": 64800,
+      "resume": false,
+      "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+      "independent_admission": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/reviews/final_audit/final_ccb846c_r02/launch_admission.json",
+        "bytes": 30648,
+        "sha256": "c9aaf66e6e9fb4953a5de65395ea731b809db01bca27b63c7ebe0d6fae1c46af"
+      }
+    },
+    {
+      "lease_id": "5aa0fec096b84b4db2873b8bfdf15dcc",
+      "created_utc": "2026-10-15T05:26:35.059431+00:00",
+      "budget_seconds": 57600.0,
+      "resume": true,
+      "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+      "independent_admission": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/reviews/final_audit/final_ccb846c_r02/launch_admission.json",
+        "bytes": 30648,
+        "sha256": "c9aaf66e6e9fb4953a5de65395ea731b809db01bca27b63c7ebe0d6fae1c46af"
+      }
+    },
+    {
+      "lease_id": "0d201a40007742d6a4e6a7eee0e91931",
+      "created_utc": "2026-10-15T11:56:19.448151+00:00",
+      "budget_seconds": 115200.0,
+      "resume": true,
+      "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+      "independent_admission": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/reviews/final_audit/final_ccb846c_r02/launch_admission.json",
+        "bytes": 30648,
+        "sha256": "c9aaf66e6e9fb4953a5de65395ea731b809db01bca27b63c7ebe0d6fae1c46af"
+      }
+    }
+  ],
+  "active_lease": "0d201a40007742d6a4e6a7eee0e91931",
+  "nodes": {
+    "A1_CORE": {
+      "execution_status": "COMPLETED",
+      "science_status": "GO_A2",
+      "retries": 0,
+      "started_utc": "2026-10-14T18:02:11.966236+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/A1_CORE_b071843ba41e4321be98825693cad50f_1.json",
+        "bytes": 343,
+        "sha256": "4a37043d28ac11396b161b07a2a7881e7ea90cc64bea6c7b62fdc17c7ee4ddb2"
+      },
+      "reason": null,
+      "elapsed_seconds_this_attempt": 479.8838846759172,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/complete.json",
+        "bytes": 50501,
+        "sha256": "b972d5fa5d9ed78b99e0b201a395df6ec8e4caeb0ce14042fc3885962d2cc6fa"
+      },
+      "completed_utc": "2026-10-14T18:10:13.184302+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "GO_A2",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/complete.json",
+          "bytes": 50501,
+          "sha256": "b972d5fa5d9ed78b99e0b201a395df6ec8e4caeb0ce14042fc3885962d2cc6fa"
+        }
+      }
+    },
+    "P2_BASE": {
+      "execution_status": "COMPLETED",
+      "science_status": "tradeoff_or_negative",
+      "retries": 0,
+      "started_utc": "2026-10-14T18:10:13.203429+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/P2_BASE_b071843ba41e4321be98825693cad50f_1.json",
+        "bytes": 360,
+        "sha256": "3f18fd123f01582d6f368dcfe426d67431b358c7e46b72e7128c6454a23c7794"
+      },
+      "reason": null,
+      "elapsed_seconds_this_attempt": 13830.036694703973,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/complete.json",
+        "bytes": 323107,
+        "sha256": "78ff4cc66d6049fe9ae0b70a5daa393f87fa489e0c08fddf8f5d25a5f3595c3f"
+      },
+      "completed_utc": "2026-10-14T22:00:44.814061+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "tradeoff_or_negative",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/complete.json",
+          "bytes": 323107,
+          "sha256": "78ff4cc66d6049fe9ae0b70a5daa393f87fa489e0c08fddf8f5d25a5f3595c3f"
+        }
+      }
+    },
+    "MORPH_NO_DAPI": {
+      "execution_status": "COMPLETED",
+      "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+      "retries": 0,
+      "started_utc": "2026-10-14T22:00:44.830280+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/MORPH_NO_DAPI_b071843ba41e4321be98825693cad50f_1.json",
+        "bytes": 384,
+        "sha256": "930367362df80e7ece630421a7f886a83fc446fe13c1a024b4af48cff4eefd4a"
+      },
+      "reason": null,
+      "elapsed_seconds_this_attempt": 12259.510991098941,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/complete.json",
+        "bytes": 371638,
+        "sha256": "4140e3f34fa6f64d60e4d2b07686671ad4d251524c3d2e9095b452c6c39872b5"
+      },
+      "completed_utc": "2026-10-15T01:25:09.283081+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/complete.json",
+          "bytes": 371638,
+          "sha256": "4140e3f34fa6f64d60e4d2b07686671ad4d251524c3d2e9095b452c6c39872b5"
+        }
+      }
+    },
+    "P2_MORPH": {
+      "execution_status": "COMPLETED",
+      "science_status": "tradeoff_or_negative",
+      "retries": 0,
+      "started_utc": "2026-10-15T01:25:09.301186+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/P2_MORPH_b071843ba41e4321be98825693cad50f_1.json",
+        "bytes": 360,
+        "sha256": "e68a33bfafb2dc490db10f873ee2b898ed7f5f3e0bc75b732cfe7b9e43b59d28"
+      },
+      "reason": null,
+      "elapsed_seconds_this_attempt": 14241.79300347995,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/complete.json",
+        "bytes": 373127,
+        "sha256": "e34384900ea49daf884981f18e0115008ea852192ba46dffa630eef35631672e"
+      },
+      "completed_utc": "2026-10-15T05:22:32.749278+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "tradeoff_or_negative",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/complete.json",
+          "bytes": 373127,
+          "sha256": "e34384900ea49daf884981f18e0115008ea852192ba46dffa630eef35631672e"
+        }
+      }
+    },
+    "A2_CORE": {
+      "execution_status": "COMPLETED",
+      "science_status": "EXPLORATORY_FIXED_REFINEMENT_EVALUATED",
+      "retries": 0,
+      "reason": null,
+      "budget_decision": {
+        "lease_id": "5aa0fec096b84b4db2873b8bfdf15dcc",
+        "remaining_seconds": 57388.55855582992,
+        "required_seconds": 108490.0,
+        "safety_factor": 1.25,
+        "packaging_reserve_seconds": 1800
+      },
+      "started_utc": "2026-10-15T11:59:52.441148+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/A2_CORE_0d201a40007742d6a4e6a7eee0e91931_1.json",
+        "bytes": 377,
+        "sha256": "90c152546ee45b79b16ddee1a3cd9e326428f394f6233f1407d2fe8952882062"
+      },
+      "elapsed_seconds_this_attempt": 8710.956555612967,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/complete.json",
+        "bytes": 312687,
+        "sha256": "df1465a7925490c2b8406c6b4a4f6686e08b5d2f7b4a697f7108248579dd264a"
+      },
+      "completed_utc": "2026-10-15T14:25:04.601624+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "EXPLORATORY_FIXED_REFINEMENT_EVALUATED",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/complete.json",
+          "bytes": 312687,
+          "sha256": "df1465a7925490c2b8406c6b4a4f6686e08b5d2f7b4a697f7108248579dd264a"
+        }
+      }
+    },
+    "MORPH_SIMPLE_FUSION": {
+      "execution_status": "COMPLETED",
+      "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+      "retries": 0,
+      "reason": null,
+      "budget_decision": {
+        "lease_id": "b071843ba41e4321be98825693cad50f",
+        "remaining_seconds": 23856.432328570052,
+        "required_seconds": 26550.0,
+        "safety_factor": 1.25,
+        "packaging_reserve_seconds": 1800
+      },
+      "started_utc": "2026-10-15T05:30:06.511686+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/MORPH_SIMPLE_FUSION_5aa0fec096b84b4db2873b8bfdf15dcc_1.json",
+        "bytes": 389,
+        "sha256": "0e591832f21520885c61201ae43f9655b9322f211df7f6d98f4213233993f2c6"
+      },
+      "elapsed_seconds_this_attempt": 12238.86573599989,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/complete.json",
+        "bytes": 389530,
+        "sha256": "13d79a9ce23508d8c4d030b10575ff231e0adfc210dbcbeadf288e505059418a"
+      },
+      "completed_utc": "2026-10-15T08:54:11.993130+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/complete.json",
+          "bytes": 389530,
+          "sha256": "13d79a9ce23508d8c4d030b10575ff231e0adfc210dbcbeadf288e505059418a"
+        }
+      }
+    },
+    "MORPH_NO_GEO": {
+      "execution_status": "COMPLETED",
+      "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+      "retries": 0,
+      "reason": null,
+      "budget_decision": {
+        "lease_id": "b071843ba41e4321be98825693cad50f",
+        "remaining_seconds": 23856.42292209505,
+        "required_seconds": 26550.0,
+        "safety_factor": 1.25,
+        "packaging_reserve_seconds": 1800
+      },
+      "started_utc": "2026-10-15T08:54:12.008709+00:00",
+      "attempts": 1,
+      "last_worker_result": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/control/results/MORPH_NO_GEO_5aa0fec096b84b4db2873b8bfdf15dcc_1.json",
+        "bytes": 383,
+        "sha256": "182757c3a6fc9c8f183f3ada878a90f46050e560b9f68869f0600a6524c2c270"
+      },
+      "elapsed_seconds_this_attempt": 10624.857967032935,
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/complete.json",
+        "bytes": 368656,
+        "sha256": "8a381299971a02076e20a4663294fc5bd9ee9f1fdd40c74e1ac8cf8162bc74d7"
+      },
+      "completed_utc": "2026-10-15T11:51:20.555010+00:00",
+      "receipt_status": {
+        "status": "PRESENT_UNVERIFIED_OUTPUTS",
+        "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+        "receipt": {
+          "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/complete.json",
+          "bytes": 368656,
+          "sha256": "8a381299971a02076e20a4663294fc5bd9ee9f1fdd40c74e1ac8cf8162bc74d7"
+        }
+      }
+    }
+  },
+  "failure": null,
+  "log_path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/logs/queue.log",
+  "updated_utc": "2026-10-15T14:29:12.964018+00:00",
+  "lease_started_utc": "2026-10-15T11:56:20.244357+00:00",
+  "deadline_utc": "2026-10-16T19:56:19.448151+00:00",
+  "resources": {
+    "time": "2026-10-15T14:24:50.509766+00:00",
+    "ram_available_bytes": 28440064000,
+    "ram_total_bytes": 32491220992,
+    "gpu_free_bytes": 11334057984,
+    "gpu_total_bytes": 11811160064,
+    "disk_free_bytes": 58272010240
+  },
+  "resource_wait_reasons": [],
+  "node_log_path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/logs/A2_CORE_001.log",
+  "worker_exit_code": 0,
+  "lease_elapsed_seconds": 8965.26530170103,
+  "lease_finished_utc": "2026-10-15T14:25:45.509571+00:00",
+  "process_alive": false,
+  "worker_alive": false,
+  "queue_lock_held": false,
+  "compute_lock_held": false,
+  "seconds_since_progress": 9689.865211,
+  "liveness": "PROCESS_EXITED",
+  "untracked_descendant_lock_owner": false,
+  "completed_nodes": [
+    "A1_CORE",
+    "P2_BASE",
+    "MORPH_NO_DAPI",
+    "P2_MORPH",
+    "A2_CORE",
+    "MORPH_SIMPLE_FUSION",
+    "MORPH_NO_GEO"
+  ],
+  "deferred_nodes": [],
+  "skipped_nodes": []
+}

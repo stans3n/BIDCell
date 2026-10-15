@@ -1,0 +1,1260 @@
+{
+  "status": "verified_boundary_extension",
+  "methods": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH",
+    "BASE_MATCH",
+    "V2_INTERACT",
+    "P2_BASE",
+    "P2_MORPH",
+    "MORPH_NO_DAPI",
+    "MORPH_SIMPLE_FUSION",
+    "MORPH_NO_GEO",
+    "A2_GT",
+    "A2_GTC",
+    "A2_SHUFFLED"
+  ],
+  "new_methods": [
+    "P2_BASE",
+    "P2_MORPH",
+    "MORPH_NO_DAPI",
+    "MORPH_SIMPLE_FUSION",
+    "MORPH_NO_GEO",
+    "A2_GT",
+    "A2_GTC",
+    "A2_SHUFFLED"
+  ],
+  "historical20_registry": {
+    "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/artifact_registry_paired_20261014.json",
+    "bytes": 11624,
+    "sha256": "2639d780b9fae5ace6127db01507e44e466f729d56de15a6b90545ff08a96eba"
+  },
+  "historical20_complete": {
+    "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/complete.json",
+    "bytes": 3794,
+    "sha256": "096f155c52ea0e7fb14d6cb74203e7927186892dd3a69b86aabd0b320a6cd706"
+  },
+  "new_and_control_endpoints": {
+    "BASE_MATCH": {
+      "assigned": 21494924,
+      "qc_ids": 103286,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3340769851706138,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.023892621123797288,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.39516268831508455,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.29855783540673064,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029246837526691313,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020858149591519437,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4020203532674376,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031433682465382494,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4757994506298433,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.359149375646607,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03844605001315928,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027454154017426385,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/counts.npy",
+        "bytes": 270319448,
+        "sha256": "232e0d458ec31292761a717e9460766efbd3008cbd2e8d76dabd57143e40fbef"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/complete.json",
+        "bytes": 50144,
+        "sha256": "56a2c91fb2c805fe946bc33ecb11d2805a9ab0dc9135906de5dac6f5649206a0"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/complete.json",
+        "bytes": 28423,
+        "sha256": "2d37f2fab7d648d881c0c71d302d29286f59599213d9292e3ad0edb0fb7db7d8"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/annotation.csv",
+        "bytes": 62658702,
+        "sha256": "2d00125ede9643f49e17a29815a030ba728a18fcc73aa30fce9ce986eee148e8"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8688604,
+        "sha256": "4e99e0881b6e14d7fbec66b6c64f6ea23077c74504ff34c4b1e86b91d861e703"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+        "bytes": 11529307,
+        "sha256": "72aa1398774db204bea76c969736dcf49eaf3f23395d6de33b7f7ea33f7e783d"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/comparison/BASE_MATCH_all_ID_population.csv",
+        "bytes": 33028003,
+        "sha256": "5e42b57b45fd7183f9c102c4e52d5bdabf777ad5d049b95bd397a8b87e0ad616"
+      }
+    },
+    "V2_MORPH": {
+      "assigned": 21449617,
+      "qc_ids": 103282,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3353817162773261,
+          "n_finite": 103282,
+          "n_missing": 4673
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.02396763968068234,
+          "n_finite": 103282,
+          "n_missing": 4673
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3966082039040189,
+          "n_finite": 103282,
+          "n_missing": 4673
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.2996870889098479,
+          "n_finite": 103282,
+          "n_missing": 4673
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.02931764425208352,
+          "n_finite": 103282,
+          "n_missing": 4673
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.02093204261929911,
+          "n_finite": 103282,
+          "n_missing": 4673
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4029859397059896,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031126312845661478,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4768324018622506,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3599263551451537,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.038022177784330285,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027199249561281093,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/counts.npy",
+        "bytes": 270319448,
+        "sha256": "c4dd8b7cc4243dfa1ddbd468399731e65f173f1f149d77d9858c8ec2f7111564"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/complete.json",
+        "bytes": 50290,
+        "sha256": "e93d13e983c7f9a3016b63b98022f079926212e51e511ab1503b6ef878fc9eed"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/complete.json",
+        "bytes": 23816,
+        "sha256": "2e25bc6c9f10c9eacb1b0a2c724e3356ec063068c9927237c8bfe5f97b919cc1"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/annotation.csv",
+        "bytes": 62682759,
+        "sha256": "bd44b35e225327daf3db0af818bb4ef5059d195f34ed18961a94e53fb37ec7e0"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8690124,
+        "sha256": "24e4b63d4b12e1a08936c8b7ab41220f8e998a933619c9f8a115ca25faca8b0c"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+        "bytes": 11515030,
+        "sha256": "e9adebb29489b80ab3be7050561c47ac39ed01777493a1bc764fcfa182c89f15"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/V2_MORPH_all_ID_population.csv",
+        "bytes": 32796412,
+        "sha256": "26d901e408d000ec2fd4aca2298676f224803de3eb6b0cf6e2d1f2b29a613799"
+      }
+    },
+    "P2_BASE": {
+      "assigned": 21654424,
+      "qc_ids": 103368,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.33509819314095446,
+          "n_finite": 103368,
+          "n_missing": 4587
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.024058134235389942,
+          "n_finite": 103368,
+          "n_missing": 4587
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.39511071210433674,
+          "n_finite": 103368,
+          "n_missing": 4587
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.29997610360764326,
+          "n_finite": 103368,
+          "n_missing": 4587
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029385733379450243,
+          "n_finite": 103368,
+          "n_missing": 4587
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.021021667652808253,
+          "n_finite": 103368,
+          "n_missing": 4587
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4032185688282298,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.03137462743824195,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.47573032390031306,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3607932792144519,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.038293342621553816,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027422810210226297,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/counts.npy",
+        "bytes": 270319448,
+        "sha256": "69bb49a9f7644c0ee3b4a64f0e43f0a9eeeb7a9851a6bb3f284822ed82d67747"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/complete.json",
+        "bytes": 52633,
+        "sha256": "477a9d9ae30bfcd60483c8d67151e133a0a3ffa9396304b5f7994aaa3c471251"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/complete.json",
+        "bytes": 22555,
+        "sha256": "98d3111e6d6d81565c37c70be507c7633dadf6ba6e1ab3e5a61f729340119ca5"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/annotation.csv",
+        "bytes": 62692249,
+        "sha256": "5f275b38263e66cc45e9926e15298d31c10bf2e14dca2bfc73dc6d21f3c0c534"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8700304,
+        "sha256": "eecf291e3792b0a7e472239a438a1ac408858aef0c9f19ab31858fbce6ec9c47"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+        "bytes": 11526926,
+        "sha256": "ac450ed0b5cefaa2dec490692e58e5c033ab89441908dbb680fe3d5f4a4b5e9f"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/comparison/P2_BASE_all_ID_population.csv",
+        "bytes": 32698816,
+        "sha256": "8da33612960856b716cd6db717d94e7f7e94fb440563915455934d1a81043185"
+      }
+    },
+    "P2_MORPH": {
+      "assigned": 21584821,
+      "qc_ids": 103348,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.33579860894871,
+          "n_finite": 103348,
+          "n_missing": 4607
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.024008837945480956,
+          "n_finite": 103348,
+          "n_missing": 4607
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3960572213240892,
+          "n_finite": 103348,
+          "n_missing": 4607
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.3004652663269665,
+          "n_finite": 103348,
+          "n_missing": 4607
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029340744470480965,
+          "n_finite": 103348,
+          "n_missing": 4607
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020973609989175305,
+          "n_finite": 103348,
+          "n_missing": 4607
+        },
+        "fixed_positive_F1": {
+          "mean": 0.4038536862229801,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031100467212014,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.476567216481188,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.36122876828335676,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03796948857698965,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027176213751170186,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/counts.npy",
+        "bytes": 270319448,
+        "sha256": "bb850c5f581ba65785bad41181bbe688dc28d9baebb41822b9321f35959b9d3f"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/complete.json",
+        "bytes": 52644,
+        "sha256": "782de0f17358104b23b169a002fba91795995148683a593c0aab4d33966efc09"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/complete.json",
+        "bytes": 22676,
+        "sha256": "af16cfbf6a378ad2def35ce26eff805eee1c66a327602ef4bb124b1ecb1550c8"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/annotation.csv",
+        "bytes": 62688472,
+        "sha256": "70ba2acf64a1cd6cb99775f34a51b53d51179de050a8b8a2839857e4a2cf9086"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8698100,
+        "sha256": "9d385213abd2d8c51812dcb097bae64ed072bbb7bc60309e4876ab0ad8ccc68a"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+        "bytes": 11515792,
+        "sha256": "a13529ded9fef442bb2faf893507fed437174d287be576cbb522d9de1d8bd34a"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/comparison/P2_MORPH_all_ID_population.csv",
+        "bytes": 32793354,
+        "sha256": "37f3229a6af65c280eaa5e55d794d01d123b0ee604e2499ece85d802046eabc1"
+      }
+    },
+    "MORPH_NO_DAPI": {
+      "assigned": 21359377,
+      "qc_ids": 103262,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3350066047435996,
+          "n_finite": 103262,
+          "n_missing": 4693
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.023939880371300636,
+          "n_finite": 103262,
+          "n_missing": 4693
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3959759913203816,
+          "n_finite": 103262,
+          "n_missing": 4693
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.29942982737311724,
+          "n_finite": 103262,
+          "n_missing": 4693
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029282416587252818,
+          "n_finite": 103262,
+          "n_missing": 4693
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.02090860641987402,
+          "n_finite": 103262,
+          "n_missing": 4693
+        },
+        "fixed_positive_F1": {
+          "mean": 0.40278665799686814,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.03133424066952573,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.47640944478244307,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3598565940358942,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03829974629525411,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027372206955228563,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/counts.npy",
+        "bytes": 270319448,
+        "sha256": "a5567fa6055488494710196b4008ba5304f12b7f7c810c63dac6c771c9a91328"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/complete.json",
+        "bytes": 52701,
+        "sha256": "e80120d98507bf8681b7d12a9c286a3e454ce6fe04cb6583a8bfc994351ac0c4"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/complete.json",
+        "bytes": 23281,
+        "sha256": "ba274c0386eb7dd3029c00dcd47201428eaebfaa4e66fce0e019ea22d8355d5f"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/annotation.csv",
+        "bytes": 62658369,
+        "sha256": "8c24a0b122cf6a36f8c672d90d280b19ec1596bee7248497188c18104f84434c"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8687609,
+        "sha256": "07c3e6ca6c45c9cacc3024e0ebb576a974c5cd9456883d580be3f9e709c39082"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+        "bytes": 11518739,
+        "sha256": "1beab2ac3bfff7b4eb12b7bb3b97121c3a440964663f89fdb291f2bde1d88f99"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/MORPH_NO_DAPI_all_ID_population.csv",
+        "bytes": 33331084,
+        "sha256": "a963f677a39b1befcb989857b6366947ae3c9e88113a4f937648b852480a5d9b"
+      }
+    },
+    "MORPH_SIMPLE_FUSION": {
+      "assigned": 21292105,
+      "qc_ids": 103240,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.33459959867818745,
+          "n_finite": 103240,
+          "n_missing": 4715
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.02387999123512901,
+          "n_finite": 103240,
+          "n_missing": 4715
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3958404293421678,
+          "n_finite": 103240,
+          "n_missing": 4715
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.2989112278081669,
+          "n_finite": 103240,
+          "n_missing": 4715
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.02924659875922925,
+          "n_finite": 103240,
+          "n_missing": 4715
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020845571233955328,
+          "n_finite": 103240,
+          "n_missing": 4715
+        },
+        "fixed_positive_F1": {
+          "mean": 0.40271999093884403,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.0312592441866757,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4767237704503087,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3596044900621059,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.0382404138822822,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.02729403625534401,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/counts.npy",
+        "bytes": 270319448,
+        "sha256": "899c3ad17c26ed2ab217fb5f49fd7db14bd7d9308550f44b62f6070348d3f21c"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/complete.json",
+        "bytes": 52775,
+        "sha256": "d0039ef98c5e5c3853beb599c57b002587ea32399ca071e77e17284fc248992f"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/complete.json",
+        "bytes": 24007,
+        "sha256": "0338d9856cb1c9e922b19c38d1b89aa0c7c4d759d1c30ed0af77153229be388a"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/annotation.csv",
+        "bytes": 62661422,
+        "sha256": "e1257319e03b7c4330e2ec29c90104a20f3aeb5af1305209c11b090c6541b4d1"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8674958,
+        "sha256": "9675f6d87e0531de0e6dbdc7bbb168b70d762cf5de63bde01baa2830ff6da28c"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+        "bytes": 11516631,
+        "sha256": "77fe3e5af72a8cb166967b98622680c27f7114019fc22ee0a72e91e4cc27c991"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/MORPH_SIMPLE_FUSION_all_ID_population.csv",
+        "bytes": 33983448,
+        "sha256": "1b2e28bc0df67027f9bf63b4562905ad26707dec070f9cd6c24ff9beaccaf7b3"
+      }
+    },
+    "MORPH_NO_GEO": {
+      "assigned": 21494486,
+      "qc_ids": 103252,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3343101207859344,
+          "n_finite": 103252,
+          "n_missing": 4703
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.023848212136284783,
+          "n_finite": 103252,
+          "n_missing": 4703
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3956421534893883,
+          "n_finite": 103252,
+          "n_missing": 4703
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.2986658283684975,
+          "n_finite": 103252,
+          "n_missing": 4703
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.02919775807907775,
+          "n_finite": 103252,
+          "n_missing": 4703
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020822528783321224,
+          "n_finite": 103252,
+          "n_missing": 4703
+        },
+        "fixed_positive_F1": {
+          "mean": 0.40206464850911233,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.031409326145840265,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.47608118005091277,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3590260175877881,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03839098567973012,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.027438670931942,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/counts.npy",
+        "bytes": 270319448,
+        "sha256": "fc0f114dd0dc3d1574f5d685e4dfaa70351be9e9366cc7c54231f398dec24770"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/complete.json",
+        "bytes": 52685,
+        "sha256": "722b95843be469d00f7dfb06b978e79d57eca640d80c86931d1bd5dd8e347a8e"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/complete.json",
+        "bytes": 23160,
+        "sha256": "8f04cc88a26a40a5ac575d2791fbc98453ac8ee0ba15fd7417dd4e1aaa58406e"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/annotation.csv",
+        "bytes": 62630865,
+        "sha256": "68697e2a8a3ccbae4a4e9f1fd09be7e4a3123baa70626815b74cbc2fa117a588"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8684701,
+        "sha256": "d9253075ceaa64654f2da7b780312db94bb25cd6db70291f9cabfdcda6d415bc"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+        "bytes": 11525088,
+        "sha256": "b50a84ae49f9b4203971767bf28e4d79284cb2c459b05bc8f649387ec0c5df7e"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/MORPH_NO_GEO_all_ID_population.csv",
+        "bytes": 33234645,
+        "sha256": "c6b8e11174d129cdc4226955e95f968547af8917d88fee765649f6d5b72f35d7"
+      }
+    },
+    "A2_GT": {
+      "assigned": 21494924,
+      "qc_ids": 103286,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3363555425081507,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.023754366647906623,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3976055275607736,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.30065785847624626,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.0290860245228879,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020729162307229588,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "fixed_positive_F1": {
+          "mean": 0.40377887455902195,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.030771086414117046,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4776134086632007,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.36078433402744753,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03766916038958997,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.02685711113569941,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/counts.npy",
+        "bytes": 270319448,
+        "sha256": "080edee579939c3ac1f5d180437a3efe30c096c4ab2bbd20060de89cf4c75e22"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/complete.json",
+        "bytes": 52723,
+        "sha256": "1bb532940f1501caf3e9a3c9decd638f562ab265d3482b78396982803e7a0a86"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/complete.json",
+        "bytes": 23411,
+        "sha256": "7a86e830388be1caf5cd5ce0d25fa064c25d1ff2b49aa3961d572c30bc21bfac"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/annotation.csv",
+        "bytes": 62626426,
+        "sha256": "0897626c4a7f93e0336716446fd644c996ed6d0bab2e57171f4af963eb8f8cc1"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8690905,
+        "sha256": "dafd5356e240e2900d9eb0169be433f246330596a57b1f92ee527a812474ff99"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+        "bytes": 11510750,
+        "sha256": "f1324eceb0514ae624b094e2064e83fa953a56407473501287a2ded85cdcad57"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/A2_GT_all_ID_population.csv",
+        "bytes": 32454898,
+        "sha256": "bc3340043adfcf19a9dda8c8aa3484bb65860c6ce359e7bdbf7f4891fc2066d0"
+      }
+    },
+    "A2_GTC": {
+      "assigned": 21494924,
+      "qc_ids": 103286,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.33534071337287774,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.02387742502980526,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.3962274342913818,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.29986574195218146,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029217904208256002,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.020847218465732162,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "fixed_positive_F1": {
+          "mean": 0.403032807326746,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.030959079880686666,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.47654235086486935,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.3602398020841377,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.03787877361410938,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.02703157907457219,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/counts.npy",
+        "bytes": 270319448,
+        "sha256": "bc7bc50f8f2211faa6d0bd51e17e5736f3368d97601d45c020d90d3dd77c2b3f"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/complete.json",
+        "bytes": 52720,
+        "sha256": "a23cfc376b68c2da1d5d3cd64787aee0573222c9801a209c52227bd51b180ece"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/complete.json",
+        "bytes": 23532,
+        "sha256": "00857a8c6abe98c14dc84bc1a95588b99de6d2d6eaa7b8fe7213dac3a01a917a"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/annotation.csv",
+        "bytes": 62638274,
+        "sha256": "c10a699485b87bf61480f9a99f41293063d98e59270a60f8899dce2d14a6c586"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8693802,
+        "sha256": "bda88c744b9a587b5e69ddbe8a2312a552269a81f42c3ae0abfe3e00cf394ecc"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+        "bytes": 11522752,
+        "sha256": "8818bc22df9cf912b19b30a7080bb55a90f06de56d731f10e8630e7fd15ebcc0"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/A2_GTC_all_ID_population.csv",
+        "bytes": 32584158,
+        "sha256": "ce402b797e86837d1ac3375d3fdbe6fbb2c5a273dc0d83327ac39413249bf5b6"
+      }
+    },
+    "A2_SHUFFLED": {
+      "assigned": 21494924,
+      "qc_ids": 103286,
+      "metrics": {
+        "scclassify_positive_F1": {
+          "mean": 0.3359837663688196,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_F1": {
+          "mean": 0.023801446286857028,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Precision": {
+          "mean": 0.397049435168711,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_positive_Recall": {
+          "mean": 0.30037880410297774,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Precision": {
+          "mean": 0.029129462545600046,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "scclassify_negative_Recall": {
+          "mean": 0.02077663462493432,
+          "n_finite": 103286,
+          "n_missing": 4669
+        },
+        "fixed_positive_F1": {
+          "mean": 0.40365533470377574,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_F1": {
+          "mean": 0.03082699189417282,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Precision": {
+          "mean": 0.4773331436849195,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_positive_Recall": {
+          "mean": 0.36073496425663926,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Precision": {
+          "mean": 0.0377279058217652,
+          "n_finite": 85421,
+          "n_missing": 22534
+        },
+        "fixed_negative_Recall": {
+          "mean": 0.02691073548054775,
+          "n_finite": 85421,
+          "n_missing": 22534
+        }
+      },
+      "matrix": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/counts.npy",
+        "bytes": 270319448,
+        "sha256": "88c5cfbf3d3619c7e57af988cdf6fb18b9ed56555631d6f4f478875f82b64913"
+      },
+      "matrix_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/complete.json",
+        "bytes": 52785,
+        "sha256": "500bea6fbbab5b6086093e2afa181d0d34077fe39c349c71dc0bd1786c05603f"
+      },
+      "cell_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/cell_mapping.csv",
+        "bytes": 1933775,
+        "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+      },
+      "gene_mapping": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/gene_mapping.csv",
+        "bytes": 3021,
+        "sha256": "476f6fc6e1544fc4c3d3088af4a3e51ece43d3644f6a77d709026079a196b5ae"
+      },
+      "evaluation_receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/complete.json",
+        "bytes": 24137,
+        "sha256": "25c1982ec469c23e9cd318b13a657ae5bf4160b2735c160a556b967475715926"
+      },
+      "annotation": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/annotation.csv",
+        "bytes": 62632298,
+        "sha256": "09b7eb785239ccf30b6a64a54295436d40af6346a88cd3ccd627ec2714db635b"
+      },
+      "sc_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+        "bytes": 8686321,
+        "sha256": "0621766c9b70ff76cd1cbfc9d562abf8b7526f3e5a2482d393b79bc42ae8feb2"
+      },
+      "fixed_scores": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+        "bytes": 11514780,
+        "sha256": "4136601bd8fd66a249e04fb5b049c1ef4c7314408af9b49108e11006caf25731"
+      },
+      "population": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/A2_SHUFFLED_all_ID_population.csv",
+        "bytes": 33110745,
+        "sha256": "817be071a8efec4d199731888a58d05dc35a15e7c997a00260fd0a9116b7e4b1"
+      }
+    }
+  },
+  "B0_reference": {
+    "raw_metric_check": {
+      "scclassify_positive_F1": {
+        "mean": 0.3266339135681682,
+        "n_finite": 103299
+      },
+      "scclassify_negative_F1": {
+        "mean": 0.02572813267726098,
+        "n_finite": 103299
+      },
+      "scclassify_positive_Precision": {
+        "mean": 0.3809639994481726,
+        "n_finite": 103299
+      },
+      "scclassify_positive_Recall": {
+        "mean": 0.2944230582805012,
+        "n_finite": 103299
+      },
+      "scclassify_negative_Precision": {
+        "mean": 0.030843097133786433,
+        "n_finite": 103299
+      },
+      "scclassify_negative_Recall": {
+        "mean": 0.022718578607855856,
+        "n_finite": 103299
+      },
+      "fixed_positive_F1": {
+        "mean": 0.39980638217193554,
+        "n_finite": 85421
+      },
+      "fixed_negative_F1": {
+        "mean": 0.0348066598434082,
+        "n_finite": 85421
+      },
+      "fixed_positive_Precision": {
+        "mean": 0.46658432725391225,
+        "n_finite": 85421
+      },
+      "fixed_positive_Recall": {
+        "mean": 0.36022698221086197,
+        "n_finite": 85421
+      },
+      "fixed_negative_Precision": {
+        "mean": 0.04171594338404022,
+        "n_finite": 85421
+      },
+      "fixed_negative_Recall": {
+        "mean": 0.0307320365053392,
+        "n_finite": 85421
+      }
+    },
+    "input": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/input.json",
+      "bytes": 360,
+      "sha256": "e8201a9ae9fa0110286a6ceeb206f47809e8a54202f0c23e292af8acb35d245f"
+    },
+    "sc_scores": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/paper/markers_per_cell.csv",
+      "bytes": 8722312,
+      "sha256": "a92d597be4db3c4c8ac4469885e1565c32d04f67eb6483318e62549029f19813"
+    },
+    "fixed_scores": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/fixed/fixed_population.csv",
+      "bytes": 11656845,
+      "sha256": "19aaa9d94bdce4a92439008036488ec8606cd9300458f6df448c81a2a993be0b"
+    },
+    "scoring_receipt": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/scoring_complete.json",
+      "bytes": 318,
+      "sha256": "7d2d96325a55c57696e144bc79694743295fdb98e3ffb51f8399680e8f3d48eb"
+    },
+    "comparison_scope": "historical unmatched reference; full native B0 matrix and evaluation trace through source_evaluation/input.json"
+  },
+  "nonmask_or_alias": {
+    "A2_NATIVE": {
+      "canonical_method": "BASE_MATCH",
+      "new_independent_endpoint": false,
+      "evidence": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/comparison.json"
+    },
+    "A1_CORE": {
+      "kind": "information_study",
+      "mask_endpoint": false,
+      "evidence": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/decision.json"
+    }
+  },
+  "source": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/reports/endpoint_table_provenance.json",
+    "bytes": 11488,
+    "sha256": "35190824c0d895059e75a39440154d4879a386081ec734cf24944022aff3a96f"
+  },
+  "full_completion": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/complete-check.json",
+    "bytes": 3114,
+    "sha256": "a0413ee50606eccf45132f1ae61ae61d41d0fc5e483970a52b1f5eea27306f52"
+  }
+}

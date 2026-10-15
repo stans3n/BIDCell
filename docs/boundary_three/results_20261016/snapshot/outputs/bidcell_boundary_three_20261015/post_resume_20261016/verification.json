@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "n_methods": 28,
+  "new_unique_endpoints": 8,
+  "historical20_non_Purity_strings_preserved": true,
+  "old20_files_untouched": true,
+  "dual_F1_parallel": true,
+  "B0_and_BASE_MATCH_comparisons_present_for_all_new8": true,
+  "table_compact_summary_registry_context_sources_hashes_consistent": true,
+  "artifacts": {
+    "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/complete.json",
+    "bytes": 5666,
+    "sha256": "dd8abe8188e50e61eaf64c45cf814fccc045fc28a94b7fcb29b0ed2b05dd36c0"
+  },
+  "publication_journal": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/post_resume_20261016/publication_journal.json",
+    "bytes": 5445,
+    "sha256": "8bd58c4785db81e99b9fa59bed2d22207a6e254a3ea8ed50a6c9585dad9a46b0"
+  }
+}

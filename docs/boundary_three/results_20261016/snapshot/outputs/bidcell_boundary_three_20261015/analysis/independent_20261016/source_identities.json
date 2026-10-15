@@ -1,0 +1,1146 @@
+{
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/reports/endpoint_table.csv": {
+    "bytes": 41975,
+    "sha256": "1ad29a35b4230bd628d00efe1b33986885198421b8cf392568839692a39d713e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/configs/run.json": {
+    "bytes": 16035,
+    "sha256": "71abbbe6de808671e7af60749ee06d58497db0ec9d33a259e98cc3fdbe738020"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/frozen_strata/fixed_cell_groups.csv": {
+    "bytes": 7010197,
+    "sha256": "fc12d80b3a9d35e126f4f25d28e0bc97f65b5b68122739fb529a98db7cc4ec7e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/frozen_counts/fixed_count_groups.csv": {
+    "bytes": 1251709,
+    "sha256": "6bff1ebc2becadcd650cd0525d04f0b3f94a1ceca5e91bfc74bd5a01fa913863"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/frozen_strata/strata.json": {
+    "bytes": 20944,
+    "sha256": "6fc0533323c5ba36a435de4aadf11d4705abb268a20f400dd72af2ff5e492106"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2545152,
+    "sha256": "cbe286b3828206508f303d8ab8ea7b510f42e009f3ddf597c0cf129bb36131f5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8688604,
+    "sha256": "4e99e0881b6e14d7fbec66b6c64f6ea23077c74504ff34c4b1e86b91d861e703"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/annotation.csv": {
+    "bytes": 62658702,
+    "sha256": "2d00125ede9643f49e17a29815a030ba728a18fcc73aa30fce9ce986eee148e8"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv": {
+    "bytes": 11529307,
+    "sha256": "72aa1398774db204bea76c969736dcf49eaf3f23395d6de33b7f7ea33f7e783d"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/engineering/structure/cells_distribution.csv": {
+    "bytes": 13659471,
+    "sha256": "d2708886910232d265f68a7b327ff4a9e4c3ae210c48c0a4e87d714bf9a38781"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "a4c14546de28f4aad5f0bf8232a10ee004473badd12eae8b1f16b62d6c8fde84"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/complete.json": {
+    "bytes": 50144,
+    "sha256": "56a2c91fb2c805fe946bc33ecb11d2805a9ab0dc9135906de5dac6f5649206a0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "232e0d458ec31292761a717e9460766efbd3008cbd2e8d76dabd57143e40fbef"
+  },
+  "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/matrix/BASE_MATCH/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2544467,
+    "sha256": "e02a41e0449f18820b3b9ecbea77e3bab5b4089ba1797505ca72b0b03256ae3b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8700304,
+    "sha256": "eecf291e3792b0a7e472239a438a1ac408858aef0c9f19ab31858fbce6ec9c47"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/annotation.csv": {
+    "bytes": 62692249,
+    "sha256": "5f275b38263e66cc45e9926e15298d31c10bf2e14dca2bfc73dc6d21f3c0c534"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv": {
+    "bytes": 11526926,
+    "sha256": "ac450ed0b5cefaa2dec490692e58e5c033ab89441908dbb680fe3d5f4a4b5e9f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/engineering/structure/cells_distribution.csv": {
+    "bytes": 13679871,
+    "sha256": "cff74c7683389e874dcf6408d16d96ffbfd38487839f0afe20a69439ceb9129c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "59236c26541cd762fe77a905177129728c1e917ff502d0c4e40ae45f96243555"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/complete.json": {
+    "bytes": 52633,
+    "sha256": "477a9d9ae30bfcd60483c8d67151e133a0a3ffa9396304b5f7994aaa3c471251"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "69bb49a9f7644c0ee3b4a64f0e43f0a9eeeb7a9851a6bb3f284822ed82d67747"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/matrix/P2_BASE/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2545251,
+    "sha256": "4529c7d70c1c28187d63f5a372322abd5a4323c6c8fb60fddd3316c884f7b516"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8687609,
+    "sha256": "07c3e6ca6c45c9cacc3024e0ebb576a974c5cd9456883d580be3f9e709c39082"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/annotation.csv": {
+    "bytes": 62658369,
+    "sha256": "8c24a0b122cf6a36f8c672d90d280b19ec1596bee7248497188c18104f84434c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv": {
+    "bytes": 11518739,
+    "sha256": "1beab2ac3bfff7b4eb12b7bb3b97121c3a440964663f89fdb291f2bde1d88f99"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/engineering/structure/cells_distribution.csv": {
+    "bytes": 13669270,
+    "sha256": "b0836365a7f1e4eb2ea29050b473230bb2efa8b0c69a489e9c05e7ce51bd84d8"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "7f176a6ac609c5afc37658dd1e13280f4baed66f596eacb940f2a6cad9501c36"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/complete.json": {
+    "bytes": 52701,
+    "sha256": "e80120d98507bf8681b7d12a9c286a3e454ce6fe04cb6583a8bfc994351ac0c4"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "a5567fa6055488494710196b4008ba5304f12b7f7c810c63dac6c771c9a91328"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/matrix/MORPH_NO_DAPI/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2544991,
+    "sha256": "abd04a1781e2541e140857f15db9755b1f361df0fd92f42f0e912500c9eba2a6"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8690124,
+    "sha256": "24e4b63d4b12e1a08936c8b7ab41220f8e998a933619c9f8a115ca25faca8b0c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/annotation.csv": {
+    "bytes": 62682759,
+    "sha256": "bd44b35e225327daf3db0af818bb4ef5059d195f34ed18961a94e53fb37ec7e0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv": {
+    "bytes": 11515030,
+    "sha256": "e9adebb29489b80ab3be7050561c47ac39ed01777493a1bc764fcfa182c89f15"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/engineering/structure/cells_distribution.csv": {
+    "bytes": 13663836,
+    "sha256": "fdd3755ab8b30c19171d3a27c3cb56f976dd88c18a83ddb562097fa3eb6f093b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "118374265cfc3895f2f6f1cb879d6f847e014bdf106b4571772333dd31ae02b9"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/complete.json": {
+    "bytes": 50290,
+    "sha256": "e93d13e983c7f9a3016b63b98022f079926212e51e511ab1503b6ef878fc9eed"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "c4dd8b7cc4243dfa1ddbd468399731e65f173f1f149d77d9858c8ec2f7111564"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/matrix/V2_MORPH/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2544784,
+    "sha256": "faeb6dadb1e6a04eb028d4395dd35735090bb070e5300e57f8910377b89e8f1b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8698100,
+    "sha256": "9d385213abd2d8c51812dcb097bae64ed072bbb7bc60309e4876ab0ad8ccc68a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/annotation.csv": {
+    "bytes": 62688472,
+    "sha256": "70ba2acf64a1cd6cb99775f34a51b53d51179de050a8b8a2839857e4a2cf9086"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv": {
+    "bytes": 11515792,
+    "sha256": "a13529ded9fef442bb2faf893507fed437174d287be576cbb522d9de1d8bd34a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/engineering/structure/cells_distribution.csv": {
+    "bytes": 13680320,
+    "sha256": "2aedae8ab827a4fe4ed06c76a7ee54da678c058860c15f961bf30d9c879efb98"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "4ee336ee7c70943c68499cb924fba6061b34df8ed89579694b273b5f7dcfb878"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/complete.json": {
+    "bytes": 52644,
+    "sha256": "782de0f17358104b23b169a002fba91795995148683a593c0aab4d33966efc09"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "bb850c5f581ba65785bad41181bbe688dc28d9baebb41822b9321f35959b9d3f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/matrix/P2_MORPH/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2544977,
+    "sha256": "175884ebaa08a8d39093af419b74f21b04750b32d6ea787c722308998d57f811"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8690905,
+    "sha256": "dafd5356e240e2900d9eb0169be433f246330596a57b1f92ee527a812474ff99"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/annotation.csv": {
+    "bytes": 62626426,
+    "sha256": "0897626c4a7f93e0336716446fd644c996ed6d0bab2e57171f4af963eb8f8cc1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv": {
+    "bytes": 11510750,
+    "sha256": "f1324eceb0514ae624b094e2064e83fa953a56407473501287a2ded85cdcad57"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/engineering/structure/cells_distribution.csv": {
+    "bytes": 13677529,
+    "sha256": "e0a893e63394849a494a256a00d7c26b26711624928fa2db581e8a487699dc69"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "3e8937af81687c6063cd24aa5557df3f1fd13a4d465d7b99b081b4aee65575b2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/complete.json": {
+    "bytes": 52723,
+    "sha256": "1bb532940f1501caf3e9a3c9decd638f562ab265d3482b78396982803e7a0a86"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "080edee579939c3ac1f5d180437a3efe30c096c4ab2bbd20060de89cf4c75e22"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/matrix/A2_GT/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2544694,
+    "sha256": "3b77b4b289cd717f90d85c548d0570d51f360b15c47c6bdd21b7aeb5b0c0aa89"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8693802,
+    "sha256": "bda88c744b9a587b5e69ddbe8a2312a552269a81f42c3ae0abfe3e00cf394ecc"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/annotation.csv": {
+    "bytes": 62638274,
+    "sha256": "c10a699485b87bf61480f9a99f41293063d98e59270a60f8899dce2d14a6c586"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv": {
+    "bytes": 11522752,
+    "sha256": "8818bc22df9cf912b19b30a7080bb55a90f06de56d731f10e8630e7fd15ebcc0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/engineering/structure/cells_distribution.csv": {
+    "bytes": 13680522,
+    "sha256": "1fe2a5508dbbfc98461181ac3a92035ec71c3e941971fda8bac0fc4d2344abf7"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "36823e40b990a4ee678ed0385a61b7cd22577ff262efc4b3b365dd31286a97df"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/complete.json": {
+    "bytes": 52720,
+    "sha256": "a23cfc376b68c2da1d5d3cd64787aee0573222c9801a209c52227bd51b180ece"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "bc7bc50f8f2211faa6d0bd51e17e5736f3368d97601d45c020d90d3dd77c2b3f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/matrix/A2_GTC/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2545050,
+    "sha256": "0184e6c8baf1b3cb71a637ed50d01b3a45c4d53c75c180f467353fefd826007b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8686321,
+    "sha256": "0621766c9b70ff76cd1cbfc9d562abf8b7526f3e5a2482d393b79bc42ae8feb2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/annotation.csv": {
+    "bytes": 62632298,
+    "sha256": "09b7eb785239ccf30b6a64a54295436d40af6346a88cd3ccd627ec2714db635b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv": {
+    "bytes": 11514780,
+    "sha256": "4136601bd8fd66a249e04fb5b049c1ef4c7314408af9b49108e11006caf25731"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/engineering/structure/cells_distribution.csv": {
+    "bytes": 13680442,
+    "sha256": "e59a827b98d2cadabc2d71a813babc7a872af7846d9e6cfcbd282657cd1d5838"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "28642eb4053d06c2fb7eda1400bac7186c1321d201fa5027a453d34105ccc4a5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/complete.json": {
+    "bytes": 52785,
+    "sha256": "500bea6fbbab5b6086093e2afa181d0d34077fe39c349c71dc0bd1786c05603f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "88c5cfbf3d3619c7e57af988cdf6fb18b9ed56555631d6f4f478875f82b64913"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/matrix/A2_SHUFFLED/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2545158,
+    "sha256": "f62d38dc40d83500dbb4f3b9a2e313eb3eae48de2386a893aa589e810f60ba8c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8674958,
+    "sha256": "9675f6d87e0531de0e6dbdc7bbb168b70d762cf5de63bde01baa2830ff6da28c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/annotation.csv": {
+    "bytes": 62661422,
+    "sha256": "e1257319e03b7c4330e2ec29c90104a20f3aeb5af1305209c11b090c6541b4d1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv": {
+    "bytes": 11516631,
+    "sha256": "77fe3e5af72a8cb166967b98622680c27f7114019fc22ee0a72e91e4cc27c991"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/engineering/structure/cells_distribution.csv": {
+    "bytes": 13656276,
+    "sha256": "7f603c9fb75da5c68615fc3b37679e00c4e8b92c6413bbff98ee57bce62204e0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "7098ecd13616d9ef1b6a98be062513750517f0cdcca460da6168fad8bc3d8be1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/complete.json": {
+    "bytes": 52775,
+    "sha256": "d0039ef98c5e5c3853beb599c57b002587ea32399ca071e77e17284fc248992f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "899c3ad17c26ed2ab217fb5f49fd7db14bd7d9308550f44b62f6070348d3f21c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/matrix/MORPH_SIMPLE_FUSION/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2545085,
+    "sha256": "bb4c52b94f187734329b95a14fb8ab7b6884b27a6d936c330230f4e4b166b567"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv": {
+    "bytes": 8684701,
+    "sha256": "d9253075ceaa64654f2da7b780312db94bb25cd6db70291f9cabfdcda6d415bc"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/annotation.csv": {
+    "bytes": 62630865,
+    "sha256": "68697e2a8a3ccbae4a4e9f1fd09be7e4a3123baa70626815b74cbc2fa117a588"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv": {
+    "bytes": 11525088,
+    "sha256": "b50a84ae49f9b4203971767bf28e4d79284cb2c459b05bc8f649387ec0c5df7e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/engineering/structure/cells_distribution.csv": {
+    "bytes": 13663325,
+    "sha256": "4de081451951915b50a865ee4cac34b435689017143935803a69cfd44a626a49"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "e9f32c5679d68804c133620e10ee3c8b70efd6fae742ecc1b6b1b602f759d21c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/complete.json": {
+    "bytes": 52685,
+    "sha256": "722b95843be469d00f7dfb06b978e79d57eca640d80c86931d1bd5dd8e347a8e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/counts.npy": {
+    "bytes": 270319448,
+    "sha256": "fc0f114dd0dc3d1574f5d685e4dfaa70351be9e9366cc7c54231f398dec24770"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/matrix/MORPH_NO_GEO/cell_mapping.csv": {
+    "bytes": 1933775,
+    "sha256": "1e34e87c2e396b47ece4ab729b95f679880a41b17a307b4786f76eb14979a6c2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/decision.json": {
+    "bytes": 11596,
+    "sha256": "e800430cb877e4b741eae5d4a5a7ce0214d448f6cefac578c42dea8a6515889f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/decision.json": {
+    "bytes": 8917,
+    "sha256": "20fb1806dac461ecd2a5a4fc3c164adfb54daace8b4ea479d0a83a43205e2c86"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/decision.json": {
+    "bytes": 11909,
+    "sha256": "a4f9ebd6cc8cc76bcc907f4cf3ee44e28c3b82170d35a6be31b978a817623e0d"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/decision.json": {
+    "bytes": 56471,
+    "sha256": "9a8679322498f99390354d32135127247becd2716a2197e1c2b2f5c816a7298f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/decision.json": {
+    "bytes": 39573,
+    "sha256": "1b4a7323d51591586c2e0b40b6a6c592cc1c31603040f241bcbce1ba7afe39de"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/decision.json": {
+    "bytes": 25175,
+    "sha256": "7f495d7e3fc63ead205d6620b56b00b7418398a94ae2c44efa3825b19bb41d5f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/decision.json": {
+    "bytes": 31508,
+    "sha256": "08deb05388b87bccb0d3e4695a8eb6248d90b6370eb78753cec61761740f66d5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/decision.json": {
+    "bytes": 74290,
+    "sha256": "c62336b42f2730d9d02cf5f8df9897c3731db974cc3e376728306d255f07186f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/decision.json": {
+    "bytes": 59417,
+    "sha256": "0b4c348ff58b101a78b487839c645f225c7f7b33655cfba2142661061868ff89"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/comparison/decision.json": {
+    "bytes": 14422,
+    "sha256": "35a8d37b62ec85f5956896e613c29c70f692646e6415870029d07466cdd2cc7b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/comparison/decision.json": {
+    "bytes": 14235,
+    "sha256": "70cfeb26cede015ebd9fab94bd141e31e6b3cce2bfc39795781ae9985858df14"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/decision.json": {
+    "bytes": 103245,
+    "sha256": "045e4d1fb1e2edaeb78078380b9e8ed3ccc79b5ec438c35649a3c61bcb7fa8fd"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/spatial/A2_GTC_minus_A2_GT_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "4494977cce5c7ac7fb3acf28ad0d3069b9f826fcce95b93f7b593382666ba592"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/spatial/A2_GTC_minus_A2_GT_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "7216a397dcdf9ec6fc0501ebba0f0a9af814efbd1a69be0cb2a9519643e182ad"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/spatial/A2_GTC_minus_A2_GT_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "c9f43b5717fafba8674f7254d0257016275fae781c27ccfd3c92ef706b4ddfb8"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/spatial/A2_GTC_minus_A2_GT_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "1e9c410b905bbd8c96ab352dfcfaa581e3b86bf70a731e7f26afdf056c941899"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/spatial/A2_GTC_minus_A2_GT_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "d6d2b2d5ea01f264952b9243962c01498ec73c32806052035bbe3114d7ada542"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/spatial/A2_GTC_minus_A2_GT_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "1bb87b8e7f638b09e8e59df4918f59ac457b29e8d34bdb04aad93c00e8be01b4"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/domain_capture.csv": {
+    "bytes": 968,
+    "sha256": "cf3b5ae91e50399871889d2889652296d5e5e0126c0a1eab8285487ba04660de"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/block_capture.csv": {
+    "bytes": 12757,
+    "sha256": "8d64f4f110e325e00ffb7e66b318f4a0076219a6e9fb6f1f07175589368a1658"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_GT/A2_GTC_minus_A2_GT_owner_categories.csv": {
+    "bytes": 2184,
+    "sha256": "a779b94f8c690de98ae540c511ceb45cf9b5610b07f38f7220e0eeeccca37811"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/spatial/A2_GTC_minus_A2_NATIVE_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "0fee7855c73aefaf0f674bf8f8893926369aae66a874cbe43ae3685f57538e8d"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/spatial/A2_GTC_minus_A2_NATIVE_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "81b94db1c147feeeca57717787cc0f32b8401fbc6e95716919fa3b784fe1990f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/spatial/A2_GTC_minus_A2_NATIVE_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "6a723b8c62b6a5dcc7d3211fd5c75879cc822cd2af75007ac5715006abd18366"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/spatial/A2_GTC_minus_A2_NATIVE_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "c77348e3238fd08abac634521301c7fd75184d8f10c709c50b78e79bbd2670f1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/spatial/A2_GTC_minus_A2_NATIVE_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "cb20dc636b89832bdc45e940ff3e2b22c379726e2b8b3c50d163cd07a8c31ae5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/spatial/A2_GTC_minus_A2_NATIVE_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "75e1efebb1f646da6296ad78fa62b1825a7bcfe97b99d141e68780cbb385b16e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/domain_capture.csv": {
+    "bytes": 1000,
+    "sha256": "a909ff9f5f54d18a9a1ed2fbb7d8f3d4c03fb2d01bc1daa40049787596d154a4"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/block_capture.csv": {
+    "bytes": 13701,
+    "sha256": "c1c0c7d566c59b6dc91da0448a6f365005bf246c53862dc58777d1d7b1a4ea08"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_NATIVE/A2_GTC_minus_A2_NATIVE_owner_categories.csv": {
+    "bytes": 2184,
+    "sha256": "ef7559926d55c09209463a2b6b478bbbb5051bf1163a67f66f817a6524d1d31b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/spatial/A2_GTC_minus_A2_SHUFFLED_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "775c03630e9c85e21ac4aed6596064f8c644e354b07ae17c3a0899a62c538c7a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/spatial/A2_GTC_minus_A2_SHUFFLED_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "271e56fd20bb31aba53f89ab459987f59ae65a03501120d1a346c18dcb24c90f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/spatial/A2_GTC_minus_A2_SHUFFLED_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "9e9f20d6b389aedae52ac429c852e2edc5d2c962700db15394b6c4ec8a4d3dbb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/spatial/A2_GTC_minus_A2_SHUFFLED_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "2725258c018ce7eb6113a6de586db198273267d2b0f26616ea81f1de00a3c6b0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/spatial/A2_GTC_minus_A2_SHUFFLED_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "89d7fbd50c734be104c01d9264d3b634490038c539c752b63c31bed8b373f7e3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/spatial/A2_GTC_minus_A2_SHUFFLED_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "5f48ea308c1ad8c70472f5845cf3298589c029648ff78d7eb50de3134ac358f5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/domain_capture.csv": {
+    "bytes": 1016,
+    "sha256": "f7127220fe0c8b606c8e0c768e10d6ac97a43ccc25d4f3f1233416713c3c519b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/block_capture.csv": {
+    "bytes": 14173,
+    "sha256": "8af0292d605ffb61a4e5dfb8945be5a541a512343b956ff7837f15b4b8534331"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/comparison_A2_SHUFFLED/A2_GTC_minus_A2_SHUFFLED_owner_categories.csv": {
+    "bytes": 2184,
+    "sha256": "09c43a067d0d8eb95061e2c9a6a82205a49add9935264296b47e65dac97ffc91"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/spatial/MORPH_NO_DAPI_minus_BASE_MATCH_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "452c26c80e0128ff1b2813c904519668f6274565c245b00b0ce1b4eb1a2a05d3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/spatial/MORPH_NO_DAPI_minus_BASE_MATCH_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "e0cce82cc69d77e06836adc53b83e85f003674ce981539e8dc6d05de781d8454"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/spatial/MORPH_NO_DAPI_minus_BASE_MATCH_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "dcbe7c65ccf620078dc495b1fb95a04066b3cd43c3a4e853b20a0179e1b91398"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/spatial/MORPH_NO_DAPI_minus_BASE_MATCH_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "e2d4ba2721c32ee428cbd82217499cc77ce5322cb782551b368928c83395fcfe"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/spatial/MORPH_NO_DAPI_minus_BASE_MATCH_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "03d4a5f423f9688610ad3a8146c1c953787175ade4b016e7353e3abfe1b8daf3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/spatial/MORPH_NO_DAPI_minus_BASE_MATCH_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "5c76d9404825b53d148a10b7985ebe42663497ddd5f21e667f0c46de2f75589c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/domain_capture.csv": {
+    "bytes": 1162,
+    "sha256": "f93b996b042acdc21f0e1ce1f47741b353b2a8b53744e66dce5aae10bbfd55f0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/block_capture.csv": {
+    "bytes": 19409,
+    "sha256": "249c866ce1224d1d44d9275af01c269dc22c20af6c51d7f2ac79c0e3627a25c1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_BASE_MATCH/MORPH_NO_DAPI_minus_BASE_MATCH_owner_categories.csv": {
+    "bytes": 2235,
+    "sha256": "29569814b1a387765fe3ac77b34d0cf892c0c1cf05815c194fb545556bcfc402"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/spatial/MORPH_NO_DAPI_minus_V2_MORPH_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "174c30067b93e81970042c84cda7681c1c95bda2fdf1d9e94c147431f868e00c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/spatial/MORPH_NO_DAPI_minus_V2_MORPH_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "e5337077829e3c0026e1fb9d8445b21a7811c177f45c47ccba74e8d51f541511"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/spatial/MORPH_NO_DAPI_minus_V2_MORPH_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "18bc6848b804a85e831ff7fed4e66035a816da1bd628e72d15f5d00f8bfb62ea"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/spatial/MORPH_NO_DAPI_minus_V2_MORPH_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "5b590c876514df18fccb3c1c3e98db2de15eb275188f35b59f2b9c8b2c26759c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/spatial/MORPH_NO_DAPI_minus_V2_MORPH_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "b6f7f2c5183e830a4b97d11f00e8b87439921c5230b4f5a45627ee41e819c825"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/spatial/MORPH_NO_DAPI_minus_V2_MORPH_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "fe9ec48fcb62c3c3b77f01e506451a55523439ab87a2d0923fe7966dda8eadfe"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/domain_capture.csv": {
+    "bytes": 1148,
+    "sha256": "d9141071c872c9d266414aa28bd9888ce68a748c648332225195bc5009de2429"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/block_capture.csv": {
+    "bytes": 18998,
+    "sha256": "2f3e2f755f000f32627af66d34ad231870c3d0cb487ec12595a2c46f9e85de9e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/comparison_V2_MORPH/MORPH_NO_DAPI_minus_V2_MORPH_owner_categories.csv": {
+    "bytes": 2232,
+    "sha256": "07f0776f6d5445290e1149f2fbfb797d51862242201d2a9d6fdeb48a3892163e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/spatial/MORPH_NO_GEO_minus_BASE_MATCH_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "53433e7e405007f932c3046650e8d18fbf46a8815af58c085b9d354b7969bbf9"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/spatial/MORPH_NO_GEO_minus_BASE_MATCH_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "cf0bb1d070d9878337bd754ed02769809a7116963319a03421941a32425462a5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/spatial/MORPH_NO_GEO_minus_BASE_MATCH_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "66214093990c87990ed4f7cc12f020e28a9b401425f57ff3c44ae98516985e07"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/spatial/MORPH_NO_GEO_minus_BASE_MATCH_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "0bfe652ec0b326c92d62d18846527a0091e2a739e3ea85bada92073be4b11b27"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/spatial/MORPH_NO_GEO_minus_BASE_MATCH_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "ba95d4cd7ba05d1c6a8b5238a06702a5e4599d9c56d5856cb33b16c133ec9b32"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/spatial/MORPH_NO_GEO_minus_BASE_MATCH_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "0068f4f4393493908f9ba878352e195a49f41b04b1577188282e538a1e00ddf3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/domain_capture.csv": {
+    "bytes": 1150,
+    "sha256": "aa25d0f33eace2a43f5990aee36a0c6ac5255bc427e382e61561097c7e012b50"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/block_capture.csv": {
+    "bytes": 19194,
+    "sha256": "76af83a95ba3b145b853f1e69ff658cd18b9e04dba34ab3d6fdae439c713756a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_BASE_MATCH/MORPH_NO_GEO_minus_BASE_MATCH_owner_categories.csv": {
+    "bytes": 2233,
+    "sha256": "23feca183180d70d26bd74156a8ad215fc7bda7838bcf0bb67bf4d2d1bbfb1b0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/spatial/MORPH_NO_GEO_minus_V2_MORPH_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "fe8b5070d1fa3b23b35be8a74a23bf334c1e4263e5bd251b0d03e61a50c05780"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/spatial/MORPH_NO_GEO_minus_V2_MORPH_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "43b7f3685d9ef3895d4992fe8102836d880de3a033d769b4a090cbb602dbf6bc"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/spatial/MORPH_NO_GEO_minus_V2_MORPH_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "9e0395a736ce42dd6b89ec19c7fa18b9a8e7e26a3d686da7e4c4f1a3879ec73b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/spatial/MORPH_NO_GEO_minus_V2_MORPH_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "1abd22dccb7c9eac76a647ef749f472671733205bdef5d2456b837523e6d70f6"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/spatial/MORPH_NO_GEO_minus_V2_MORPH_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "632252abf8a9ad972087258dbf92eb25fb469ec3469e78d3ec8fba4f55618ee3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/spatial/MORPH_NO_GEO_minus_V2_MORPH_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "2f165bba4338cd6a73e680989a0a5e69a82379a59e257b3306317ae000dcf649"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/domain_capture.csv": {
+    "bytes": 1136,
+    "sha256": "4dfcb32a3c2d3fc41e303e4f1e8be26a9d501db3af50419ce24c68fdf08e6f96"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/block_capture.csv": {
+    "bytes": 18621,
+    "sha256": "264dfae39295073d39c59584a9c5ba6650023a29ac2c9f0e2099fa39ee8e0b16"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/comparison_V2_MORPH/MORPH_NO_GEO_minus_V2_MORPH_owner_categories.csv": {
+    "bytes": 2234,
+    "sha256": "5a051ce28e80f27ae8c93053513ef46ee7f85884ca82a2573b92bed11bd91323"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/spatial/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "079325d069eae8679b8c0f7ea378146dff2bc204df6d04a2cc9e2b0065808108"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/spatial/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "3b814bef24555cc554bbd43ca9b52f56b6cdce4c07664906a9d8492bbbae0b14"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/spatial/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "963b368dea47153361a45bd0927eb081a71509c6b1ecf6b9019f72b9ea59eebb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/spatial/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "52c5dda416c2624fbf4f13f4e10cd902d43de69dd30b4b63fc2401e04a201f7f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/spatial/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "f89f928d735ab5d31280e7dac50449430d1d4e3b3c80d522c2169b64866106b0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/spatial/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "d2286d9fd9629716da77bf17fecc64a66d991edd35376ef2b92e70f70d995de5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/domain_capture.csv": {
+    "bytes": 1210,
+    "sha256": "7fc24a22a502ea5616523e8acf017b010207f22f0fdaa3505372889976861d6a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/block_capture.csv": {
+    "bytes": 20801,
+    "sha256": "f2c5adc205f135b31f981678df85760b8f10d9874e50821ca5edd8c16c15ad20"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_BASE_MATCH/MORPH_SIMPLE_FUSION_minus_BASE_MATCH_owner_categories.csv": {
+    "bytes": 2235,
+    "sha256": "8b298d9eee01468987087c2205c96aa9b2ee50e556e49b363d10a44ea81aedee"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/spatial/MORPH_SIMPLE_FUSION_minus_V2_MORPH_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "92ede72241b2892286f3d0781fe713ea001ff36a4c3b90b2feea284e16e876b2"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/spatial/MORPH_SIMPLE_FUSION_minus_V2_MORPH_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "987731601ca5f655c4eda0c2cdb4998d6bf46d9e1073599997bffe7f659d755f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/spatial/MORPH_SIMPLE_FUSION_minus_V2_MORPH_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "297ee1590db735592119f22bae2523ddcc0c67505c1d8ed50b7c636f6ea4e5d9"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/spatial/MORPH_SIMPLE_FUSION_minus_V2_MORPH_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "0a4fd91e4dc1a3301924437a7444d2054504e3534d12700e2180eb6c43576970"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/spatial/MORPH_SIMPLE_FUSION_minus_V2_MORPH_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "af59774eab28f6d03ad5c68eefbdc521c0c3dc6eb30a389fc3346ad37ac26a04"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/spatial/MORPH_SIMPLE_FUSION_minus_V2_MORPH_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "8a807990201a7b797fa5b88b790d52cdd9e646f4e25158719a336e5359ccbff4"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/domain_capture.csv": {
+    "bytes": 1178,
+    "sha256": "96ea2a2d944734457c707245849b5b4474f65e3bb507d8f349e642e7a27c711c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/block_capture.csv": {
+    "bytes": 20370,
+    "sha256": "6689dad19144e5a2f0ebececbd7ddfbeff715f0cbbbfcff81e902fd6d92128f1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/comparison_V2_MORPH/MORPH_SIMPLE_FUSION_minus_V2_MORPH_owner_categories.csv": {
+    "bytes": 2232,
+    "sha256": "c29a205ad3f03c57b5eb1ce424fe2ed6679631966951ec07142a452534df55cb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_base_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "3583b9e0380574cb00ac8183933c781a634bfabdba0c82a9075c273081450b4d"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_base_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "6a67755dda001b7e6ca3af07b4de1eb07b37840f9a2cf90354fb6eeee3032de5"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_base_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "b28f85db9212ee4838abd67a49577c40ff9e1653372e74e0a110a19e9f55dc72"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_base_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "3f4c6de5fe4eabd802a29fab23da7c01cefda6c699465aaf5cf620cf82cf4822"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_base_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "169bb39055b94915a5df407017dc1f90554f4b2179ec7773c979af801526484a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_base_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "4797c148fbe08f72ceaf9c5c52ee09a09363d1fd2c239b524e1802111f65ab97"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/domain_capture.csv": {
+    "bytes": 3544,
+    "sha256": "c912b58ca9946cc48ff7ab6e2a5e7a8285adc615404d1bd9d0b8002f56c4fc1e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/block_capture.csv": {
+    "bytes": 56956,
+    "sha256": "46e8a02f7e5004ae051367469fef774632466da1292d2781730c3892a61ccd60"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/p2_base_owner_categories.csv": {
+    "bytes": 2226,
+    "sha256": "a5b98665e9c4189420bb59e1c9c6bf990cf3a566a3f6426fbd8a64538e2da5d1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_morph_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "7aa3dac905335a9358c331649c2e49208d2f14dc31a409d4d5810f39c4878bdf"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_morph_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "a4b1dbed54cb99cf4994b25c77dd5f6861c587c23ac9f002483df1607306548b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_morph_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "7375cc355c331982e680c868a81c8d80bb655260a0380af360bcfc2978b8c605"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_morph_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "f1663266a5d239f7ca6837e57c059f0773f330a63b67d33e990fe073209ee16b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_morph_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "3e83c1fd20a8fe42ebbe1684de68ebe2f3f865372ae2c15ae5c0ba3838ab356e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/p2_morph_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "5ffeeb5155b461fb4f55d6dcf6f3c69ccc73ea4908edb90e211ba1f0ebdfa518"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/p2_morph_owner_categories.csv": {
+    "bytes": 2221,
+    "sha256": "4f1c9e5c84e547b166978a7c8b81afb3e97295b71c2e0baa762a028b739b10da"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_native_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "f89402500bc8dde656ce5f100e41ca41160003e719297ea2e87b84d82aad8886"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_native_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "02de1e34206b264abc61361cc77ba6750e43547736547c62c4d9cf7d54af1109"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_native_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "012b30d5d5902c81778c9e94be7085327fecb89be114b6b0950630f8fc498040"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_native_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "356bbef608aeb2c806d34378b30dd55e8d05d44e63840b54befd6b2aec9265e7"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_native_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "e152189f9e15b7779f284a1528d3a3d39b53f466909fa643dc2bdeac007beef6"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_native_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "2ac6d8d32dc2c3aab6ff612f66fe8eb0ba1a71421d802290bfb078bfde256e71"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/morph_native_owner_categories.csv": {
+    "bytes": 2233,
+    "sha256": "4d8723724ee640d489717a83389d300fedb4450d77789ccd8d87c9e5f61304bb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_p2_500_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "726d070d9eb7f1029b88411d357d52747bc6c9fc7ec98a40393e7fd886deb482"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_p2_500_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "ce4ab9a846f7ad1f3dcbb8d3dc83d61e5ebab54f4aad75aaddb0a7978e91c6af"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_p2_1000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "8a9a29761aa825abceff240a3c1cb07c36a59a063feca189732ee84ead018fa8"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_p2_1000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "a0ddb287941378310d01bb59387f9248e829dc76e6e6df1d0520b11f4430e251"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_p2_2000_positive_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "69a274d55592824988289cad064d5e97f4be7df30ab2b246c532fb0fd7f534aa"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/spatial/morph_p2_2000_negative_F1_bootstrap.npy": {
+    "bytes": 16128,
+    "sha256": "1756c78afb7dfcbaebdbd96b3eb70e1a51ae0eed74e6af29748190d68d80dc04"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/factorial/morph_p2_owner_categories.csv": {
+    "bytes": 2229,
+    "sha256": "72516c60322b10f657a6cae9f8941034be11b73f0cdc597d1933776b5388ffb0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/per_cell_scores.csv": {
+    "bytes": 16792719,
+    "sha256": "0c089e3879225ac5ac6343dd62fce5d8394f88936e048e8c47ef429a3c2a66ca"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/cell_coverage.csv": {
+    "bytes": 10278192,
+    "sha256": "ca9bc6d076ab9444c2b3f3d21bc1ce3833bc95aa3842abf2568cbbddfcf236a0"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/decision.json": {
+    "bytes": 12079,
+    "sha256": "215f2ca766bc550a402c02597faf8e481b51b3ceea15929d990ec20d1425fe64"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_500.npy": {
+    "bytes": 32128,
+    "sha256": "6ce66f53222cc01b84e9d16f8bbd2542a056c526632843b1c4248e58d1bd1034"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_1000.npy": {
+    "bytes": 32128,
+    "sha256": "9c66ec89d30d0f919dbfd4daa3d9f8c092c4e3ba1348950785d9c7f55717ff60"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_2000.npy": {
+    "bytes": 32128,
+    "sha256": "7bd88f7849932264d28ad29ee96fceac9b6ee507e44462e915d3d6065a7a6c00"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/type_scope.json": {
+    "bytes": 145708,
+    "sha256": "72089c91a758e825e41d04eb9d55dfc8ee683f02049b10bef4bbee6806a7f597"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_00_1000.npy": {
+    "bytes": 32128,
+    "sha256": "da73edd2af38c2295f8756078f07362b00b394af88fa916dad72e3097c9ef8e9"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_01_1000.npy": {
+    "bytes": 32128,
+    "sha256": "77f859295e5e8f6dd1caf58c9e28d1d9740f0fbdbad8e7186faeb961fef65c98"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_02_1000.npy": {
+    "bytes": 32128,
+    "sha256": "1cc21580415284dc561c2ed7ca9f61e5a35e698b97abba6bae8cf04c6dd1a786"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_03_1000.npy": {
+    "bytes": 32128,
+    "sha256": "cbf07f0f4127c80a1f196398216aa4b6bcfaf005259d0ccf34d6d0ae6934872a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_04_1000.npy": {
+    "bytes": 32128,
+    "sha256": "4deaee6135b9109a5d54b3668effa8914694ef85d6684571874d0c4b5d1d1b25"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_05_1000.npy": {
+    "bytes": 32128,
+    "sha256": "a5695d088b2ebff4b18dd50c9062570979b2c00a0c4740140e52049245a88704"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_06_1000.npy": {
+    "bytes": 32128,
+    "sha256": "daad31b87bbe670707892fc5e396379146db39fbe6f7b6cc879716101887b29e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_07_1000.npy": {
+    "bytes": 32128,
+    "sha256": "9d347353dcfb4790cd31f3227b58e96b239c749822e84ae4ac9c286024a811eb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_08_1000.npy": {
+    "bytes": 32128,
+    "sha256": "494dcc40278820623034218ffb2283e62316b80f13f6a9956e48e6a9b6d8365b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_09_1000.npy": {
+    "bytes": 32128,
+    "sha256": "a2c99b5c98337cf0fc782ed63afe2ed148cf9381adebfdb7b76dd38a79f5e137"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_10_1000.npy": {
+    "bytes": 32128,
+    "sha256": "61909b01f2af27a4fd220cad3eb006fb1aeb89d8f1d200cf068e75fd7bf9a52a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_11_1000.npy": {
+    "bytes": 32128,
+    "sha256": "372d9589099526831fbbdaddc45d799e59bf369a6bafc4ccd462262f7ee02ae6"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_12_1000.npy": {
+    "bytes": 32128,
+    "sha256": "00b0ad2cbc594a90ebf0d141f893d45e7e02d4c5ee501a840b9a5c27ce391015"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_13_1000.npy": {
+    "bytes": 32128,
+    "sha256": "1ff2a5cbee2b64b18466bc9ef5222099fcc5fe2f38f085144a25860924e54934"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/bootstrap_type_14_1000.npy": {
+    "bytes": 32128,
+    "sha256": "cab31a05a5f79d393c40a34f0dde7d25e56aa17229ee0e824917f5de555a6831"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/support_diagnostics.json": {
+    "bytes": 1272,
+    "sha256": "cd5994c437e8a71c7b8026c02084ba54549a5f6177a220d0e69215b6c085183d"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/strata_scores.csv": {
+    "bytes": 7769,
+    "sha256": "b982505ea7dbe487c4ac8ca81f67b8da99c177f1d3cc9592fe2fd980672a3d7d"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/core_counts.npz": {
+    "bytes": 9355720,
+    "sha256": "067406b4248d2333cf570f0b97e22f21faf471e64cdb4d261cc4b721e3d49e48"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/donor_tables.npz": {
+    "bytes": 10919412,
+    "sha256": "8c9f798f6e8dafde94b3123540162267c4442da88984db371fbb50bf70c98c06"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/configs/reference_region.json": {
+    "bytes": 744547,
+    "sha256": "211d8d20acaf67d1f3d67aaa446de08cbd596684dc1c4726668f3a5e50edc741"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/initialization_map.json": {
+    "bytes": 13873,
+    "sha256": "3e7fdcbde294236c73a2b1d13e95a121da753ff74ec5c28e81bb252d856fb980"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/checkpoints/complete.json": {
+    "bytes": 6155,
+    "sha256": "57f5e28ee80ad0d5146db038851bf387ce1f408fbc97e167ef9e1caa1cf2efc9"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/predictions/MORPH_NO_DAPI/complete.json": {
+    "bytes": 85639,
+    "sha256": "fbd2ce8b796ad0217cfb38a9ee9c811448f59d2ef7b292cd91d2ce157a385fcb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/runtime_cost.json": {
+    "bytes": 101328,
+    "sha256": "3fb46c1c78cfbbc5eb271b3e800973cbe56f9de84735eaf10cae6180c0c02a3f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/initialization_map.json": {
+    "bytes": 16284,
+    "sha256": "465e9ed70fd4290ab7d26c6f29e386c0bc2be16765f8e96b8162fa71f16cf43a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/checkpoints/complete.json": {
+    "bytes": 6190,
+    "sha256": "ab28a6ba60dc5ab796711449a14a015a08871a1d82df6e13ab8285130f75ca7a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/predictions/MORPH_SIMPLE_FUSION/complete.json": {
+    "bytes": 89022,
+    "sha256": "9597601fc4da9439c1b60ad61450f8cdfed305b7477cfca4a0c506369c2525bc"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/runtime_cost.json": {
+    "bytes": 104823,
+    "sha256": "3a4cc2bf0b460ebcfad5f8868f730516fd1c32c5bbe3e54927c8e4657936368e"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/initialization_map.json": {
+    "bytes": 13810,
+    "sha256": "26292a454a1d633b8eec9cf93c25beb78f11ce9abf7a76835a4f79180a2ef9b8"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/checkpoints/complete.json": {
+    "bytes": 6149,
+    "sha256": "2068d848066c66b4a2eb04eb1c0795dfd0312909185a350e1e5a7d179565d23a"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/predictions/MORPH_NO_GEO/complete.json": {
+    "bytes": 85075,
+    "sha256": "88577905ac1b0e425445e5fd47255a9ffce5862cd7b69a0a9389eadfcf000138"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/runtime_cost.json": {
+    "bytes": 100744,
+    "sha256": "e6803eb7d9ab2701327887099d8133335bbb24d39b0db8b84df471d0d1cc8d04"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/runtime_cost.json": {
+    "bytes": 417,
+    "sha256": "11445ed249890486d66f4d22d29af0bf1fa1ca5d4ffffe967f5070115b0ff5e3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/runtime_cost.json": {
+    "bytes": 417,
+    "sha256": "ac222a4ac7cb9d84e0f019bb52300a431787eab42fe4fc3bfed556e2c1110ce3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/domain.json": {
+    "bytes": 715,
+    "sha256": "19c0d0a400968e5713381a56827a80f6204ec7cf5038c1748aafb17e637b9a91"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/proposal_and_rejection_counts.csv": {
+    "bytes": 441,
+    "sha256": "0274974fed0e85884f0428a0bda3bf26bd9ed017fd6843b92c226d00239c94e0"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/scripts/paired_v2_pipeline/math.py": {
+    "bytes": 5180,
+    "sha256": "10d7b12cff902d1fa45b03f20358cf3a879265a1d2acab8d4e17dec6cc87879a"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/scripts/boundary_three/reports.py": {
+    "bytes": 34706,
+    "sha256": "a7f7d62ee5a9b6e43dde6fce13b71d0d68ad0dac2cad0d0dcd46445f3d6307dd"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/scripts/boundary_three/core_scores.py": {
+    "bytes": 8821,
+    "sha256": "498ddb27cfc1b186017cc6e81334dffcd0396352ba7a146b50e351bd73d39fd3"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/scripts/boundary_three/core_refine.py": {
+    "bytes": 15910,
+    "sha256": "c0c18efcee7de93ad8eb1a60965e979ff6cd18b05232067a068a751cf3e5b4c9"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/scripts/boundary_three/a_core.py": {
+    "bytes": 58730,
+    "sha256": "ccfb95f86840e205a64aa4b2367c45dd4ee63da6bb41872b3f63458745c48e14"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/bidcell/model/model/morphology_variants.py": {
+    "bytes": 5349,
+    "sha256": "d3acdee42e54b38b823e70d46bd5688d9223acdf532792ad3565fd0fdb138bdf"
+  },
+  "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015/scripts/boundary_three/morph.py": {
+    "bytes": 23155,
+    "sha256": "3ea77bbf0bfe204ba3421f23f35e6bd1dba895b5ad2e59b1e56eada2611ff229"
+  },
+  "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/main_table.csv": {
+    "bytes": 24545,
+    "sha256": "81efb6cec87a294101a0af2ad8b7519e65a8f438b589ef27863e152c96ceb083"
+  },
+  "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/input.json": {
+    "bytes": 360,
+    "sha256": "e8201a9ae9fa0110286a6ceeb206f47809e8a54202f0c23e292af8acb35d245f"
+  },
+  "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/scoring_complete.json": {
+    "bytes": 318,
+    "sha256": "7d2d96325a55c57696e144bc79694743295fdb98e3ffb51f8399680e8f3d48eb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/complete.json": {
+    "bytes": 23502,
+    "sha256": "93a8f0c5e6a9b44f5caa2cbdd595f02cd880ac4ec380f27c9508773c48b6b156"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/engineering/structure/cells_distribution.csv": {
+    "bytes": 13753971,
+    "sha256": "4aa8cfe1485fcd0da92a18539fbe57215408f51d6aebb45af753a99a584cd8b3"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/paper_aligned_v1/qc_all_cells.csv": {
+    "bytes": 2557239,
+    "sha256": "c67997c18d5f92acedc3590c106d28f7256a0a2a208e950367c93dbb896b31bc"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/engineering/structure/components_8.csv": {
+    "bytes": 860513,
+    "sha256": "f2d6d71784b6398fc404ad329e85ca3bb92e1195914787888e6782ac798bfdcb"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/paper_aligned_v1/annotation.csv": {
+    "bytes": 62548245,
+    "sha256": "c6a1439564afb3067ec0f80d61607105bf656f0a319d668c4bea24b5876e5e6c"
+  },
+  "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/fixed/fixed_population.csv": {
+    "bytes": 11656845,
+    "sha256": "19aaa9d94bdce4a92439008036488ec8606cd9300458f6df448c81a2a993be0b"
+  },
+  "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/paper/markers_per_cell.csv": {
+    "bytes": 8722312,
+    "sha256": "a92d597be4db3c4c8ac4469885e1565c32d04f67eb6483318e62549029f19813"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/analyze.py": {
+    "bytes": 25528,
+    "sha256": "a5b668ceb5bcdc2d4a957eea5317555489d4845bec998303aceab503beebf110"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/fixed_profile_analysis.py": {
+    "bytes": 6429,
+    "sha256": "a9afc669c23930d71de025b1c18baa1bda1dec71f234f8a2a41eedacf20270e1"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/b0_references.py": {
+    "bytes": 6757,
+    "sha256": "34c25c9792c96c19bc24b3d7cde67f97dd3b6c1a4b69c5a2ca0f0f0c79afcd41"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/prepared/morph/canonical_full_seed20261013.pth": {
+    "bytes": 789761,
+    "sha256": "b7aad872977746d0cee9ad4a4166ae819b3fb9294e6fe5bfdbe28c974d46feac"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/checkpoints/complete.json": {
+    "bytes": 5863,
+    "sha256": "af29eb11e1e7f1a55b29dc8eafbb5f3b6560fc6311afcb7b55c9304741853c97"
+  },
+  "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/predictions/V2_MORPH/complete.json": {
+    "bytes": 84861,
+    "sha256": "882dfa9614c6ff6f151ae413574213e50095900e67c70fd6a84a1396a0cbc266"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/finalize_evidence.py": {
+    "bytes": 2513,
+    "sha256": "36d2aafbf1a3640a48adf8d126e5a2aa914e415ab2f7c326083da9e859a2f8f4"
+  },
+  "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/write_report.py": {
+    "bytes": 23499,
+    "sha256": "9170aada716f2451d2d5a9e09e496c92605aa86ba0d4e74b8bbafdacd3880090"
+  }
+}

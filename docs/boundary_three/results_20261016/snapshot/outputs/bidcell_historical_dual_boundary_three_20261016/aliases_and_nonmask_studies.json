@@ -1,0 +1,12 @@
+{
+  "A2_NATIVE": {
+    "canonical_method": "BASE_MATCH",
+    "new_independent_endpoint": false,
+    "evidence": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/comparison.json"
+  },
+  "A1_CORE": {
+    "kind": "information_study",
+    "mask_endpoint": false,
+    "evidence": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/decision.json"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "status": "published",
+  "files": [
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/main_table.csv",
+      "bytes": 49555,
+      "sha256": "ab4f91d8026d1c78306cf240b851b5b978a82595924db72e75a3b42fb1225cfe"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/main_table_compact.csv",
+      "bytes": 9170,
+      "sha256": "2220d581f1b444f692b1a83352d04cf9795ae69a48d3a0118102d5524366b79d"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/purity_scaling.json",
+      "bytes": 1326,
+      "sha256": "c0a34f1448339ffdc7fee22669ff3d315af5a61b7fc0bc61bf727043b9c49622"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/role_configuration.json",
+      "bytes": 862,
+      "sha256": "450f402e80cb36a9e00ee083bf319c5a69a47be819ab92b0c4860b66d60330bb"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/assessment_policy.json",
+      "bytes": 1196,
+      "sha256": "8ba556c06a029abcefa7e68ba3f3ffb543577c72bd3442215f36615181cdec6b"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/protocol.json",
+      "bytes": 8159,
+      "sha256": "6f6bd59c5c51fa7e567b9c93b8f8a454e1de1ff34f261f1be55f6dfaad71bacc"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/aliases_and_nonmask_studies.json",
+      "bytes": 441,
+      "sha256": "0b16169f6b3e8f52c114052c59bbbe4c0a279df50d90cb3d12e08357d376a6cc"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/dual_profile_comparisons.csv",
+      "bytes": 17817,
+      "sha256": "f583e5c11c5d032bd38086cf0d57e94f9eaca01b954085bfd9e7a12d0fc51b58"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/boundary_endpoints_with_B0.csv",
+      "bytes": 4022,
+      "sha256": "f0fb0693dd7d31ea8190ee0f25feefea6f7d6013a59d3ad1c898c01b6f4989ed"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/spatial_diversity_all_methods.csv",
+      "bytes": 3751,
+      "sha256": "8d8e8df02aab6f360d194f11dd5fbc71e873b0d9e7dd36284a8fc9e68f2d6d77"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/artifact_registry.json",
+      "bytes": 50316,
+      "sha256": "c14cdf60a098a04f12f43cb1c973ee0c3a94d460739c4795f100984f45b283bb"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/metric_coverage.json",
+      "bytes": 3876,
+      "sha256": "076a54515394de2e205f52e986adb5ec20bec0bd668b35ba94c65ee04934530b"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/validation.json",
+      "bytes": 2619,
+      "sha256": "e9842fbecb7fcff273c07cfbcbde172854b298c3d95a70e0d4c33bc8328da319"
+    },
+    {
+      "path": "/home/zwan0726/work/context/README.md",
+      "bytes": 22405,
+      "sha256": "0d78b0a29f9be25b7c0af5e4031e16e444d4c36c28f142c1c5a5297d243158f0"
+    },
+    {
+      "path": "/home/zwan0726/work/context/01_project_context.md",
+      "bytes": 27649,
+      "sha256": "01eb2a5e5a54f71e0a84b1444b18ba953c2a1345dfbcffac80726882dcec0c94"
+    },
+    {
+      "path": "/home/zwan0726/work/context/02_paths_and_environment.md",
+      "bytes": 34431,
+      "sha256": "45686557a092b0ee7434dd3eeebbc4af05d73c1f3a7639a5010eb58fcd240f0c"
+    },
+    {
+      "path": "/home/zwan0726/work/context/03_experiment_matrix.md",
+      "bytes": 30367,
+      "sha256": "16fa5beb0051858f796e79aa83c6cccd2422208a2ed9760821451d3293dc648b"
+    },
+    {
+      "path": "/home/zwan0726/work/context/04_metrics_framework.md",
+      "bytes": 32870,
+      "sha256": "d6fda44f569bdcecccee7b1961b3655d19d515aba3f90edf78f8571a04d33a86"
+    },
+    {
+      "path": "/home/zwan0726/work/context/05_decisions_and_protocols.md",
+      "bytes": 18670,
+      "sha256": "6881042ea22db5c6db876bd1df1773494b5eff210f1eba055d47be25f4df0b3e"
+    },
+    {
+      "path": "/home/zwan0726/work/context/06_paper_evaluation_protocol_20261008.md",
+      "bytes": 25728,
+      "sha256": "1de61a9fcf2c89033e1b4ff9f21f764e4d26d28da2b39b6f01bdb26b3203dc14"
+    },
+    {
+      "path": "/home/zwan0726/work/context/07_evaluation_dual_annotation_20261013.md",
+      "bytes": 14964,
+      "sha256": "227c80c65cf517d7c81f8b8e1126636ba44db3116d92ebf7c9e7bcca5297b093"
+    },
+    {
+      "path": "/home/zwan0726/work/context/experiments/boundary_three_20261015.md",
+      "bytes": 11403,
+      "sha256": "c5155177fabc433a220fd8e2f0330f7028da37fe55d79556d7e9fd54941357d1"
+    },
+    {
+      "path": "/home/zwan0726/work/context/experiment_registry.csv",
+      "bytes": 10592,
+      "sha256": "a8203180715f06e01a51fb275fba1520865b5dca6d4d6b24a60051ba6602844e"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/summary.json",
+      "bytes": 151072,
+      "sha256": "15e50ccb09f8369a5513851c9e0fe06a87c9ef0272a3bf94d81ef7320babaff7"
+    },
+    {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/complete.json",
+      "bytes": 5666,
+      "sha256": "dd8abe8188e50e61eaf64c45cf814fccc045fc28a94b7fcb29b0ed2b05dd36c0"
+    }
+  ]
+}

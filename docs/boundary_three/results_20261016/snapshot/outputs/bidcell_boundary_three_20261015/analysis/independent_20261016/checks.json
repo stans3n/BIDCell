@@ -1,0 +1,2722 @@
+[
+  {
+    "check": "frozen original IDs ordered",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "BASE_MATCH endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "A2_GT own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "A2_GT scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "A2_GT annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "A2_GT eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "A2_GT own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "A2_GT actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GT fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "A2_GT endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "A2_GT endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "A2_GT endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "A2_GT endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO own raw QC predicate",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO scores exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO annotation exactly own QC",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw QC totals match matrix receipt",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO eligible fixed",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO own integer matrix IDs/dimensions",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO actual matrix counts/QC totals/genes",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw scclassify positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw fixed positive_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw scclassify negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw fixed negative_F1 mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw scclassify positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw fixed positive_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw scclassify positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw fixed positive_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw scclassify negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw fixed negative_Precision mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw scclassify negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO raw fixed negative_Recall mean/finite",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO fixed panel size and NA retained",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO endpoint table scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO endpoint table capture_pct",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO endpoint table disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO endpoint table mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE independent bootstrap 500 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE independent bootstrap 500 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE independent bootstrap 1000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE independent bootstrap 1000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE independent bootstrap 2000 positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE independent bootstrap 2000 negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE owner categories conserve denominator",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE decision status independently reproduced",
+    "passed": true
+  },
+  {
+    "check": "A1 ordered full original IDs",
+    "passed": true
+  },
+  {
+    "check": "A1 paired population",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed bootstrap 500",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed bootstrap 1000",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed bootstrap 2000",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap B",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate B",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap CD4Tconv/Treg",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate CD4Tconv/Treg",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap CD8T/CD8Tex",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate CD8T/CD8Tex",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap DC",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate DC",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Endothelial",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Endothelial",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Epithelial",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Epithelial",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Fibroblasts",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Fibroblasts",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Malignant",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Malignant",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Mast",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Mast",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Mono/Macro",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Mono/Macro",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Myofibroblasts",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Myofibroblasts",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap NK",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate NK",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Neutrophils",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Neutrophils",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap Plasma",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate Plasma",
+    "passed": true
+  },
+  {
+    "check": "A1 independently recomputed type bootstrap SMC",
+    "passed": true
+  },
+  {
+    "check": "A1 per-type original gate SMC",
+    "passed": true
+  },
+  {
+    "check": "A1 observed fold recomputation",
+    "passed": true
+  },
+  {
+    "check": "A1 all 20 matched shuffle recomputation",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_GT fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_NATIVE fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GTC_minus_A2_SHUFFLED fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_BASE_MATCH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_DAPI_minus_V2_MORPH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_BASE_MATCH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_NO_GEO_minus_V2_MORPH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_BASE_MATCH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "MORPH_SIMPLE_FUSION_minus_V2_MORPH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_BASE_minus_BASE_MATCH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_V2_MORPH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_BASE_MATCH fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "P2_MORPH_minus_P2_BASE fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GT_minus_A2_NATIVE fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_GT_minus_A2_NATIVE fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED_minus_A2_NATIVE fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "A2_SHUFFLED_minus_A2_NATIVE fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_MORPH_NO_DAPI fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_MORPH_NO_DAPI fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_MORPH_SIMPLE_FUSION fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_MORPH_SIMPLE_FUSION fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_MORPH_NO_GEO fixed identical ID cohort positive_F1",
+    "passed": true
+  },
+  {
+    "check": "V2_MORPH_minus_MORPH_NO_GEO fixed identical ID cohort negative_F1",
+    "passed": true
+  },
+  {
+    "check": "B0 re-scoring source evaluation receipt hash",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/engineering/structure/cells_distribution.csv",
+    "passed": true
+  },
+  {
+    "check": "B0 same original nuclear coordinates support paired field CIs",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/engineering/structure/components_8.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/baselines/B0/evaluation/paper_aligned_v1/annotation.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/paper/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_historical_dual_20261013/methods/B0/paper/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "B0 raw own QC threshold",
+    "passed": true
+  },
+  {
+    "check": "B0 raw own scores match QC",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw scclassify positive_F1",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw scclassify negative_F1",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw scclassify positive_Precision",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw scclassify positive_Recall",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw scclassify negative_Precision",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw scclassify negative_Recall",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw fixed positive_F1",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw fixed negative_F1",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw fixed positive_Precision",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw fixed positive_Recall",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw fixed negative_Precision",
+    "passed": true
+  },
+  {
+    "check": "B0 published raw fixed negative_Recall",
+    "passed": true
+  },
+  {
+    "check": "B0 published capture_pct",
+    "passed": true
+  },
+  {
+    "check": "B0 published scclassify_qc_cells",
+    "passed": true
+  },
+  {
+    "check": "B0 published disconnected_cells_8",
+    "passed": true
+  },
+  {
+    "check": "B0 published mean_cell_area_um2",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_v2_paired_20261014/BASE_MATCH/evaluation/BASE_MATCH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/evaluation/P2_BASE/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/evaluation/MORPH_NO_DAPI/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_new_methods_20261013/V2_MORPH/evaluation/V2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/evaluation/P2_MORPH/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GT/evaluation/A2_GT/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_GTC/evaluation/A2_GTC/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/endpoints/A2_SHUFFLED/evaluation/A2_SHUFFLED/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/evaluation/MORPH_SIMPLE_FUSION/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/markers_per_cell.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/fixed/fixed_population.csv",
+    "passed": true
+  },
+  {
+    "check": "unique cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "original cell IDs: /home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/evaluation/MORPH_NO_GEO/paper_aligned_v1/qc_all_cells.csv",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than BASE_MATCH",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than P2_BASE",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than MORPH_NO_DAPI",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than V2_MORPH",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than P2_MORPH",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than A2_GT",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than A2_GTC",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than A2_SHUFFLED",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than MORPH_SIMPLE_FUSION",
+    "passed": true
+  },
+  {
+    "check": "historical B1 higher absolute four F1 directions than MORPH_NO_GEO",
+    "passed": true
+  }
+]

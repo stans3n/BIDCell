@@ -1,0 +1,90 @@
+{
+  "status": "passed",
+  "n_methods": 28,
+  "unique_new_methods": [
+    "P2_BASE",
+    "P2_MORPH",
+    "MORPH_NO_DAPI",
+    "MORPH_SIMPLE_FUSION",
+    "MORPH_NO_GEO",
+    "A2_GT",
+    "A2_GTC",
+    "A2_SHUFFLED"
+  ],
+  "historical_non_Purity_strings_exact": true,
+  "historical_modified_fields_in_new_copy": [
+    "fixed_Purity_F1",
+    "purity_scaling_path",
+    "purity_scaling_version",
+    "scclassify_Purity_F1"
+  ],
+  "old20_on_disk_unchanged": true,
+  "all_enabled_applicable_complete": true,
+  "raw_review": "passed",
+  "B0_raw_metric_reductions": {
+    "scclassify_positive_F1": {
+      "mean": 0.3266339135681682,
+      "n_finite": 103299
+    },
+    "scclassify_negative_F1": {
+      "mean": 0.02572813267726098,
+      "n_finite": 103299
+    },
+    "scclassify_positive_Precision": {
+      "mean": 0.3809639994481726,
+      "n_finite": 103299
+    },
+    "scclassify_positive_Recall": {
+      "mean": 0.2944230582805012,
+      "n_finite": 103299
+    },
+    "scclassify_negative_Precision": {
+      "mean": 0.030843097133786433,
+      "n_finite": 103299
+    },
+    "scclassify_negative_Recall": {
+      "mean": 0.022718578607855856,
+      "n_finite": 103299
+    },
+    "fixed_positive_F1": {
+      "mean": 0.39980638217193554,
+      "n_finite": 85421
+    },
+    "fixed_negative_F1": {
+      "mean": 0.0348066598434082,
+      "n_finite": 85421
+    },
+    "fixed_positive_Precision": {
+      "mean": 0.46658432725391225,
+      "n_finite": 85421
+    },
+    "fixed_positive_Recall": {
+      "mean": 0.36022698221086197,
+      "n_finite": 85421
+    },
+    "fixed_negative_Precision": {
+      "mean": 0.04171594338404022,
+      "n_finite": 85421
+    },
+    "fixed_negative_Recall": {
+      "mean": 0.0307320365053392,
+      "n_finite": 85421
+    }
+  },
+  "source_table": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/reports/endpoint_table.csv",
+    "bytes": 41975,
+    "sha256": "1ad29a35b4230bd628d00efe1b33986885198421b8cf392568839692a39d713e"
+  },
+  "producer": {
+    "path": "/home/zwan0726/work/projects/BIDCell_boundary_three_results_20261016/scripts/post_resume/publish_boundary_three.py",
+    "bytes": 26270,
+    "sha256": "31949eb5c98eadc8c4a763c35d539c6e9fc3a236833708a2dae0fb2ec0dd5152"
+  },
+  "backup": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/post_resume_20261016/before_publication/manifest.json",
+    "bytes": 9830,
+    "sha256": "9c4446a94089c384f2e2439d02c17c3f8824ebd10c67aae1c7947e27e955bb49"
+  },
+  "NA_policy": "Historical blanks/NA retained; no fabricated values for nonmask A1 or duplicate NATIVE."
+}

@@ -1,0 +1,161 @@
+{
+  "status": "passed",
+  "scope": "Root distinct raw reductions agree with independent analyst: all shared point/commonQC/fixed deltas, 1000um dual-profile intervals, A1, four-grid interactions; B0 intervals freshly checked on BASE/fullMorph/A2_GT. Analyst additionally verifies all B0 pairs/all three scales and A1 folds/shuffles.",
+  "independent_checks": 680,
+  "point_checks": 336,
+  "primary_interval_checks": 56,
+  "B0_primary_interval_checks": [
+    {
+      "candidate": "BASE_MATCH",
+      "control": "B0",
+      "profile": "scclassify",
+      "metric": "positive_F1",
+      "delta": 0.007443071602445617,
+      "ci95": [
+        0.006089333766564261,
+        0.008886574203590066
+      ]
+    },
+    {
+      "candidate": "BASE_MATCH",
+      "control": "B0",
+      "profile": "scclassify",
+      "metric": "negative_F1",
+      "delta": -0.0018355115534636826,
+      "ci95": [
+        -0.0020781263937661976,
+        -0.0015928143858171175
+      ]
+    },
+    {
+      "candidate": "BASE_MATCH",
+      "control": "B0",
+      "profile": "fixed",
+      "metric": "positive_F1",
+      "delta": 0.0022139710955020875,
+      "ci95": [
+        0.0015951503198938454,
+        0.0028937623386398395
+      ]
+    },
+    {
+      "candidate": "BASE_MATCH",
+      "control": "B0",
+      "profile": "fixed",
+      "metric": "negative_F1",
+      "delta": -0.003372977378025707,
+      "ci95": [
+        -0.003771520396573376,
+        -0.0029891003283364285
+      ]
+    },
+    {
+      "candidate": "V2_MORPH",
+      "control": "B0",
+      "profile": "scclassify",
+      "metric": "positive_F1",
+      "delta": 0.008747802709157926,
+      "ci95": [
+        0.00734243256787704,
+        0.010145331292523808
+      ]
+    },
+    {
+      "candidate": "V2_MORPH",
+      "control": "B0",
+      "profile": "scclassify",
+      "metric": "negative_F1",
+      "delta": -0.0017604929965786345,
+      "ci95": [
+        -0.0020508297366970034,
+        -0.0014823538271519917
+      ]
+    },
+    {
+      "candidate": "V2_MORPH",
+      "control": "B0",
+      "profile": "fixed",
+      "metric": "positive_F1",
+      "delta": 0.0031795575340540783,
+      "ci95": [
+        0.0025378801913972376,
+        0.0038440995949627103
+      ]
+    },
+    {
+      "candidate": "V2_MORPH",
+      "control": "B0",
+      "profile": "fixed",
+      "metric": "negative_F1",
+      "delta": -0.003680346997746723,
+      "ci95": [
+        -0.004121213789930394,
+        -0.003258784343858742
+      ]
+    },
+    {
+      "candidate": "A2_GT",
+      "control": "B0",
+      "profile": "scclassify",
+      "metric": "positive_F1",
+      "delta": 0.009721628939982463,
+      "ci95": [
+        0.008314846913827539,
+        0.011150082863083183
+      ]
+    },
+    {
+      "candidate": "A2_GT",
+      "control": "B0",
+      "profile": "scclassify",
+      "metric": "negative_F1",
+      "delta": -0.0019737660293543437,
+      "ci95": [
+        -0.002201439519314046,
+        -0.0017364211782505358
+      ]
+    },
+    {
+      "candidate": "A2_GT",
+      "control": "B0",
+      "profile": "fixed",
+      "metric": "positive_F1",
+      "delta": 0.003972492387086413,
+      "ci95": [
+        0.0033160005145089198,
+        0.004680246239847521
+      ]
+    },
+    {
+      "candidate": "A2_GT",
+      "control": "B0",
+      "profile": "fixed",
+      "metric": "negative_F1",
+      "delta": -0.004035573429291169,
+      "ci95": [
+        -0.004404938177247534,
+        -0.003683742989289192
+      ]
+    }
+  ],
+  "analyst_evidence": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/main_evidence.json",
+    "bytes": 524499,
+    "sha256": "c4fd24b4e9a0d32f0e0a682887ed977c5bedebc471b1940f406b0172cc92fd0c"
+  },
+  "analyst_checks": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/independent_20261016/checks.json",
+    "bytes": 92613,
+    "sha256": "5964ad55f7454daa7026fcdaa0c5c75691c34fed9f74b43676a669a2a24bb711"
+  },
+  "root_raw": {
+    "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/root_review_20261016/raw_validation.json",
+    "bytes": 95719,
+    "sha256": "299848c5fd1f028d4cfbd6f858e93192389e94989a681630427f139d73bb06e7"
+  },
+  "producer": {
+    "path": "/home/zwan0726/work/projects/BIDCell_boundary_three_results_20261016/scripts/post_resume/crosscheck_boundary_analysis.py",
+    "bytes": 5095,
+    "sha256": "0d87fd9e2d47fd68b97197993319524afd9f10e6fcb6f591f0f690290d288f3d"
+  }
+}

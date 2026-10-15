@@ -1,0 +1,76 @@
+{
+  "schema": "boundary-three-complete-check-v1",
+  "time": "2026-10-15T16:41:09.332024+00:00",
+  "run_id": "boundary-three-20261015-r02",
+  "config_digest": "4f170a560f327cda9da47bacf879c63846d220172597812802ba31e23ff17956",
+  "minimum_three_complete": true,
+  "all_enabled_applicable_complete": true,
+  "nodes": {
+    "A1_CORE": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "GO_A2",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A1_CORE/complete.json",
+        "bytes": 50501,
+        "sha256": "b972d5fa5d9ed78b99e0b201a395df6ec8e4caeb0ce14042fc3885962d2cc6fa"
+      }
+    },
+    "P2_BASE": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "tradeoff_or_negative",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_BASE/complete.json",
+        "bytes": 323107,
+        "sha256": "78ff4cc66d6049fe9ae0b70a5daa393f87fa489e0c08fddf8f5d25a5f3595c3f"
+      }
+    },
+    "MORPH_NO_DAPI": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_DAPI/complete.json",
+        "bytes": 371638,
+        "sha256": "4140e3f34fa6f64d60e4d2b07686671ad4d251524c3d2e9095b452c6c39872b5"
+      }
+    },
+    "P2_MORPH": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "tradeoff_or_negative",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/P2_MORPH/complete.json",
+        "bytes": 373127,
+        "sha256": "e34384900ea49daf884981f18e0115008ea852192ba46dffa630eef35631672e"
+      }
+    },
+    "A2_CORE": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "EXPLORATORY_FIXED_REFINEMENT_EVALUATED",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/A2_CORE/complete.json",
+        "bytes": 312687,
+        "sha256": "df1465a7925490c2b8406c6b4a4f6686e08b5d2f7b4a697f7108248579dd264a"
+      }
+    },
+    "MORPH_SIMPLE_FUSION": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_SIMPLE_FUSION/complete.json",
+        "bytes": 389530,
+        "sha256": "13d79a9ce23508d8c4d030b10575ff231e0adfc210dbcbeadf288e505059418a"
+      }
+    },
+    "MORPH_NO_GEO": {
+      "status": "VALIDATED_COMPLETE",
+      "science_status": "MEASURED_AWAITING_INDEPENDENT_ANALYSIS",
+      "receipt": {
+        "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/MORPH_NO_GEO/complete.json",
+        "bytes": 368656,
+        "sha256": "8a381299971a02076e20a4663294fc5bd9ee9f1fdd40c74e1ac8cf8162bc74d7"
+      }
+    }
+  },
+  "deferred": [],
+  "failures": [],
+  "not_enabled": []
+}

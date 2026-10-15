@@ -1,0 +1,2361 @@
+method,baseline,baseline_label,method_label,n_cells
+B1_CONT,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2402
+B1_CONT,B1,ACTA2+ Myoepi,CD8 T,2
+B1_CONT,B1,ACTA2+ Myoepi,CRABP2+ Malignant,19
+B1_CONT,B1,ACTA2+ Myoepi,ECM1+ Malignant,3
+B1_CONT,B1,ACTA2+ Myoepi,Fibroblast,14
+B1_CONT,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+B1_CONT,B1,ACTA2+ Myoepi,Macrophage,1
+B1_CONT,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,7
+B1_CONT,B1,ACTA2+ Myoepi,VWF+ Endothelial,7
+B1_CONT,B1,ACTA2+ Myoepi,unassigned,307
+B1_CONT,B1,B Cells,B Cells,1747
+B1_CONT,B1,B Cells,unassigned,30
+B1_CONT,B1,CD163+ Macrophage,CD163+ Macrophage,2281
+B1_CONT,B1,CD163+ Macrophage,CD8 T,1
+B1_CONT,B1,CD163+ Macrophage,Fibroblast,1
+B1_CONT,B1,CD163+ Macrophage,IRF7+ DC,1
+B1_CONT,B1,CD163+ Macrophage,Macrophage,4
+B1_CONT,B1,CD163+ Macrophage,VWF+ Endothelial,1
+B1_CONT,B1,CD163+ Macrophage,unassigned,98
+B1_CONT,B1,CD4 T,CD163+ Macrophage,1
+B1_CONT,B1,CD4 T,CD4 T,11160
+B1_CONT,B1,CD4 T,CD8 T,3
+B1_CONT,B1,CD4 T,ECM1+ Malignant,1
+B1_CONT,B1,CD4 T,Fibroblast,7
+B1_CONT,B1,CD4 T,Plasma,1
+B1_CONT,B1,CD4 T,VWF+ Endothelial,2
+B1_CONT,B1,CD4 T,unassigned,171
+B1_CONT,B1,CD8 T,CD163+ Macrophage,1
+B1_CONT,B1,CD8 T,CD4 T,4
+B1_CONT,B1,CD8 T,CD8 T,5508
+B1_CONT,B1,CD8 T,ECM1+ Malignant,1
+B1_CONT,B1,CD8 T,Fibroblast,5
+B1_CONT,B1,CD8 T,SCGB2A2+ Malignant,2
+B1_CONT,B1,CD8 T,unassigned,100
+B1_CONT,B1,CRABP2+ Malignant,ACTA2+ Myoepi,29
+B1_CONT,B1,CRABP2+ Malignant,CD8 T,5
+B1_CONT,B1,CRABP2+ Malignant,CRABP2+ Malignant,5354
+B1_CONT,B1,CRABP2+ Malignant,ECM1+ Malignant,37
+B1_CONT,B1,CRABP2+ Malignant,Fibroblast,1
+B1_CONT,B1,CRABP2+ Malignant,KRT15+ Myoepi,10
+B1_CONT,B1,CRABP2+ Malignant,Macrophage,3
+B1_CONT,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,40
+B1_CONT,B1,CRABP2+ Malignant,unassigned,648
+B1_CONT,B1,ECM1+ Malignant,CD4 T,8
+B1_CONT,B1,ECM1+ Malignant,CD8 T,15
+B1_CONT,B1,ECM1+ Malignant,CRABP2+ Malignant,53
+B1_CONT,B1,ECM1+ Malignant,ECM1+ Malignant,17956
+B1_CONT,B1,ECM1+ Malignant,Fibroblast,97
+B1_CONT,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+B1_CONT,B1,ECM1+ Malignant,Macrophage,2
+B1_CONT,B1,ECM1+ Malignant,SCGB2A2+ Malignant,13
+B1_CONT,B1,ECM1+ Malignant,VWF+ Endothelial,1
+B1_CONT,B1,ECM1+ Malignant,unassigned,689
+B1_CONT,B1,Fibroblast,ACTA2+ Myoepi,21
+B1_CONT,B1,Fibroblast,B Cells,1
+B1_CONT,B1,Fibroblast,CD163+ Macrophage,15
+B1_CONT,B1,Fibroblast,CD4 T,45
+B1_CONT,B1,Fibroblast,CD8 T,25
+B1_CONT,B1,Fibroblast,CRABP2+ Malignant,1
+B1_CONT,B1,Fibroblast,ECM1+ Malignant,81
+B1_CONT,B1,Fibroblast,Fibroblast,13650
+B1_CONT,B1,Fibroblast,IRF7+ DC,1
+B1_CONT,B1,Fibroblast,Macrophage,19
+B1_CONT,B1,Fibroblast,Mast cells,1
+B1_CONT,B1,Fibroblast,Plasma,8
+B1_CONT,B1,Fibroblast,STAB2+ Endothelial,1
+B1_CONT,B1,Fibroblast,VWF+ Endothelial,60
+B1_CONT,B1,Fibroblast,unassigned,1038
+B1_CONT,B1,IRF7+ DC,IRF7+ DC,378
+B1_CONT,B1,IRF7+ DC,unassigned,3
+B1_CONT,B1,KRT15+ Myoepi,ACTA2+ Myoepi,6
+B1_CONT,B1,KRT15+ Myoepi,CD8 T,2
+B1_CONT,B1,KRT15+ Myoepi,CRABP2+ Malignant,5
+B1_CONT,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+B1_CONT,B1,KRT15+ Myoepi,KRT15+ Myoepi,1309
+B1_CONT,B1,KRT15+ Myoepi,Macrophage,3
+B1_CONT,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,11
+B1_CONT,B1,KRT15+ Myoepi,unassigned,97
+B1_CONT,B1,LAMP3+ DC,Fibroblast,1
+B1_CONT,B1,LAMP3+ DC,LAMP3+ DC,128
+B1_CONT,B1,LAMP3+ DC,unassigned,3
+B1_CONT,B1,Macrophage,CD163+ Macrophage,4
+B1_CONT,B1,Macrophage,ECM1+ Malignant,1
+B1_CONT,B1,Macrophage,Fibroblast,1
+B1_CONT,B1,Macrophage,Macrophage,4757
+B1_CONT,B1,Macrophage,unassigned,142
+B1_CONT,B1,Mast cells,Fibroblast,1
+B1_CONT,B1,Mast cells,Mast cells,60
+B1_CONT,B1,Mast cells,Plasma,1
+B1_CONT,B1,Mast cells,unassigned,6
+B1_CONT,B1,Plasma,CD4 T,3
+B1_CONT,B1,Plasma,Fibroblast,12
+B1_CONT,B1,Plasma,LAMP3+ DC,1
+B1_CONT,B1,Plasma,Plasma,3161
+B1_CONT,B1,Plasma,unassigned,54
+B1_CONT,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,11
+B1_CONT,B1,SCGB2A2+ Malignant,CD4 T,1
+B1_CONT,B1,SCGB2A2+ Malignant,CD8 T,7
+B1_CONT,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,41
+B1_CONT,B1,SCGB2A2+ Malignant,ECM1+ Malignant,11
+B1_CONT,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,20
+B1_CONT,B1,SCGB2A2+ Malignant,Macrophage,1
+B1_CONT,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5426
+B1_CONT,B1,SCGB2A2+ Malignant,unassigned,631
+B1_CONT,B1,STAB2+ Endothelial,STAB2+ Endothelial,30
+B1_CONT,B1,STAB2+ Endothelial,unassigned,12
+B1_CONT,B1,VWF+ Endothelial,ACTA2+ Myoepi,4
+B1_CONT,B1,VWF+ Endothelial,CD163+ Macrophage,2
+B1_CONT,B1,VWF+ Endothelial,CD4 T,2
+B1_CONT,B1,VWF+ Endothelial,CD8 T,1
+B1_CONT,B1,VWF+ Endothelial,Fibroblast,39
+B1_CONT,B1,VWF+ Endothelial,Macrophage,1
+B1_CONT,B1,VWF+ Endothelial,Plasma,3
+B1_CONT,B1,VWF+ Endothelial,VWF+ Endothelial,4751
+B1_CONT,B1,VWF+ Endothelial,unassigned,350
+B1_CONT,B1,unassigned,ACTA2+ Myoepi,373
+B1_CONT,B1,unassigned,B Cells,89
+B1_CONT,B1,unassigned,CD163+ Macrophage,178
+B1_CONT,B1,unassigned,CD4 T,334
+B1_CONT,B1,unassigned,CD8 T,277
+B1_CONT,B1,unassigned,CRABP2+ Malignant,525
+B1_CONT,B1,unassigned,ECM1+ Malignant,580
+B1_CONT,B1,unassigned,Fibroblast,830
+B1_CONT,B1,unassigned,IRF7+ DC,11
+B1_CONT,B1,unassigned,KRT15+ Myoepi,106
+B1_CONT,B1,unassigned,LAMP3+ DC,5
+B1_CONT,B1,unassigned,Macrophage,231
+B1_CONT,B1,unassigned,Mast cells,9
+B1_CONT,B1,unassigned,Plasma,63
+B1_CONT,B1,unassigned,SCGB2A2+ Malignant,623
+B1_CONT,B1,unassigned,STAB2+ Endothelial,8
+B1_CONT,B1,unassigned,VWF+ Endothelial,390
+B1_CONT,B1,unassigned,unassigned,12876
+G_CONT,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2379
+G_CONT,B1,ACTA2+ Myoepi,CD8 T,3
+G_CONT,B1,ACTA2+ Myoepi,CRABP2+ Malignant,24
+G_CONT,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+G_CONT,B1,ACTA2+ Myoepi,Fibroblast,15
+G_CONT,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+G_CONT,B1,ACTA2+ Myoepi,Macrophage,1
+G_CONT,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,13
+G_CONT,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+G_CONT,B1,ACTA2+ Myoepi,unassigned,320
+G_CONT,B1,B Cells,B Cells,1745
+G_CONT,B1,B Cells,Fibroblast,2
+G_CONT,B1,B Cells,unassigned,30
+G_CONT,B1,CD163+ Macrophage,B Cells,1
+G_CONT,B1,CD163+ Macrophage,CD163+ Macrophage,2271
+G_CONT,B1,CD163+ Macrophage,CD8 T,1
+G_CONT,B1,CD163+ Macrophage,IRF7+ DC,1
+G_CONT,B1,CD163+ Macrophage,Macrophage,3
+G_CONT,B1,CD163+ Macrophage,unassigned,112
+G_CONT,B1,CD4 T,CD4 T,11142
+G_CONT,B1,CD4 T,CD8 T,1
+G_CONT,B1,CD4 T,Fibroblast,8
+G_CONT,B1,CD4 T,Plasma,1
+G_CONT,B1,CD4 T,VWF+ Endothelial,2
+G_CONT,B1,CD4 T,unassigned,190
+G_CONT,B1,CD8 T,CD163+ Macrophage,1
+G_CONT,B1,CD8 T,CD4 T,4
+G_CONT,B1,CD8 T,CD8 T,5496
+G_CONT,B1,CD8 T,ECM1+ Malignant,2
+G_CONT,B1,CD8 T,Fibroblast,5
+G_CONT,B1,CD8 T,SCGB2A2+ Malignant,2
+G_CONT,B1,CD8 T,unassigned,110
+G_CONT,B1,CRABP2+ Malignant,ACTA2+ Myoepi,39
+G_CONT,B1,CRABP2+ Malignant,CD8 T,4
+G_CONT,B1,CRABP2+ Malignant,CRABP2+ Malignant,5371
+G_CONT,B1,CRABP2+ Malignant,ECM1+ Malignant,46
+G_CONT,B1,CRABP2+ Malignant,KRT15+ Myoepi,6
+G_CONT,B1,CRABP2+ Malignant,Macrophage,2
+G_CONT,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,40
+G_CONT,B1,CRABP2+ Malignant,unassigned,619
+G_CONT,B1,ECM1+ Malignant,CD4 T,10
+G_CONT,B1,ECM1+ Malignant,CD8 T,19
+G_CONT,B1,ECM1+ Malignant,CRABP2+ Malignant,56
+G_CONT,B1,ECM1+ Malignant,ECM1+ Malignant,17908
+G_CONT,B1,ECM1+ Malignant,Fibroblast,107
+G_CONT,B1,ECM1+ Malignant,Macrophage,4
+G_CONT,B1,ECM1+ Malignant,SCGB2A2+ Malignant,8
+G_CONT,B1,ECM1+ Malignant,unassigned,721
+G_CONT,B1,Fibroblast,ACTA2+ Myoepi,16
+G_CONT,B1,Fibroblast,B Cells,2
+G_CONT,B1,Fibroblast,CD163+ Macrophage,12
+G_CONT,B1,Fibroblast,CD4 T,49
+G_CONT,B1,Fibroblast,CD8 T,34
+G_CONT,B1,Fibroblast,CRABP2+ Malignant,3
+G_CONT,B1,Fibroblast,ECM1+ Malignant,102
+G_CONT,B1,Fibroblast,Fibroblast,13615
+G_CONT,B1,Fibroblast,Macrophage,17
+G_CONT,B1,Fibroblast,Mast cells,1
+G_CONT,B1,Fibroblast,Plasma,8
+G_CONT,B1,Fibroblast,VWF+ Endothelial,60
+G_CONT,B1,Fibroblast,unassigned,1047
+G_CONT,B1,IRF7+ DC,IRF7+ DC,377
+G_CONT,B1,IRF7+ DC,unassigned,3
+G_CONT,B1,KRT15+ Myoepi,ACTA2+ Myoepi,2
+G_CONT,B1,KRT15+ Myoepi,CD8 T,1
+G_CONT,B1,KRT15+ Myoepi,CRABP2+ Malignant,3
+G_CONT,B1,KRT15+ Myoepi,KRT15+ Myoepi,1297
+G_CONT,B1,KRT15+ Myoepi,Macrophage,2
+G_CONT,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,8
+G_CONT,B1,KRT15+ Myoepi,unassigned,121
+G_CONT,B1,LAMP3+ DC,Fibroblast,1
+G_CONT,B1,LAMP3+ DC,LAMP3+ DC,128
+G_CONT,B1,LAMP3+ DC,unassigned,3
+G_CONT,B1,Macrophage,CD163+ Macrophage,6
+G_CONT,B1,Macrophage,Fibroblast,2
+G_CONT,B1,Macrophage,Macrophage,4742
+G_CONT,B1,Macrophage,VWF+ Endothelial,1
+G_CONT,B1,Macrophage,unassigned,152
+G_CONT,B1,Mast cells,Mast cells,60
+G_CONT,B1,Mast cells,unassigned,9
+G_CONT,B1,Plasma,CD4 T,3
+G_CONT,B1,Plasma,CD8 T,2
+G_CONT,B1,Plasma,Fibroblast,13
+G_CONT,B1,Plasma,LAMP3+ DC,1
+G_CONT,B1,Plasma,Plasma,3149
+G_CONT,B1,Plasma,unassigned,63
+G_CONT,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,12
+G_CONT,B1,SCGB2A2+ Malignant,CD8 T,5
+G_CONT,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,36
+G_CONT,B1,SCGB2A2+ Malignant,ECM1+ Malignant,14
+G_CONT,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,23
+G_CONT,B1,SCGB2A2+ Malignant,Macrophage,2
+G_CONT,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5428
+G_CONT,B1,SCGB2A2+ Malignant,unassigned,629
+G_CONT,B1,STAB2+ Endothelial,STAB2+ Endothelial,29
+G_CONT,B1,STAB2+ Endothelial,VWF+ Endothelial,1
+G_CONT,B1,STAB2+ Endothelial,unassigned,12
+G_CONT,B1,VWF+ Endothelial,ACTA2+ Myoepi,2
+G_CONT,B1,VWF+ Endothelial,CD163+ Macrophage,1
+G_CONT,B1,VWF+ Endothelial,CD4 T,2
+G_CONT,B1,VWF+ Endothelial,CD8 T,1
+G_CONT,B1,VWF+ Endothelial,Fibroblast,44
+G_CONT,B1,VWF+ Endothelial,Plasma,2
+G_CONT,B1,VWF+ Endothelial,VWF+ Endothelial,4745
+G_CONT,B1,VWF+ Endothelial,unassigned,359
+G_CONT,B1,unassigned,ACTA2+ Myoepi,376
+G_CONT,B1,unassigned,B Cells,90
+G_CONT,B1,unassigned,CD163+ Macrophage,196
+G_CONT,B1,unassigned,CD4 T,351
+G_CONT,B1,unassigned,CD8 T,294
+G_CONT,B1,unassigned,CRABP2+ Malignant,572
+G_CONT,B1,unassigned,ECM1+ Malignant,618
+G_CONT,B1,unassigned,Fibroblast,859
+G_CONT,B1,unassigned,IRF7+ DC,10
+G_CONT,B1,unassigned,KRT15+ Myoepi,109
+G_CONT,B1,unassigned,LAMP3+ DC,3
+G_CONT,B1,unassigned,Macrophage,250
+G_CONT,B1,unassigned,Mast cells,10
+G_CONT,B1,unassigned,Plasma,57
+G_CONT,B1,unassigned,SCGB2A2+ Malignant,629
+G_CONT,B1,unassigned,STAB2+ Endothelial,5
+G_CONT,B1,unassigned,VWF+ Endothelial,383
+G_CONT,B1,unassigned,unassigned,12690
+B1_COS,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2406
+B1_COS,B1,ACTA2+ Myoepi,CD8 T,3
+B1_COS,B1,ACTA2+ Myoepi,CRABP2+ Malignant,21
+B1_COS,B1,ACTA2+ Myoepi,ECM1+ Malignant,5
+B1_COS,B1,ACTA2+ Myoepi,Fibroblast,13
+B1_COS,B1,ACTA2+ Myoepi,KRT15+ Myoepi,3
+B1_COS,B1,ACTA2+ Myoepi,Macrophage,1
+B1_COS,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,11
+B1_COS,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+B1_COS,B1,ACTA2+ Myoepi,unassigned,298
+B1_COS,B1,B Cells,B Cells,1748
+B1_COS,B1,B Cells,unassigned,29
+B1_COS,B1,CD163+ Macrophage,CD163+ Macrophage,2281
+B1_COS,B1,CD163+ Macrophage,CD8 T,1
+B1_COS,B1,CD163+ Macrophage,Fibroblast,1
+B1_COS,B1,CD163+ Macrophage,IRF7+ DC,1
+B1_COS,B1,CD163+ Macrophage,Macrophage,2
+B1_COS,B1,CD163+ Macrophage,VWF+ Endothelial,1
+B1_COS,B1,CD163+ Macrophage,unassigned,103
+B1_COS,B1,CD4 T,CD4 T,11154
+B1_COS,B1,CD4 T,CD8 T,2
+B1_COS,B1,CD4 T,Fibroblast,5
+B1_COS,B1,CD4 T,Plasma,1
+B1_COS,B1,CD4 T,VWF+ Endothelial,1
+B1_COS,B1,CD4 T,unassigned,184
+B1_COS,B1,CD8 T,CD163+ Macrophage,1
+B1_COS,B1,CD8 T,CD4 T,4
+B1_COS,B1,CD8 T,CD8 T,5504
+B1_COS,B1,CD8 T,ECM1+ Malignant,1
+B1_COS,B1,CD8 T,Fibroblast,6
+B1_COS,B1,CD8 T,Plasma,1
+B1_COS,B1,CD8 T,SCGB2A2+ Malignant,2
+B1_COS,B1,CD8 T,unassigned,101
+B1_COS,B1,CRABP2+ Malignant,ACTA2+ Myoepi,40
+B1_COS,B1,CRABP2+ Malignant,CD8 T,4
+B1_COS,B1,CRABP2+ Malignant,CRABP2+ Malignant,5364
+B1_COS,B1,CRABP2+ Malignant,ECM1+ Malignant,39
+B1_COS,B1,CRABP2+ Malignant,Fibroblast,2
+B1_COS,B1,CRABP2+ Malignant,KRT15+ Myoepi,7
+B1_COS,B1,CRABP2+ Malignant,Macrophage,2
+B1_COS,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,46
+B1_COS,B1,CRABP2+ Malignant,unassigned,624
+B1_COS,B1,ECM1+ Malignant,CD4 T,7
+B1_COS,B1,ECM1+ Malignant,CD8 T,16
+B1_COS,B1,ECM1+ Malignant,CRABP2+ Malignant,49
+B1_COS,B1,ECM1+ Malignant,ECM1+ Malignant,17961
+B1_COS,B1,ECM1+ Malignant,Fibroblast,105
+B1_COS,B1,ECM1+ Malignant,Macrophage,3
+B1_COS,B1,ECM1+ Malignant,SCGB2A2+ Malignant,7
+B1_COS,B1,ECM1+ Malignant,unassigned,687
+B1_COS,B1,Fibroblast,ACTA2+ Myoepi,13
+B1_COS,B1,Fibroblast,B Cells,2
+B1_COS,B1,Fibroblast,CD163+ Macrophage,15
+B1_COS,B1,Fibroblast,CD4 T,43
+B1_COS,B1,Fibroblast,CD8 T,29
+B1_COS,B1,Fibroblast,CRABP2+ Malignant,1
+B1_COS,B1,Fibroblast,ECM1+ Malignant,87
+B1_COS,B1,Fibroblast,Fibroblast,13616
+B1_COS,B1,Fibroblast,IRF7+ DC,1
+B1_COS,B1,Fibroblast,Macrophage,20
+B1_COS,B1,Fibroblast,Mast cells,1
+B1_COS,B1,Fibroblast,Plasma,7
+B1_COS,B1,Fibroblast,STAB2+ Endothelial,1
+B1_COS,B1,Fibroblast,VWF+ Endothelial,68
+B1_COS,B1,Fibroblast,unassigned,1054
+B1_COS,B1,IRF7+ DC,Fibroblast,2
+B1_COS,B1,IRF7+ DC,IRF7+ DC,377
+B1_COS,B1,IRF7+ DC,unassigned,2
+B1_COS,B1,KRT15+ Myoepi,ACTA2+ Myoepi,3
+B1_COS,B1,KRT15+ Myoepi,CD8 T,2
+B1_COS,B1,KRT15+ Myoepi,CRABP2+ Malignant,6
+B1_COS,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+B1_COS,B1,KRT15+ Myoepi,KRT15+ Myoepi,1314
+B1_COS,B1,KRT15+ Myoepi,Macrophage,2
+B1_COS,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,10
+B1_COS,B1,KRT15+ Myoepi,unassigned,96
+B1_COS,B1,LAMP3+ DC,LAMP3+ DC,129
+B1_COS,B1,LAMP3+ DC,unassigned,3
+B1_COS,B1,Macrophage,CD163+ Macrophage,3
+B1_COS,B1,Macrophage,ECM1+ Malignant,1
+B1_COS,B1,Macrophage,Fibroblast,5
+B1_COS,B1,Macrophage,Macrophage,4744
+B1_COS,B1,Macrophage,Plasma,1
+B1_COS,B1,Macrophage,unassigned,149
+B1_COS,B1,Mast cells,Mast cells,62
+B1_COS,B1,Mast cells,unassigned,7
+B1_COS,B1,Plasma,B Cells,1
+B1_COS,B1,Plasma,CD4 T,3
+B1_COS,B1,Plasma,Fibroblast,13
+B1_COS,B1,Plasma,LAMP3+ DC,1
+B1_COS,B1,Plasma,Plasma,3161
+B1_COS,B1,Plasma,VWF+ Endothelial,1
+B1_COS,B1,Plasma,unassigned,51
+B1_COS,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,12
+B1_COS,B1,SCGB2A2+ Malignant,CD4 T,1
+B1_COS,B1,SCGB2A2+ Malignant,CD8 T,7
+B1_COS,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,38
+B1_COS,B1,SCGB2A2+ Malignant,ECM1+ Malignant,10
+B1_COS,B1,SCGB2A2+ Malignant,Fibroblast,2
+B1_COS,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,16
+B1_COS,B1,SCGB2A2+ Malignant,Macrophage,1
+B1_COS,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5420
+B1_COS,B1,SCGB2A2+ Malignant,unassigned,642
+B1_COS,B1,STAB2+ Endothelial,STAB2+ Endothelial,31
+B1_COS,B1,STAB2+ Endothelial,unassigned,11
+B1_COS,B1,VWF+ Endothelial,ACTA2+ Myoepi,4
+B1_COS,B1,VWF+ Endothelial,CD163+ Macrophage,2
+B1_COS,B1,VWF+ Endothelial,CD4 T,2
+B1_COS,B1,VWF+ Endothelial,CD8 T,1
+B1_COS,B1,VWF+ Endothelial,Fibroblast,42
+B1_COS,B1,VWF+ Endothelial,Plasma,3
+B1_COS,B1,VWF+ Endothelial,VWF+ Endothelial,4766
+B1_COS,B1,VWF+ Endothelial,unassigned,336
+B1_COS,B1,unassigned,ACTA2+ Myoepi,365
+B1_COS,B1,unassigned,B Cells,85
+B1_COS,B1,unassigned,CD163+ Macrophage,179
+B1_COS,B1,unassigned,CD4 T,344
+B1_COS,B1,unassigned,CD8 T,282
+B1_COS,B1,unassigned,CRABP2+ Malignant,539
+B1_COS,B1,unassigned,ECM1+ Malignant,560
+B1_COS,B1,unassigned,Fibroblast,872
+B1_COS,B1,unassigned,IRF7+ DC,9
+B1_COS,B1,unassigned,KRT15+ Myoepi,109
+B1_COS,B1,unassigned,LAMP3+ DC,4
+B1_COS,B1,unassigned,Macrophage,219
+B1_COS,B1,unassigned,Mast cells,12
+B1_COS,B1,unassigned,Plasma,58
+B1_COS,B1,unassigned,SCGB2A2+ Malignant,602
+B1_COS,B1,unassigned,STAB2+ Endothelial,4
+B1_COS,B1,unassigned,VWF+ Endothelial,398
+B1_COS,B1,unassigned,unassigned,12857
+G_COS,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2398
+G_COS,B1,ACTA2+ Myoepi,CD8 T,2
+G_COS,B1,ACTA2+ Myoepi,CRABP2+ Malignant,20
+G_COS,B1,ACTA2+ Myoepi,ECM1+ Malignant,3
+G_COS,B1,ACTA2+ Myoepi,Fibroblast,20
+G_COS,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+G_COS,B1,ACTA2+ Myoepi,Macrophage,2
+G_COS,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,13
+G_COS,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+G_COS,B1,ACTA2+ Myoepi,unassigned,300
+G_COS,B1,B Cells,B Cells,1735
+G_COS,B1,B Cells,Fibroblast,2
+G_COS,B1,B Cells,unassigned,40
+G_COS,B1,CD163+ Macrophage,CD163+ Macrophage,2246
+G_COS,B1,CD163+ Macrophage,CD8 T,1
+G_COS,B1,CD163+ Macrophage,Fibroblast,1
+G_COS,B1,CD163+ Macrophage,IRF7+ DC,1
+G_COS,B1,CD163+ Macrophage,Macrophage,2
+G_COS,B1,CD163+ Macrophage,VWF+ Endothelial,1
+G_COS,B1,CD163+ Macrophage,unassigned,136
+G_COS,B1,CD4 T,CD4 T,11119
+G_COS,B1,CD4 T,CD8 T,2
+G_COS,B1,CD4 T,ECM1+ Malignant,2
+G_COS,B1,CD4 T,Fibroblast,7
+G_COS,B1,CD4 T,Plasma,1
+G_COS,B1,CD4 T,VWF+ Endothelial,2
+G_COS,B1,CD4 T,unassigned,213
+G_COS,B1,CD8 T,CD163+ Macrophage,1
+G_COS,B1,CD8 T,CD4 T,4
+G_COS,B1,CD8 T,CD8 T,5476
+G_COS,B1,CD8 T,ECM1+ Malignant,1
+G_COS,B1,CD8 T,Fibroblast,8
+G_COS,B1,CD8 T,SCGB2A2+ Malignant,1
+G_COS,B1,CD8 T,VWF+ Endothelial,1
+G_COS,B1,CD8 T,unassigned,128
+G_COS,B1,CRABP2+ Malignant,ACTA2+ Myoepi,27
+G_COS,B1,CRABP2+ Malignant,CD8 T,4
+G_COS,B1,CRABP2+ Malignant,CRABP2+ Malignant,5376
+G_COS,B1,CRABP2+ Malignant,ECM1+ Malignant,45
+G_COS,B1,CRABP2+ Malignant,Fibroblast,1
+G_COS,B1,CRABP2+ Malignant,KRT15+ Myoepi,7
+G_COS,B1,CRABP2+ Malignant,Macrophage,2
+G_COS,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,42
+G_COS,B1,CRABP2+ Malignant,unassigned,622
+G_COS,B1,ECM1+ Malignant,CD4 T,10
+G_COS,B1,ECM1+ Malignant,CD8 T,18
+G_COS,B1,ECM1+ Malignant,CRABP2+ Malignant,55
+G_COS,B1,ECM1+ Malignant,ECM1+ Malignant,17943
+G_COS,B1,ECM1+ Malignant,Fibroblast,110
+G_COS,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+G_COS,B1,ECM1+ Malignant,Macrophage,4
+G_COS,B1,ECM1+ Malignant,SCGB2A2+ Malignant,7
+G_COS,B1,ECM1+ Malignant,unassigned,692
+G_COS,B1,Fibroblast,ACTA2+ Myoepi,20
+G_COS,B1,Fibroblast,CD163+ Macrophage,11
+G_COS,B1,Fibroblast,CD4 T,45
+G_COS,B1,Fibroblast,CD8 T,34
+G_COS,B1,Fibroblast,CRABP2+ Malignant,5
+G_COS,B1,Fibroblast,ECM1+ Malignant,93
+G_COS,B1,Fibroblast,Fibroblast,13552
+G_COS,B1,Fibroblast,Macrophage,17
+G_COS,B1,Fibroblast,Mast cells,1
+G_COS,B1,Fibroblast,Plasma,7
+G_COS,B1,Fibroblast,VWF+ Endothelial,59
+G_COS,B1,Fibroblast,unassigned,1119
+G_COS,B1,IRF7+ DC,Fibroblast,1
+G_COS,B1,IRF7+ DC,IRF7+ DC,377
+G_COS,B1,IRF7+ DC,unassigned,2
+G_COS,B1,KRT15+ Myoepi,ACTA2+ Myoepi,6
+G_COS,B1,KRT15+ Myoepi,CD8 T,2
+G_COS,B1,KRT15+ Myoepi,CRABP2+ Malignant,4
+G_COS,B1,KRT15+ Myoepi,KRT15+ Myoepi,1315
+G_COS,B1,KRT15+ Myoepi,Macrophage,1
+G_COS,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,9
+G_COS,B1,KRT15+ Myoepi,unassigned,97
+G_COS,B1,LAMP3+ DC,LAMP3+ DC,128
+G_COS,B1,LAMP3+ DC,unassigned,4
+G_COS,B1,Macrophage,CD163+ Macrophage,4
+G_COS,B1,Macrophage,Fibroblast,2
+G_COS,B1,Macrophage,Macrophage,4740
+G_COS,B1,Macrophage,Plasma,1
+G_COS,B1,Macrophage,VWF+ Endothelial,1
+G_COS,B1,Macrophage,unassigned,155
+G_COS,B1,Mast cells,Fibroblast,1
+G_COS,B1,Mast cells,Mast cells,60
+G_COS,B1,Mast cells,Plasma,1
+G_COS,B1,Mast cells,unassigned,7
+G_COS,B1,Plasma,CD4 T,3
+G_COS,B1,Plasma,CD8 T,1
+G_COS,B1,Plasma,Fibroblast,9
+G_COS,B1,Plasma,LAMP3+ DC,1
+G_COS,B1,Plasma,Plasma,3152
+G_COS,B1,Plasma,unassigned,66
+G_COS,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,13
+G_COS,B1,SCGB2A2+ Malignant,CD8 T,7
+G_COS,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,33
+G_COS,B1,SCGB2A2+ Malignant,ECM1+ Malignant,13
+G_COS,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,23
+G_COS,B1,SCGB2A2+ Malignant,Macrophage,2
+G_COS,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5419
+G_COS,B1,SCGB2A2+ Malignant,unassigned,640
+G_COS,B1,STAB2+ Endothelial,STAB2+ Endothelial,27
+G_COS,B1,STAB2+ Endothelial,unassigned,15
+G_COS,B1,VWF+ Endothelial,ACTA2+ Myoepi,2
+G_COS,B1,VWF+ Endothelial,CD163+ Macrophage,2
+G_COS,B1,VWF+ Endothelial,CD4 T,3
+G_COS,B1,VWF+ Endothelial,CD8 T,1
+G_COS,B1,VWF+ Endothelial,Fibroblast,49
+G_COS,B1,VWF+ Endothelial,Plasma,1
+G_COS,B1,VWF+ Endothelial,VWF+ Endothelial,4719
+G_COS,B1,VWF+ Endothelial,unassigned,382
+G_COS,B1,unassigned,ACTA2+ Myoepi,374
+G_COS,B1,unassigned,B Cells,85
+G_COS,B1,unassigned,CD163+ Macrophage,186
+G_COS,B1,unassigned,CD4 T,366
+G_COS,B1,unassigned,CD8 T,310
+G_COS,B1,unassigned,CRABP2+ Malignant,571
+G_COS,B1,unassigned,ECM1+ Malignant,621
+G_COS,B1,unassigned,Fibroblast,888
+G_COS,B1,unassigned,IRF7+ DC,10
+G_COS,B1,unassigned,KRT15+ Myoepi,109
+G_COS,B1,unassigned,LAMP3+ DC,4
+G_COS,B1,unassigned,Macrophage,230
+G_COS,B1,unassigned,Mast cells,8
+G_COS,B1,unassigned,Plasma,54
+G_COS,B1,unassigned,SCGB2A2+ Malignant,630
+G_COS,B1,unassigned,STAB2+ Endothelial,7
+G_COS,B1,unassigned,VWF+ Endothelial,399
+G_COS,B1,unassigned,unassigned,12654
+A,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2413
+A,B1,ACTA2+ Myoepi,CD8 T,4
+A,B1,ACTA2+ Myoepi,CRABP2+ Malignant,19
+A,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+A,B1,ACTA2+ Myoepi,Fibroblast,19
+A,B1,ACTA2+ Myoepi,KRT15+ Myoepi,5
+A,B1,ACTA2+ Myoepi,Macrophage,1
+A,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,9
+A,B1,ACTA2+ Myoepi,VWF+ Endothelial,7
+A,B1,ACTA2+ Myoepi,unassigned,286
+A,B1,B Cells,B Cells,1751
+A,B1,B Cells,Fibroblast,1
+A,B1,B Cells,unassigned,25
+A,B1,CD163+ Macrophage,B Cells,1
+A,B1,CD163+ Macrophage,CD163+ Macrophage,2273
+A,B1,CD163+ Macrophage,CD8 T,1
+A,B1,CD163+ Macrophage,Fibroblast,4
+A,B1,CD163+ Macrophage,IRF7+ DC,1
+A,B1,CD163+ Macrophage,Macrophage,1
+A,B1,CD163+ Macrophage,VWF+ Endothelial,2
+A,B1,CD163+ Macrophage,unassigned,104
+A,B1,CD4 T,CD4 T,11186
+A,B1,CD4 T,CD8 T,1
+A,B1,CD4 T,Fibroblast,10
+A,B1,CD4 T,Plasma,1
+A,B1,CD4 T,VWF+ Endothelial,2
+A,B1,CD4 T,unassigned,148
+A,B1,CD8 T,ACTA2+ Myoepi,1
+A,B1,CD8 T,CD4 T,3
+A,B1,CD8 T,CD8 T,5510
+A,B1,CD8 T,ECM1+ Malignant,1
+A,B1,CD8 T,Fibroblast,5
+A,B1,CD8 T,SCGB2A2+ Malignant,2
+A,B1,CD8 T,unassigned,99
+A,B1,CRABP2+ Malignant,ACTA2+ Myoepi,23
+A,B1,CRABP2+ Malignant,CD8 T,5
+A,B1,CRABP2+ Malignant,CRABP2+ Malignant,5357
+A,B1,CRABP2+ Malignant,ECM1+ Malignant,40
+A,B1,CRABP2+ Malignant,Fibroblast,2
+A,B1,CRABP2+ Malignant,KRT15+ Myoepi,6
+A,B1,CRABP2+ Malignant,Macrophage,2
+A,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,32
+A,B1,CRABP2+ Malignant,unassigned,661
+A,B1,ECM1+ Malignant,CD4 T,7
+A,B1,ECM1+ Malignant,CD8 T,17
+A,B1,ECM1+ Malignant,CRABP2+ Malignant,56
+A,B1,ECM1+ Malignant,ECM1+ Malignant,17969
+A,B1,ECM1+ Malignant,Fibroblast,100
+A,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+A,B1,ECM1+ Malignant,Macrophage,4
+A,B1,ECM1+ Malignant,SCGB2A2+ Malignant,13
+A,B1,ECM1+ Malignant,unassigned,674
+A,B1,Fibroblast,ACTA2+ Myoepi,18
+A,B1,Fibroblast,B Cells,2
+A,B1,Fibroblast,CD163+ Macrophage,15
+A,B1,Fibroblast,CD4 T,40
+A,B1,Fibroblast,CD8 T,33
+A,B1,Fibroblast,CRABP2+ Malignant,4
+A,B1,Fibroblast,ECM1+ Malignant,91
+A,B1,Fibroblast,Fibroblast,13639
+A,B1,Fibroblast,IRF7+ DC,1
+A,B1,Fibroblast,Macrophage,20
+A,B1,Fibroblast,Mast cells,3
+A,B1,Fibroblast,Plasma,9
+A,B1,Fibroblast,VWF+ Endothelial,66
+A,B1,Fibroblast,unassigned,1020
+A,B1,IRF7+ DC,Fibroblast,1
+A,B1,IRF7+ DC,IRF7+ DC,379
+A,B1,IRF7+ DC,unassigned,1
+A,B1,KRT15+ Myoepi,ACTA2+ Myoepi,5
+A,B1,KRT15+ Myoepi,CD8 T,2
+A,B1,KRT15+ Myoepi,CRABP2+ Malignant,6
+A,B1,KRT15+ Myoepi,KRT15+ Myoepi,1309
+A,B1,KRT15+ Myoepi,Macrophage,3
+A,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,9
+A,B1,KRT15+ Myoepi,unassigned,100
+A,B1,LAMP3+ DC,Fibroblast,1
+A,B1,LAMP3+ DC,LAMP3+ DC,128
+A,B1,LAMP3+ DC,unassigned,3
+A,B1,Macrophage,CD163+ Macrophage,3
+A,B1,Macrophage,CRABP2+ Malignant,1
+A,B1,Macrophage,ECM1+ Malignant,1
+A,B1,Macrophage,Fibroblast,3
+A,B1,Macrophage,Macrophage,4753
+A,B1,Macrophage,unassigned,143
+A,B1,Mast cells,Fibroblast,1
+A,B1,Mast cells,Mast cells,63
+A,B1,Mast cells,unassigned,5
+A,B1,Plasma,CD4 T,3
+A,B1,Plasma,Fibroblast,12
+A,B1,Plasma,LAMP3+ DC,1
+A,B1,Plasma,Plasma,3158
+A,B1,Plasma,unassigned,56
+A,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,12
+A,B1,SCGB2A2+ Malignant,CD4 T,1
+A,B1,SCGB2A2+ Malignant,CD8 T,5
+A,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,44
+A,B1,SCGB2A2+ Malignant,ECM1+ Malignant,8
+A,B1,SCGB2A2+ Malignant,Fibroblast,1
+A,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,18
+A,B1,SCGB2A2+ Malignant,Macrophage,2
+A,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5420
+A,B1,SCGB2A2+ Malignant,unassigned,638
+A,B1,STAB2+ Endothelial,STAB2+ Endothelial,28
+A,B1,STAB2+ Endothelial,unassigned,14
+A,B1,VWF+ Endothelial,ACTA2+ Myoepi,3
+A,B1,VWF+ Endothelial,CD163+ Macrophage,2
+A,B1,VWF+ Endothelial,CD4 T,1
+A,B1,VWF+ Endothelial,Fibroblast,40
+A,B1,VWF+ Endothelial,Plasma,2
+A,B1,VWF+ Endothelial,VWF+ Endothelial,4740
+A,B1,VWF+ Endothelial,unassigned,366
+A,B1,unassigned,ACTA2+ Myoepi,348
+A,B1,unassigned,B Cells,85
+A,B1,unassigned,CD163+ Macrophage,183
+A,B1,unassigned,CD4 T,333
+A,B1,unassigned,CD8 T,269
+A,B1,unassigned,CRABP2+ Malignant,551
+A,B1,unassigned,ECM1+ Malignant,596
+A,B1,unassigned,Fibroblast,840
+A,B1,unassigned,IRF7+ DC,10
+A,B1,unassigned,KRT15+ Myoepi,105
+A,B1,unassigned,LAMP3+ DC,3
+A,B1,unassigned,Macrophage,229
+A,B1,unassigned,Mast cells,11
+A,B1,unassigned,Plasma,58
+A,B1,unassigned,SCGB2A2+ Malignant,560
+A,B1,unassigned,STAB2+ Endothelial,6
+A,B1,unassigned,VWF+ Endothelial,395
+A,B1,unassigned,unassigned,12923
+B,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2394
+B,B1,ACTA2+ Myoepi,CD8 T,3
+B,B1,ACTA2+ Myoepi,CRABP2+ Malignant,25
+B,B1,ACTA2+ Myoepi,ECM1+ Malignant,3
+B,B1,ACTA2+ Myoepi,Fibroblast,10
+B,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+B,B1,ACTA2+ Myoepi,Macrophage,1
+B,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,9
+B,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+B,B1,ACTA2+ Myoepi,unassigned,313
+B,B1,B Cells,B Cells,1741
+B,B1,B Cells,unassigned,36
+B,B1,CD163+ Macrophage,B Cells,1
+B,B1,CD163+ Macrophage,CD163+ Macrophage,2240
+B,B1,CD163+ Macrophage,CD8 T,1
+B,B1,CD163+ Macrophage,Fibroblast,3
+B,B1,CD163+ Macrophage,IRF7+ DC,1
+B,B1,CD163+ Macrophage,Macrophage,3
+B,B1,CD163+ Macrophage,VWF+ Endothelial,1
+B,B1,CD163+ Macrophage,unassigned,139
+B,B1,CD4 T,CD4 T,11089
+B,B1,CD4 T,CD8 T,3
+B,B1,CD4 T,ECM1+ Malignant,1
+B,B1,CD4 T,Fibroblast,9
+B,B1,CD4 T,Macrophage,1
+B,B1,CD4 T,Plasma,1
+B,B1,CD4 T,VWF+ Endothelial,1
+B,B1,CD4 T,unassigned,244
+B,B1,CD8 T,CD163+ Macrophage,1
+B,B1,CD8 T,CD4 T,2
+B,B1,CD8 T,CD8 T,5471
+B,B1,CD8 T,ECM1+ Malignant,1
+B,B1,CD8 T,Fibroblast,3
+B,B1,CD8 T,SCGB2A2+ Malignant,2
+B,B1,CD8 T,unassigned,142
+B,B1,CRABP2+ Malignant,ACTA2+ Myoepi,29
+B,B1,CRABP2+ Malignant,CD8 T,5
+B,B1,CRABP2+ Malignant,CRABP2+ Malignant,5411
+B,B1,CRABP2+ Malignant,ECM1+ Malignant,37
+B,B1,CRABP2+ Malignant,Fibroblast,1
+B,B1,CRABP2+ Malignant,KRT15+ Myoepi,6
+B,B1,CRABP2+ Malignant,Macrophage,2
+B,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,31
+B,B1,CRABP2+ Malignant,unassigned,605
+B,B1,ECM1+ Malignant,CD4 T,7
+B,B1,ECM1+ Malignant,CD8 T,17
+B,B1,ECM1+ Malignant,CRABP2+ Malignant,60
+B,B1,ECM1+ Malignant,ECM1+ Malignant,18002
+B,B1,ECM1+ Malignant,Fibroblast,95
+B,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+B,B1,ECM1+ Malignant,Macrophage,2
+B,B1,ECM1+ Malignant,SCGB2A2+ Malignant,8
+B,B1,ECM1+ Malignant,unassigned,653
+B,B1,Fibroblast,ACTA2+ Myoepi,12
+B,B1,Fibroblast,B Cells,2
+B,B1,Fibroblast,CD163+ Macrophage,11
+B,B1,Fibroblast,CD4 T,38
+B,B1,Fibroblast,CD8 T,27
+B,B1,Fibroblast,CRABP2+ Malignant,2
+B,B1,Fibroblast,ECM1+ Malignant,89
+B,B1,Fibroblast,Fibroblast,13691
+B,B1,Fibroblast,Macrophage,17
+B,B1,Fibroblast,Mast cells,1
+B,B1,Fibroblast,Plasma,6
+B,B1,Fibroblast,VWF+ Endothelial,69
+B,B1,Fibroblast,unassigned,1012
+B,B1,IRF7+ DC,IRF7+ DC,375
+B,B1,IRF7+ DC,unassigned,6
+B,B1,KRT15+ Myoepi,ACTA2+ Myoepi,2
+B,B1,KRT15+ Myoepi,CD8 T,2
+B,B1,KRT15+ Myoepi,CRABP2+ Malignant,3
+B,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+B,B1,KRT15+ Myoepi,KRT15+ Myoepi,1328
+B,B1,KRT15+ Myoepi,Macrophage,2
+B,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,11
+B,B1,KRT15+ Myoepi,unassigned,86
+B,B1,LAMP3+ DC,LAMP3+ DC,128
+B,B1,LAMP3+ DC,unassigned,4
+B,B1,Macrophage,CD163+ Macrophage,7
+B,B1,Macrophage,ECM1+ Malignant,1
+B,B1,Macrophage,Fibroblast,5
+B,B1,Macrophage,Macrophage,4729
+B,B1,Macrophage,VWF+ Endothelial,1
+B,B1,Macrophage,unassigned,162
+B,B1,Mast cells,Mast cells,64
+B,B1,Mast cells,unassigned,5
+B,B1,Plasma,CD4 T,2
+B,B1,Plasma,Fibroblast,11
+B,B1,Plasma,LAMP3+ DC,1
+B,B1,Plasma,Plasma,3153
+B,B1,Plasma,unassigned,66
+B,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,6
+B,B1,SCGB2A2+ Malignant,CD4 T,1
+B,B1,SCGB2A2+ Malignant,CD8 T,7
+B,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,35
+B,B1,SCGB2A2+ Malignant,ECM1+ Malignant,8
+B,B1,SCGB2A2+ Malignant,Fibroblast,1
+B,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,15
+B,B1,SCGB2A2+ Malignant,Macrophage,3
+B,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5432
+B,B1,SCGB2A2+ Malignant,unassigned,642
+B,B1,STAB2+ Endothelial,ECM1+ Malignant,1
+B,B1,STAB2+ Endothelial,STAB2+ Endothelial,31
+B,B1,STAB2+ Endothelial,unassigned,10
+B,B1,VWF+ Endothelial,ACTA2+ Myoepi,4
+B,B1,VWF+ Endothelial,CD163+ Macrophage,2
+B,B1,VWF+ Endothelial,CD4 T,1
+B,B1,VWF+ Endothelial,CD8 T,1
+B,B1,VWF+ Endothelial,Fibroblast,37
+B,B1,VWF+ Endothelial,Macrophage,1
+B,B1,VWF+ Endothelial,Plasma,1
+B,B1,VWF+ Endothelial,VWF+ Endothelial,4773
+B,B1,VWF+ Endothelial,unassigned,341
+B,B1,unassigned,ACTA2+ Myoepi,352
+B,B1,unassigned,B Cells,88
+B,B1,unassigned,CD163+ Macrophage,178
+B,B1,unassigned,CD4 T,352
+B,B1,unassigned,CD8 T,304
+B,B1,unassigned,CRABP2+ Malignant,552
+B,B1,unassigned,ECM1+ Malignant,576
+B,B1,unassigned,Fibroblast,849
+B,B1,unassigned,IRF7+ DC,9
+B,B1,unassigned,KRT15+ Myoepi,110
+B,B1,unassigned,LAMP3+ DC,4
+B,B1,unassigned,Macrophage,267
+B,B1,unassigned,Mast cells,10
+B,B1,unassigned,Plasma,72
+B,B1,unassigned,SCGB2A2+ Malignant,622
+B,B1,unassigned,STAB2+ Endothelial,8
+B,B1,unassigned,VWF+ Endothelial,400
+B,B1,unassigned,unassigned,12767
+C,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2413
+C,B1,ACTA2+ Myoepi,CD8 T,4
+C,B1,ACTA2+ Myoepi,CRABP2+ Malignant,21
+C,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+C,B1,ACTA2+ Myoepi,Fibroblast,20
+C,B1,ACTA2+ Myoepi,KRT15+ Myoepi,1
+C,B1,ACTA2+ Myoepi,Macrophage,1
+C,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,12
+C,B1,ACTA2+ Myoepi,VWF+ Endothelial,7
+C,B1,ACTA2+ Myoepi,unassigned,286
+C,B1,B Cells,B Cells,1577
+C,B1,B Cells,CD163+ Macrophage,1
+C,B1,B Cells,CD4 T,3
+C,B1,B Cells,Fibroblast,4
+C,B1,B Cells,Macrophage,2
+C,B1,B Cells,Plasma,1
+C,B1,B Cells,unassigned,191
+C,B1,CD163+ Macrophage,CD163+ Macrophage,2013
+C,B1,CD163+ Macrophage,Fibroblast,30
+C,B1,CD163+ Macrophage,IRF7+ DC,1
+C,B1,CD163+ Macrophage,Macrophage,12
+C,B1,CD163+ Macrophage,Plasma,1
+C,B1,CD163+ Macrophage,unassigned,334
+C,B1,CD4 T,CD163+ Macrophage,6
+C,B1,CD4 T,CD4 T,10452
+C,B1,CD4 T,CD8 T,7
+C,B1,CD4 T,ECM1+ Malignant,8
+C,B1,CD4 T,Fibroblast,63
+C,B1,CD4 T,IRF7+ DC,1
+C,B1,CD4 T,Macrophage,10
+C,B1,CD4 T,Plasma,4
+C,B1,CD4 T,VWF+ Endothelial,3
+C,B1,CD4 T,unassigned,794
+C,B1,CD8 T,CD163+ Macrophage,1
+C,B1,CD8 T,CD4 T,5
+C,B1,CD8 T,CD8 T,5124
+C,B1,CD8 T,ECM1+ Malignant,9
+C,B1,CD8 T,Fibroblast,25
+C,B1,CD8 T,KRT15+ Myoepi,1
+C,B1,CD8 T,Macrophage,4
+C,B1,CD8 T,Plasma,4
+C,B1,CD8 T,SCGB2A2+ Malignant,4
+C,B1,CD8 T,unassigned,445
+C,B1,CRABP2+ Malignant,ACTA2+ Myoepi,37
+C,B1,CRABP2+ Malignant,CD8 T,2
+C,B1,CRABP2+ Malignant,CRABP2+ Malignant,5323
+C,B1,CRABP2+ Malignant,ECM1+ Malignant,37
+C,B1,CRABP2+ Malignant,Fibroblast,6
+C,B1,CRABP2+ Malignant,KRT15+ Myoepi,8
+C,B1,CRABP2+ Malignant,Macrophage,2
+C,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,35
+C,B1,CRABP2+ Malignant,unassigned,678
+C,B1,ECM1+ Malignant,ACTA2+ Myoepi,1
+C,B1,ECM1+ Malignant,CD4 T,5
+C,B1,ECM1+ Malignant,CD8 T,10
+C,B1,ECM1+ Malignant,CRABP2+ Malignant,85
+C,B1,ECM1+ Malignant,ECM1+ Malignant,17514
+C,B1,ECM1+ Malignant,Fibroblast,283
+C,B1,ECM1+ Malignant,KRT15+ Myoepi,2
+C,B1,ECM1+ Malignant,Macrophage,9
+C,B1,ECM1+ Malignant,Plasma,1
+C,B1,ECM1+ Malignant,SCGB2A2+ Malignant,12
+C,B1,ECM1+ Malignant,VWF+ Endothelial,1
+C,B1,ECM1+ Malignant,unassigned,926
+C,B1,Fibroblast,ACTA2+ Myoepi,13
+C,B1,Fibroblast,B Cells,1
+C,B1,Fibroblast,CD163+ Macrophage,6
+C,B1,Fibroblast,CD4 T,19
+C,B1,Fibroblast,CD8 T,9
+C,B1,Fibroblast,CRABP2+ Malignant,2
+C,B1,Fibroblast,ECM1+ Malignant,82
+C,B1,Fibroblast,Fibroblast,13536
+C,B1,Fibroblast,Macrophage,8
+C,B1,Fibroblast,Plasma,22
+C,B1,Fibroblast,SCGB2A2+ Malignant,1
+C,B1,Fibroblast,VWF+ Endothelial,81
+C,B1,Fibroblast,unassigned,1203
+C,B1,IRF7+ DC,ECM1+ Malignant,1
+C,B1,IRF7+ DC,IRF7+ DC,360
+C,B1,IRF7+ DC,unassigned,20
+C,B1,KRT15+ Myoepi,ACTA2+ Myoepi,2
+C,B1,KRT15+ Myoepi,CD8 T,1
+C,B1,KRT15+ Myoepi,CRABP2+ Malignant,3
+C,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+C,B1,KRT15+ Myoepi,KRT15+ Myoepi,1328
+C,B1,KRT15+ Myoepi,Macrophage,1
+C,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,9
+C,B1,KRT15+ Myoepi,unassigned,90
+C,B1,LAMP3+ DC,Fibroblast,4
+C,B1,LAMP3+ DC,LAMP3+ DC,119
+C,B1,LAMP3+ DC,unassigned,9
+C,B1,Macrophage,ACTA2+ Myoepi,1
+C,B1,Macrophage,CD163+ Macrophage,8
+C,B1,Macrophage,ECM1+ Malignant,2
+C,B1,Macrophage,Fibroblast,6
+C,B1,Macrophage,Macrophage,4581
+C,B1,Macrophage,Plasma,1
+C,B1,Macrophage,SCGB2A2+ Malignant,1
+C,B1,Macrophage,VWF+ Endothelial,4
+C,B1,Macrophage,unassigned,302
+C,B1,Mast cells,CD163+ Macrophage,1
+C,B1,Mast cells,Fibroblast,8
+C,B1,Mast cells,Mast cells,42
+C,B1,Mast cells,Plasma,1
+C,B1,Mast cells,unassigned,17
+C,B1,Plasma,CD4 T,2
+C,B1,Plasma,CD8 T,2
+C,B1,Plasma,Fibroblast,19
+C,B1,Plasma,Plasma,3090
+C,B1,Plasma,VWF+ Endothelial,1
+C,B1,Plasma,unassigned,122
+C,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,12
+C,B1,SCGB2A2+ Malignant,CD8 T,4
+C,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,38
+C,B1,SCGB2A2+ Malignant,ECM1+ Malignant,10
+C,B1,SCGB2A2+ Malignant,Fibroblast,1
+C,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,17
+C,B1,SCGB2A2+ Malignant,Macrophage,1
+C,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5425
+C,B1,SCGB2A2+ Malignant,unassigned,643
+C,B1,STAB2+ Endothelial,Fibroblast,1
+C,B1,STAB2+ Endothelial,STAB2+ Endothelial,17
+C,B1,STAB2+ Endothelial,unassigned,24
+C,B1,VWF+ Endothelial,ACTA2+ Myoepi,5
+C,B1,VWF+ Endothelial,CD163+ Macrophage,2
+C,B1,VWF+ Endothelial,CD4 T,1
+C,B1,VWF+ Endothelial,CD8 T,1
+C,B1,VWF+ Endothelial,Fibroblast,72
+C,B1,VWF+ Endothelial,Plasma,1
+C,B1,VWF+ Endothelial,VWF+ Endothelial,4556
+C,B1,VWF+ Endothelial,unassigned,519
+C,B1,unassigned,ACTA2+ Myoepi,397
+C,B1,unassigned,B Cells,46
+C,B1,unassigned,CD163+ Macrophage,177
+C,B1,unassigned,CD4 T,285
+C,B1,unassigned,CD8 T,227
+C,B1,unassigned,CRABP2+ Malignant,601
+C,B1,unassigned,ECM1+ Malignant,646
+C,B1,unassigned,Fibroblast,1497
+C,B1,unassigned,IRF7+ DC,5
+C,B1,unassigned,KRT15+ Myoepi,146
+C,B1,unassigned,LAMP3+ DC,6
+C,B1,unassigned,Macrophage,314
+C,B1,unassigned,Mast cells,5
+C,B1,unassigned,Plasma,87
+C,B1,unassigned,SCGB2A2+ Malignant,639
+C,B1,unassigned,STAB2+ Endothelial,11
+C,B1,unassigned,VWF+ Endothelial,450
+C,B1,unassigned,unassigned,12010
+S,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2391
+S,B1,ACTA2+ Myoepi,CD8 T,4
+S,B1,ACTA2+ Myoepi,CRABP2+ Malignant,18
+S,B1,ACTA2+ Myoepi,ECM1+ Malignant,1
+S,B1,ACTA2+ Myoepi,Fibroblast,14
+S,B1,ACTA2+ Myoepi,KRT15+ Myoepi,5
+S,B1,ACTA2+ Myoepi,Macrophage,1
+S,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,13
+S,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+S,B1,ACTA2+ Myoepi,unassigned,314
+S,B1,B Cells,B Cells,1736
+S,B1,B Cells,unassigned,41
+S,B1,CD163+ Macrophage,B Cells,1
+S,B1,CD163+ Macrophage,CD163+ Macrophage,2254
+S,B1,CD163+ Macrophage,CD8 T,1
+S,B1,CD163+ Macrophage,Fibroblast,5
+S,B1,CD163+ Macrophage,IRF7+ DC,1
+S,B1,CD163+ Macrophage,Macrophage,5
+S,B1,CD163+ Macrophage,VWF+ Endothelial,1
+S,B1,CD163+ Macrophage,unassigned,120
+S,B1,CD4 T,CD163+ Macrophage,1
+S,B1,CD4 T,CD4 T,11115
+S,B1,CD4 T,CD8 T,4
+S,B1,CD4 T,ECM1+ Malignant,1
+S,B1,CD4 T,Fibroblast,2
+S,B1,CD4 T,Plasma,1
+S,B1,CD4 T,VWF+ Endothelial,1
+S,B1,CD4 T,unassigned,218
+S,B1,CD8 T,CD4 T,2
+S,B1,CD8 T,CD8 T,5483
+S,B1,CD8 T,ECM1+ Malignant,2
+S,B1,CD8 T,Fibroblast,5
+S,B1,CD8 T,Macrophage,1
+S,B1,CD8 T,Plasma,2
+S,B1,CD8 T,SCGB2A2+ Malignant,3
+S,B1,CD8 T,unassigned,123
+S,B1,CRABP2+ Malignant,ACTA2+ Myoepi,28
+S,B1,CRABP2+ Malignant,CD8 T,5
+S,B1,CRABP2+ Malignant,CRABP2+ Malignant,5477
+S,B1,CRABP2+ Malignant,ECM1+ Malignant,30
+S,B1,CRABP2+ Malignant,Fibroblast,1
+S,B1,CRABP2+ Malignant,KRT15+ Myoepi,3
+S,B1,CRABP2+ Malignant,Macrophage,2
+S,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,34
+S,B1,CRABP2+ Malignant,unassigned,547
+S,B1,ECM1+ Malignant,ACTA2+ Myoepi,1
+S,B1,ECM1+ Malignant,CD4 T,6
+S,B1,ECM1+ Malignant,CD8 T,14
+S,B1,ECM1+ Malignant,CRABP2+ Malignant,55
+S,B1,ECM1+ Malignant,ECM1+ Malignant,18089
+S,B1,ECM1+ Malignant,Fibroblast,66
+S,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+S,B1,ECM1+ Malignant,Macrophage,1
+S,B1,ECM1+ Malignant,SCGB2A2+ Malignant,9
+S,B1,ECM1+ Malignant,unassigned,604
+S,B1,Fibroblast,ACTA2+ Myoepi,21
+S,B1,Fibroblast,B Cells,3
+S,B1,Fibroblast,CD163+ Macrophage,20
+S,B1,Fibroblast,CD4 T,50
+S,B1,Fibroblast,CD8 T,32
+S,B1,Fibroblast,CRABP2+ Malignant,3
+S,B1,Fibroblast,ECM1+ Malignant,97
+S,B1,Fibroblast,Fibroblast,13576
+S,B1,Fibroblast,IRF7+ DC,2
+S,B1,Fibroblast,Macrophage,14
+S,B1,Fibroblast,Mast cells,1
+S,B1,Fibroblast,Plasma,8
+S,B1,Fibroblast,SCGB2A2+ Malignant,1
+S,B1,Fibroblast,STAB2+ Endothelial,1
+S,B1,Fibroblast,VWF+ Endothelial,64
+S,B1,Fibroblast,unassigned,1082
+S,B1,IRF7+ DC,IRF7+ DC,378
+S,B1,IRF7+ DC,unassigned,3
+S,B1,KRT15+ Myoepi,ACTA2+ Myoepi,4
+S,B1,KRT15+ Myoepi,CD8 T,2
+S,B1,KRT15+ Myoepi,CRABP2+ Malignant,1
+S,B1,KRT15+ Myoepi,KRT15+ Myoepi,1307
+S,B1,KRT15+ Myoepi,Macrophage,4
+S,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,9
+S,B1,KRT15+ Myoepi,unassigned,108
+S,B1,LAMP3+ DC,LAMP3+ DC,130
+S,B1,LAMP3+ DC,unassigned,2
+S,B1,Macrophage,CD163+ Macrophage,7
+S,B1,Macrophage,Fibroblast,4
+S,B1,Macrophage,Macrophage,4747
+S,B1,Macrophage,VWF+ Endothelial,1
+S,B1,Macrophage,unassigned,145
+S,B1,Mast cells,Mast cells,67
+S,B1,Mast cells,unassigned,2
+S,B1,Plasma,B Cells,1
+S,B1,Plasma,CD4 T,2
+S,B1,Plasma,Fibroblast,11
+S,B1,Plasma,LAMP3+ DC,1
+S,B1,Plasma,Plasma,3161
+S,B1,Plasma,unassigned,57
+S,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,13
+S,B1,SCGB2A2+ Malignant,CD8 T,6
+S,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,31
+S,B1,SCGB2A2+ Malignant,ECM1+ Malignant,6
+S,B1,SCGB2A2+ Malignant,Fibroblast,1
+S,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,12
+S,B1,SCGB2A2+ Malignant,Macrophage,2
+S,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5459
+S,B1,SCGB2A2+ Malignant,VWF+ Endothelial,1
+S,B1,SCGB2A2+ Malignant,unassigned,619
+S,B1,STAB2+ Endothelial,STAB2+ Endothelial,30
+S,B1,STAB2+ Endothelial,unassigned,12
+S,B1,VWF+ Endothelial,ACTA2+ Myoepi,6
+S,B1,VWF+ Endothelial,CD163+ Macrophage,1
+S,B1,VWF+ Endothelial,CD4 T,2
+S,B1,VWF+ Endothelial,CD8 T,1
+S,B1,VWF+ Endothelial,Fibroblast,49
+S,B1,VWF+ Endothelial,Plasma,1
+S,B1,VWF+ Endothelial,VWF+ Endothelial,4769
+S,B1,VWF+ Endothelial,unassigned,331
+S,B1,unassigned,ACTA2+ Myoepi,350
+S,B1,unassigned,B Cells,94
+S,B1,unassigned,CD163+ Macrophage,193
+S,B1,unassigned,CD4 T,379
+S,B1,unassigned,CD8 T,295
+S,B1,unassigned,CRABP2+ Malignant,530
+S,B1,unassigned,ECM1+ Malignant,637
+S,B1,unassigned,Fibroblast,708
+S,B1,unassigned,IRF7+ DC,10
+S,B1,unassigned,KRT15+ Myoepi,101
+S,B1,unassigned,LAMP3+ DC,3
+S,B1,unassigned,Macrophage,257
+S,B1,unassigned,Mast cells,9
+S,B1,unassigned,Plasma,66
+S,B1,unassigned,SCGB2A2+ Malignant,636
+S,B1,unassigned,STAB2+ Endothelial,9
+S,B1,unassigned,VWF+ Endothelial,377
+S,B1,unassigned,unassigned,12867
+SP,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2399
+SP,B1,ACTA2+ Myoepi,CD8 T,3
+SP,B1,ACTA2+ Myoepi,CRABP2+ Malignant,17
+SP,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+SP,B1,ACTA2+ Myoepi,Fibroblast,13
+SP,B1,ACTA2+ Myoepi,KRT15+ Myoepi,3
+SP,B1,ACTA2+ Myoepi,Macrophage,2
+SP,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,8
+SP,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+SP,B1,ACTA2+ Myoepi,unassigned,314
+SP,B1,B Cells,B Cells,1738
+SP,B1,B Cells,Macrophage,1
+SP,B1,B Cells,unassigned,38
+SP,B1,CD163+ Macrophage,CD163+ Macrophage,2250
+SP,B1,CD163+ Macrophage,CD8 T,1
+SP,B1,CD163+ Macrophage,Fibroblast,1
+SP,B1,CD163+ Macrophage,IRF7+ DC,1
+SP,B1,CD163+ Macrophage,Macrophage,6
+SP,B1,CD163+ Macrophage,VWF+ Endothelial,1
+SP,B1,CD163+ Macrophage,unassigned,126
+SP,B1,CD4 T,CD163+ Macrophage,1
+SP,B1,CD4 T,CD4 T,11120
+SP,B1,CD4 T,CD8 T,4
+SP,B1,CD4 T,ECM1+ Malignant,1
+SP,B1,CD4 T,Fibroblast,4
+SP,B1,CD4 T,Plasma,2
+SP,B1,CD4 T,VWF+ Endothelial,1
+SP,B1,CD4 T,unassigned,211
+SP,B1,CD8 T,CD163+ Macrophage,1
+SP,B1,CD8 T,CD4 T,2
+SP,B1,CD8 T,CD8 T,5483
+SP,B1,CD8 T,ECM1+ Malignant,1
+SP,B1,CD8 T,Fibroblast,3
+SP,B1,CD8 T,SCGB2A2+ Malignant,2
+SP,B1,CD8 T,unassigned,130
+SP,B1,CRABP2+ Malignant,ACTA2+ Myoepi,26
+SP,B1,CRABP2+ Malignant,CD8 T,5
+SP,B1,CRABP2+ Malignant,CRABP2+ Malignant,5454
+SP,B1,CRABP2+ Malignant,ECM1+ Malignant,33
+SP,B1,CRABP2+ Malignant,Fibroblast,1
+SP,B1,CRABP2+ Malignant,KRT15+ Myoepi,5
+SP,B1,CRABP2+ Malignant,Macrophage,2
+SP,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,34
+SP,B1,CRABP2+ Malignant,unassigned,567
+SP,B1,ECM1+ Malignant,CD4 T,6
+SP,B1,ECM1+ Malignant,CD8 T,13
+SP,B1,ECM1+ Malignant,CRABP2+ Malignant,54
+SP,B1,ECM1+ Malignant,ECM1+ Malignant,18099
+SP,B1,ECM1+ Malignant,Fibroblast,56
+SP,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+SP,B1,ECM1+ Malignant,Macrophage,1
+SP,B1,ECM1+ Malignant,SCGB2A2+ Malignant,13
+SP,B1,ECM1+ Malignant,VWF+ Endothelial,1
+SP,B1,ECM1+ Malignant,unassigned,602
+SP,B1,Fibroblast,ACTA2+ Myoepi,19
+SP,B1,Fibroblast,B Cells,3
+SP,B1,Fibroblast,CD163+ Macrophage,16
+SP,B1,Fibroblast,CD4 T,52
+SP,B1,Fibroblast,CD8 T,33
+SP,B1,Fibroblast,CRABP2+ Malignant,2
+SP,B1,Fibroblast,ECM1+ Malignant,115
+SP,B1,Fibroblast,Fibroblast,13552
+SP,B1,Fibroblast,IRF7+ DC,1
+SP,B1,Fibroblast,Macrophage,17
+SP,B1,Fibroblast,Mast cells,1
+SP,B1,Fibroblast,Plasma,9
+SP,B1,Fibroblast,STAB2+ Endothelial,2
+SP,B1,Fibroblast,VWF+ Endothelial,55
+SP,B1,Fibroblast,unassigned,1096
+SP,B1,IRF7+ DC,Fibroblast,1
+SP,B1,IRF7+ DC,IRF7+ DC,374
+SP,B1,IRF7+ DC,unassigned,6
+SP,B1,KRT15+ Myoepi,ACTA2+ Myoepi,3
+SP,B1,KRT15+ Myoepi,CD8 T,2
+SP,B1,KRT15+ Myoepi,CRABP2+ Malignant,4
+SP,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+SP,B1,KRT15+ Myoepi,KRT15+ Myoepi,1311
+SP,B1,KRT15+ Myoepi,Macrophage,3
+SP,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,7
+SP,B1,KRT15+ Myoepi,unassigned,104
+SP,B1,LAMP3+ DC,LAMP3+ DC,130
+SP,B1,LAMP3+ DC,unassigned,2
+SP,B1,Macrophage,CD163+ Macrophage,5
+SP,B1,Macrophage,Fibroblast,3
+SP,B1,Macrophage,Macrophage,4749
+SP,B1,Macrophage,unassigned,146
+SP,B1,Mast cells,Mast cells,63
+SP,B1,Mast cells,Plasma,1
+SP,B1,Mast cells,unassigned,5
+SP,B1,Plasma,B Cells,1
+SP,B1,Plasma,CD4 T,2
+SP,B1,Plasma,Fibroblast,9
+SP,B1,Plasma,LAMP3+ DC,1
+SP,B1,Plasma,Plasma,3166
+SP,B1,Plasma,unassigned,53
+SP,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,11
+SP,B1,SCGB2A2+ Malignant,CD8 T,6
+SP,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,34
+SP,B1,SCGB2A2+ Malignant,ECM1+ Malignant,6
+SP,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,10
+SP,B1,SCGB2A2+ Malignant,Macrophage,2
+SP,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5468
+SP,B1,SCGB2A2+ Malignant,VWF+ Endothelial,1
+SP,B1,SCGB2A2+ Malignant,unassigned,613
+SP,B1,STAB2+ Endothelial,STAB2+ Endothelial,29
+SP,B1,STAB2+ Endothelial,unassigned,13
+SP,B1,VWF+ Endothelial,ACTA2+ Myoepi,1
+SP,B1,VWF+ Endothelial,CD163+ Macrophage,1
+SP,B1,VWF+ Endothelial,CD4 T,3
+SP,B1,VWF+ Endothelial,CD8 T,1
+SP,B1,VWF+ Endothelial,Fibroblast,39
+SP,B1,VWF+ Endothelial,Macrophage,1
+SP,B1,VWF+ Endothelial,Plasma,1
+SP,B1,VWF+ Endothelial,VWF+ Endothelial,4790
+SP,B1,VWF+ Endothelial,unassigned,323
+SP,B1,unassigned,ACTA2+ Myoepi,371
+SP,B1,unassigned,B Cells,92
+SP,B1,unassigned,CD163+ Macrophage,190
+SP,B1,unassigned,CD4 T,370
+SP,B1,unassigned,CD8 T,287
+SP,B1,unassigned,CRABP2+ Malignant,566
+SP,B1,unassigned,ECM1+ Malignant,638
+SP,B1,unassigned,Fibroblast,708
+SP,B1,unassigned,IRF7+ DC,11
+SP,B1,unassigned,KRT15+ Myoepi,88
+SP,B1,unassigned,LAMP3+ DC,3
+SP,B1,unassigned,Macrophage,247
+SP,B1,unassigned,Mast cells,14
+SP,B1,unassigned,Plasma,66
+SP,B1,unassigned,SCGB2A2+ Malignant,598
+SP,B1,unassigned,STAB2+ Endothelial,8
+SP,B1,unassigned,VWF+ Endothelial,396
+SP,B1,unassigned,unassigned,12867
+P1,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2384
+P1,B1,ACTA2+ Myoepi,CD8 T,4
+P1,B1,ACTA2+ Myoepi,CRABP2+ Malignant,26
+P1,B1,ACTA2+ Myoepi,ECM1+ Malignant,1
+P1,B1,ACTA2+ Myoepi,Fibroblast,12
+P1,B1,ACTA2+ Myoepi,KRT15+ Myoepi,3
+P1,B1,ACTA2+ Myoepi,Macrophage,1
+P1,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,10
+P1,B1,ACTA2+ Myoepi,VWF+ Endothelial,4
+P1,B1,ACTA2+ Myoepi,unassigned,322
+P1,B1,B Cells,B Cells,1736
+P1,B1,B Cells,Macrophage,1
+P1,B1,B Cells,unassigned,40
+P1,B1,CD163+ Macrophage,B Cells,1
+P1,B1,CD163+ Macrophage,CD163+ Macrophage,2240
+P1,B1,CD163+ Macrophage,CD8 T,1
+P1,B1,CD163+ Macrophage,Fibroblast,3
+P1,B1,CD163+ Macrophage,IRF7+ DC,1
+P1,B1,CD163+ Macrophage,Macrophage,1
+P1,B1,CD163+ Macrophage,unassigned,141
+P1,B1,CD4 T,CD4 T,11099
+P1,B1,CD4 T,CD8 T,4
+P1,B1,CD4 T,ECM1+ Malignant,2
+P1,B1,CD4 T,Fibroblast,8
+P1,B1,CD4 T,Macrophage,1
+P1,B1,CD4 T,Plasma,1
+P1,B1,CD4 T,unassigned,235
+P1,B1,CD8 T,CD163+ Macrophage,1
+P1,B1,CD8 T,CD4 T,1
+P1,B1,CD8 T,CD8 T,5481
+P1,B1,CD8 T,ECM1+ Malignant,2
+P1,B1,CD8 T,Fibroblast,2
+P1,B1,CD8 T,unassigned,135
+P1,B1,CRABP2+ Malignant,ACTA2+ Myoepi,21
+P1,B1,CRABP2+ Malignant,CD8 T,4
+P1,B1,CRABP2+ Malignant,CRABP2+ Malignant,5435
+P1,B1,CRABP2+ Malignant,ECM1+ Malignant,31
+P1,B1,CRABP2+ Malignant,Fibroblast,1
+P1,B1,CRABP2+ Malignant,KRT15+ Myoepi,7
+P1,B1,CRABP2+ Malignant,Macrophage,2
+P1,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,29
+P1,B1,CRABP2+ Malignant,unassigned,598
+P1,B1,ECM1+ Malignant,CD4 T,8
+P1,B1,ECM1+ Malignant,CD8 T,18
+P1,B1,ECM1+ Malignant,CRABP2+ Malignant,53
+P1,B1,ECM1+ Malignant,ECM1+ Malignant,18013
+P1,B1,ECM1+ Malignant,Fibroblast,74
+P1,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+P1,B1,ECM1+ Malignant,Macrophage,1
+P1,B1,ECM1+ Malignant,SCGB2A2+ Malignant,7
+P1,B1,ECM1+ Malignant,unassigned,668
+P1,B1,Fibroblast,ACTA2+ Myoepi,16
+P1,B1,Fibroblast,B Cells,1
+P1,B1,Fibroblast,CD163+ Macrophage,12
+P1,B1,Fibroblast,CD4 T,42
+P1,B1,Fibroblast,CD8 T,28
+P1,B1,Fibroblast,CRABP2+ Malignant,2
+P1,B1,Fibroblast,ECM1+ Malignant,97
+P1,B1,Fibroblast,Fibroblast,13648
+P1,B1,Fibroblast,IRF7+ DC,1
+P1,B1,Fibroblast,Macrophage,18
+P1,B1,Fibroblast,Mast cells,1
+P1,B1,Fibroblast,Plasma,5
+P1,B1,Fibroblast,STAB2+ Endothelial,1
+P1,B1,Fibroblast,VWF+ Endothelial,64
+P1,B1,Fibroblast,unassigned,1039
+P1,B1,IRF7+ DC,IRF7+ DC,377
+P1,B1,IRF7+ DC,unassigned,4
+P1,B1,KRT15+ Myoepi,ACTA2+ Myoepi,4
+P1,B1,KRT15+ Myoepi,CD8 T,2
+P1,B1,KRT15+ Myoepi,CRABP2+ Malignant,4
+P1,B1,KRT15+ Myoepi,KRT15+ Myoepi,1326
+P1,B1,KRT15+ Myoepi,Macrophage,3
+P1,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,8
+P1,B1,KRT15+ Myoepi,unassigned,88
+P1,B1,LAMP3+ DC,LAMP3+ DC,128
+P1,B1,LAMP3+ DC,unassigned,4
+P1,B1,Macrophage,CD163+ Macrophage,6
+P1,B1,Macrophage,ECM1+ Malignant,1
+P1,B1,Macrophage,Fibroblast,4
+P1,B1,Macrophage,Macrophage,4730
+P1,B1,Macrophage,VWF+ Endothelial,1
+P1,B1,Macrophage,unassigned,163
+P1,B1,Mast cells,Mast cells,64
+P1,B1,Mast cells,unassigned,5
+P1,B1,Plasma,CD4 T,2
+P1,B1,Plasma,Fibroblast,10
+P1,B1,Plasma,LAMP3+ DC,1
+P1,B1,Plasma,Plasma,3151
+P1,B1,Plasma,unassigned,70
+P1,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,8
+P1,B1,SCGB2A2+ Malignant,CD4 T,1
+P1,B1,SCGB2A2+ Malignant,CD8 T,7
+P1,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,38
+P1,B1,SCGB2A2+ Malignant,ECM1+ Malignant,6
+P1,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,14
+P1,B1,SCGB2A2+ Malignant,Macrophage,3
+P1,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5445
+P1,B1,SCGB2A2+ Malignant,unassigned,629
+P1,B1,STAB2+ Endothelial,STAB2+ Endothelial,32
+P1,B1,STAB2+ Endothelial,unassigned,10
+P1,B1,VWF+ Endothelial,ACTA2+ Myoepi,3
+P1,B1,VWF+ Endothelial,CD163+ Macrophage,2
+P1,B1,VWF+ Endothelial,CD4 T,1
+P1,B1,VWF+ Endothelial,CD8 T,1
+P1,B1,VWF+ Endothelial,Fibroblast,33
+P1,B1,VWF+ Endothelial,Plasma,1
+P1,B1,VWF+ Endothelial,VWF+ Endothelial,4770
+P1,B1,VWF+ Endothelial,unassigned,349
+P1,B1,unassigned,ACTA2+ Myoepi,357
+P1,B1,unassigned,B Cells,89
+P1,B1,unassigned,CD163+ Macrophage,189
+P1,B1,unassigned,CD4 T,365
+P1,B1,unassigned,CD8 T,310
+P1,B1,unassigned,CRABP2+ Malignant,546
+P1,B1,unassigned,ECM1+ Malignant,579
+P1,B1,unassigned,Fibroblast,846
+P1,B1,unassigned,IRF7+ DC,9
+P1,B1,unassigned,KRT15+ Myoepi,110
+P1,B1,unassigned,LAMP3+ DC,4
+P1,B1,unassigned,Macrophage,259
+P1,B1,unassigned,Mast cells,10
+P1,B1,unassigned,Plasma,66
+P1,B1,unassigned,SCGB2A2+ Malignant,629
+P1,B1,unassigned,STAB2+ Endothelial,9
+P1,B1,unassigned,VWF+ Endothelial,410
+P1,B1,unassigned,unassigned,12735
+P2,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2402
+P2,B1,ACTA2+ Myoepi,CD8 T,2
+P2,B1,ACTA2+ Myoepi,CRABP2+ Malignant,17
+P2,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+P2,B1,ACTA2+ Myoepi,Fibroblast,12
+P2,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+P2,B1,ACTA2+ Myoepi,Macrophage,2
+P2,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,8
+P2,B1,ACTA2+ Myoepi,VWF+ Endothelial,5
+P2,B1,ACTA2+ Myoepi,unassigned,313
+P2,B1,B Cells,B Cells,1728
+P2,B1,B Cells,Macrophage,1
+P2,B1,B Cells,unassigned,48
+P2,B1,CD163+ Macrophage,B Cells,1
+P2,B1,CD163+ Macrophage,CD163+ Macrophage,2250
+P2,B1,CD163+ Macrophage,CD8 T,1
+P2,B1,CD163+ Macrophage,Fibroblast,4
+P2,B1,CD163+ Macrophage,IRF7+ DC,1
+P2,B1,CD163+ Macrophage,Macrophage,2
+P2,B1,CD163+ Macrophage,unassigned,130
+P2,B1,CD4 T,CD4 T,11077
+P2,B1,CD4 T,CD8 T,3
+P2,B1,CD4 T,Fibroblast,12
+P2,B1,CD4 T,Macrophage,1
+P2,B1,CD4 T,Plasma,1
+P2,B1,CD4 T,VWF+ Endothelial,1
+P2,B1,CD4 T,unassigned,254
+P2,B1,CD8 T,CD163+ Macrophage,1
+P2,B1,CD8 T,CD4 T,2
+P2,B1,CD8 T,CD8 T,5457
+P2,B1,CD8 T,ECM1+ Malignant,1
+P2,B1,CD8 T,Fibroblast,4
+P2,B1,CD8 T,SCGB2A2+ Malignant,1
+P2,B1,CD8 T,unassigned,156
+P2,B1,CRABP2+ Malignant,ACTA2+ Myoepi,22
+P2,B1,CRABP2+ Malignant,CD8 T,4
+P2,B1,CRABP2+ Malignant,CRABP2+ Malignant,5442
+P2,B1,CRABP2+ Malignant,ECM1+ Malignant,24
+P2,B1,CRABP2+ Malignant,Fibroblast,2
+P2,B1,CRABP2+ Malignant,KRT15+ Myoepi,9
+P2,B1,CRABP2+ Malignant,Macrophage,2
+P2,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,30
+P2,B1,CRABP2+ Malignant,unassigned,593
+P2,B1,ECM1+ Malignant,CD4 T,7
+P2,B1,ECM1+ Malignant,CD8 T,18
+P2,B1,ECM1+ Malignant,CRABP2+ Malignant,74
+P2,B1,ECM1+ Malignant,ECM1+ Malignant,17993
+P2,B1,ECM1+ Malignant,Fibroblast,104
+P2,B1,ECM1+ Malignant,Macrophage,1
+P2,B1,ECM1+ Malignant,SCGB2A2+ Malignant,15
+P2,B1,ECM1+ Malignant,VWF+ Endothelial,1
+P2,B1,ECM1+ Malignant,unassigned,634
+P2,B1,Fibroblast,ACTA2+ Myoepi,12
+P2,B1,Fibroblast,B Cells,1
+P2,B1,Fibroblast,CD163+ Macrophage,9
+P2,B1,Fibroblast,CD4 T,37
+P2,B1,Fibroblast,CD8 T,26
+P2,B1,Fibroblast,CRABP2+ Malignant,2
+P2,B1,Fibroblast,ECM1+ Malignant,63
+P2,B1,Fibroblast,Fibroblast,13737
+P2,B1,Fibroblast,Macrophage,13
+P2,B1,Fibroblast,Mast cells,1
+P2,B1,Fibroblast,Plasma,8
+P2,B1,Fibroblast,VWF+ Endothelial,67
+P2,B1,Fibroblast,unassigned,1010
+P2,B1,IRF7+ DC,Fibroblast,1
+P2,B1,IRF7+ DC,IRF7+ DC,375
+P2,B1,IRF7+ DC,unassigned,5
+P2,B1,KRT15+ Myoepi,ACTA2+ Myoepi,1
+P2,B1,KRT15+ Myoepi,CD8 T,2
+P2,B1,KRT15+ Myoepi,CRABP2+ Malignant,3
+P2,B1,KRT15+ Myoepi,KRT15+ Myoepi,1339
+P2,B1,KRT15+ Myoepi,Macrophage,2
+P2,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,7
+P2,B1,KRT15+ Myoepi,unassigned,81
+P2,B1,LAMP3+ DC,LAMP3+ DC,128
+P2,B1,LAMP3+ DC,unassigned,4
+P2,B1,Macrophage,CD163+ Macrophage,8
+P2,B1,Macrophage,Fibroblast,3
+P2,B1,Macrophage,Macrophage,4728
+P2,B1,Macrophage,VWF+ Endothelial,1
+P2,B1,Macrophage,unassigned,165
+P2,B1,Mast cells,Mast cells,63
+P2,B1,Mast cells,unassigned,6
+P2,B1,Plasma,CD4 T,2
+P2,B1,Plasma,Fibroblast,11
+P2,B1,Plasma,LAMP3+ DC,1
+P2,B1,Plasma,Plasma,3146
+P2,B1,Plasma,unassigned,74
+P2,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,10
+P2,B1,SCGB2A2+ Malignant,CD4 T,1
+P2,B1,SCGB2A2+ Malignant,CD8 T,5
+P2,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,29
+P2,B1,SCGB2A2+ Malignant,ECM1+ Malignant,5
+P2,B1,SCGB2A2+ Malignant,Fibroblast,1
+P2,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,10
+P2,B1,SCGB2A2+ Malignant,Macrophage,2
+P2,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5509
+P2,B1,SCGB2A2+ Malignant,unassigned,580
+P2,B1,STAB2+ Endothelial,STAB2+ Endothelial,31
+P2,B1,STAB2+ Endothelial,unassigned,11
+P2,B1,VWF+ Endothelial,ACTA2+ Myoepi,1
+P2,B1,VWF+ Endothelial,CD163+ Macrophage,1
+P2,B1,VWF+ Endothelial,CD4 T,1
+P2,B1,VWF+ Endothelial,CD8 T,1
+P2,B1,VWF+ Endothelial,Fibroblast,35
+P2,B1,VWF+ Endothelial,Plasma,1
+P2,B1,VWF+ Endothelial,VWF+ Endothelial,4778
+P2,B1,VWF+ Endothelial,unassigned,343
+P2,B1,unassigned,ACTA2+ Myoepi,368
+P2,B1,unassigned,B Cells,83
+P2,B1,unassigned,CD163+ Macrophage,193
+P2,B1,unassigned,CD4 T,352
+P2,B1,unassigned,CD8 T,296
+P2,B1,unassigned,CRABP2+ Malignant,566
+P2,B1,unassigned,ECM1+ Malignant,572
+P2,B1,unassigned,Fibroblast,854
+P2,B1,unassigned,IRF7+ DC,9
+P2,B1,unassigned,KRT15+ Myoepi,109
+P2,B1,unassigned,LAMP3+ DC,5
+P2,B1,unassigned,Macrophage,262
+P2,B1,unassigned,Mast cells,10
+P2,B1,unassigned,Plasma,69
+P2,B1,unassigned,SCGB2A2+ Malignant,665
+P2,B1,unassigned,STAB2+ Endothelial,7
+P2,B1,unassigned,VWF+ Endothelial,421
+P2,B1,unassigned,unassigned,12691
+T1,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2388
+T1,B1,ACTA2+ Myoepi,CD8 T,2
+T1,B1,ACTA2+ Myoepi,CRABP2+ Malignant,19
+T1,B1,ACTA2+ Myoepi,ECM1+ Malignant,1
+T1,B1,ACTA2+ Myoepi,Fibroblast,15
+T1,B1,ACTA2+ Myoepi,KRT15+ Myoepi,5
+T1,B1,ACTA2+ Myoepi,Macrophage,2
+T1,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,9
+T1,B1,ACTA2+ Myoepi,VWF+ Endothelial,6
+T1,B1,ACTA2+ Myoepi,unassigned,319
+T1,B1,B Cells,B Cells,1729
+T1,B1,B Cells,Fibroblast,1
+T1,B1,B Cells,unassigned,47
+T1,B1,CD163+ Macrophage,B Cells,1
+T1,B1,CD163+ Macrophage,CD163+ Macrophage,2245
+T1,B1,CD163+ Macrophage,CD8 T,1
+T1,B1,CD163+ Macrophage,Fibroblast,3
+T1,B1,CD163+ Macrophage,IRF7+ DC,1
+T1,B1,CD163+ Macrophage,Macrophage,1
+T1,B1,CD163+ Macrophage,unassigned,138
+T1,B1,CD4 T,CD4 T,11071
+T1,B1,CD4 T,CD8 T,4
+T1,B1,CD4 T,ECM1+ Malignant,1
+T1,B1,CD4 T,Fibroblast,8
+T1,B1,CD4 T,Macrophage,1
+T1,B1,CD4 T,Plasma,1
+T1,B1,CD4 T,VWF+ Endothelial,1
+T1,B1,CD4 T,unassigned,261
+T1,B1,CD8 T,CD4 T,3
+T1,B1,CD8 T,CD8 T,5458
+T1,B1,CD8 T,Fibroblast,5
+T1,B1,CD8 T,Plasma,1
+T1,B1,CD8 T,SCGB2A2+ Malignant,1
+T1,B1,CD8 T,unassigned,154
+T1,B1,CRABP2+ Malignant,ACTA2+ Myoepi,34
+T1,B1,CRABP2+ Malignant,CD8 T,4
+T1,B1,CRABP2+ Malignant,CRABP2+ Malignant,5395
+T1,B1,CRABP2+ Malignant,ECM1+ Malignant,31
+T1,B1,CRABP2+ Malignant,Fibroblast,1
+T1,B1,CRABP2+ Malignant,KRT15+ Myoepi,11
+T1,B1,CRABP2+ Malignant,Macrophage,3
+T1,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,42
+T1,B1,CRABP2+ Malignant,unassigned,606
+T1,B1,ECM1+ Malignant,CD4 T,7
+T1,B1,ECM1+ Malignant,CD8 T,15
+T1,B1,ECM1+ Malignant,CRABP2+ Malignant,64
+T1,B1,ECM1+ Malignant,ECM1+ Malignant,17970
+T1,B1,ECM1+ Malignant,Fibroblast,102
+T1,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+T1,B1,ECM1+ Malignant,Macrophage,3
+T1,B1,ECM1+ Malignant,SCGB2A2+ Malignant,8
+T1,B1,ECM1+ Malignant,unassigned,679
+T1,B1,Fibroblast,ACTA2+ Myoepi,16
+T1,B1,Fibroblast,B Cells,2
+T1,B1,Fibroblast,CD163+ Macrophage,9
+T1,B1,Fibroblast,CD4 T,39
+T1,B1,Fibroblast,CD8 T,24
+T1,B1,Fibroblast,CRABP2+ Malignant,5
+T1,B1,Fibroblast,ECM1+ Malignant,81
+T1,B1,Fibroblast,Fibroblast,13659
+T1,B1,Fibroblast,Macrophage,14
+T1,B1,Fibroblast,Mast cells,1
+T1,B1,Fibroblast,Plasma,9
+T1,B1,Fibroblast,VWF+ Endothelial,67
+T1,B1,Fibroblast,unassigned,1048
+T1,B1,IRF7+ DC,IRF7+ DC,374
+T1,B1,IRF7+ DC,unassigned,7
+T1,B1,KRT15+ Myoepi,ACTA2+ Myoepi,4
+T1,B1,KRT15+ Myoepi,CD8 T,1
+T1,B1,KRT15+ Myoepi,CRABP2+ Malignant,5
+T1,B1,KRT15+ Myoepi,KRT15+ Myoepi,1331
+T1,B1,KRT15+ Myoepi,Macrophage,3
+T1,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,7
+T1,B1,KRT15+ Myoepi,unassigned,85
+T1,B1,LAMP3+ DC,LAMP3+ DC,129
+T1,B1,LAMP3+ DC,unassigned,3
+T1,B1,Macrophage,CD163+ Macrophage,6
+T1,B1,Macrophage,Fibroblast,4
+T1,B1,Macrophage,Macrophage,4732
+T1,B1,Macrophage,VWF+ Endothelial,1
+T1,B1,Macrophage,unassigned,162
+T1,B1,Mast cells,Mast cells,62
+T1,B1,Mast cells,unassigned,7
+T1,B1,Plasma,CD4 T,2
+T1,B1,Plasma,Fibroblast,9
+T1,B1,Plasma,LAMP3+ DC,1
+T1,B1,Plasma,Plasma,3161
+T1,B1,Plasma,unassigned,61
+T1,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,12
+T1,B1,SCGB2A2+ Malignant,CD4 T,1
+T1,B1,SCGB2A2+ Malignant,CD8 T,6
+T1,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,34
+T1,B1,SCGB2A2+ Malignant,ECM1+ Malignant,8
+T1,B1,SCGB2A2+ Malignant,Fibroblast,2
+T1,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,16
+T1,B1,SCGB2A2+ Malignant,Macrophage,1
+T1,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5433
+T1,B1,SCGB2A2+ Malignant,unassigned,638
+T1,B1,STAB2+ Endothelial,STAB2+ Endothelial,28
+T1,B1,STAB2+ Endothelial,unassigned,14
+T1,B1,VWF+ Endothelial,ACTA2+ Myoepi,2
+T1,B1,VWF+ Endothelial,CD163+ Macrophage,1
+T1,B1,VWF+ Endothelial,CD4 T,1
+T1,B1,VWF+ Endothelial,CD8 T,1
+T1,B1,VWF+ Endothelial,Fibroblast,32
+T1,B1,VWF+ Endothelial,Plasma,1
+T1,B1,VWF+ Endothelial,VWF+ Endothelial,4750
+T1,B1,VWF+ Endothelial,unassigned,370
+T1,B1,unassigned,ACTA2+ Myoepi,365
+T1,B1,unassigned,B Cells,81
+T1,B1,unassigned,CD163+ Macrophage,192
+T1,B1,unassigned,CD4 T,364
+T1,B1,unassigned,CD8 T,296
+T1,B1,unassigned,CRABP2+ Malignant,577
+T1,B1,unassigned,ECM1+ Malignant,584
+T1,B1,unassigned,Fibroblast,895
+T1,B1,unassigned,IRF7+ DC,9
+T1,B1,unassigned,KRT15+ Myoepi,119
+T1,B1,unassigned,LAMP3+ DC,4
+T1,B1,unassigned,Macrophage,255
+T1,B1,unassigned,Mast cells,9
+T1,B1,unassigned,Plasma,61
+T1,B1,unassigned,SCGB2A2+ Malignant,639
+T1,B1,unassigned,STAB2+ Endothelial,9
+T1,B1,unassigned,VWF+ Endothelial,416
+T1,B1,unassigned,unassigned,12654
+T2,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2371
+T2,B1,ACTA2+ Myoepi,CD8 T,4
+T2,B1,ACTA2+ Myoepi,CRABP2+ Malignant,19
+T2,B1,ACTA2+ Myoepi,Fibroblast,9
+T2,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+T2,B1,ACTA2+ Myoepi,Macrophage,1
+T2,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,11
+T2,B1,ACTA2+ Myoepi,VWF+ Endothelial,3
+T2,B1,ACTA2+ Myoepi,unassigned,344
+T2,B1,B Cells,B Cells,1734
+T2,B1,B Cells,unassigned,43
+T2,B1,CD163+ Macrophage,B Cells,1
+T2,B1,CD163+ Macrophage,CD163+ Macrophage,2248
+T2,B1,CD163+ Macrophage,CD8 T,1
+T2,B1,CD163+ Macrophage,Fibroblast,2
+T2,B1,CD163+ Macrophage,IRF7+ DC,1
+T2,B1,CD163+ Macrophage,Macrophage,1
+T2,B1,CD163+ Macrophage,unassigned,135
+T2,B1,CD4 T,CD4 T,11105
+T2,B1,CD4 T,CD8 T,4
+T2,B1,CD4 T,Fibroblast,6
+T2,B1,CD4 T,Macrophage,1
+T2,B1,CD4 T,Plasma,1
+T2,B1,CD4 T,VWF+ Endothelial,1
+T2,B1,CD4 T,unassigned,229
+T2,B1,CD8 T,CD4 T,1
+T2,B1,CD8 T,CD8 T,5466
+T2,B1,CD8 T,ECM1+ Malignant,4
+T2,B1,CD8 T,Fibroblast,5
+T2,B1,CD8 T,Plasma,1
+T2,B1,CD8 T,unassigned,145
+T2,B1,CRABP2+ Malignant,ACTA2+ Myoepi,30
+T2,B1,CRABP2+ Malignant,CD8 T,5
+T2,B1,CRABP2+ Malignant,CRABP2+ Malignant,5406
+T2,B1,CRABP2+ Malignant,ECM1+ Malignant,39
+T2,B1,CRABP2+ Malignant,Fibroblast,2
+T2,B1,CRABP2+ Malignant,KRT15+ Myoepi,9
+T2,B1,CRABP2+ Malignant,Macrophage,3
+T2,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,43
+T2,B1,CRABP2+ Malignant,unassigned,590
+T2,B1,ECM1+ Malignant,CD4 T,6
+T2,B1,ECM1+ Malignant,CD8 T,15
+T2,B1,ECM1+ Malignant,CRABP2+ Malignant,56
+T2,B1,ECM1+ Malignant,ECM1+ Malignant,18004
+T2,B1,ECM1+ Malignant,Fibroblast,93
+T2,B1,ECM1+ Malignant,Macrophage,1
+T2,B1,ECM1+ Malignant,SCGB2A2+ Malignant,8
+T2,B1,ECM1+ Malignant,unassigned,664
+T2,B1,Fibroblast,ACTA2+ Myoepi,18
+T2,B1,Fibroblast,B Cells,2
+T2,B1,Fibroblast,CD163+ Macrophage,11
+T2,B1,Fibroblast,CD4 T,42
+T2,B1,Fibroblast,CD8 T,26
+T2,B1,Fibroblast,CRABP2+ Malignant,3
+T2,B1,Fibroblast,ECM1+ Malignant,87
+T2,B1,Fibroblast,Fibroblast,13604
+T2,B1,Fibroblast,IRF7+ DC,1
+T2,B1,Fibroblast,Macrophage,16
+T2,B1,Fibroblast,Mast cells,1
+T2,B1,Fibroblast,Plasma,10
+T2,B1,Fibroblast,VWF+ Endothelial,63
+T2,B1,Fibroblast,unassigned,1093
+T2,B1,IRF7+ DC,IRF7+ DC,375
+T2,B1,IRF7+ DC,unassigned,6
+T2,B1,KRT15+ Myoepi,ACTA2+ Myoepi,5
+T2,B1,KRT15+ Myoepi,CD8 T,2
+T2,B1,KRT15+ Myoepi,CRABP2+ Malignant,3
+T2,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+T2,B1,KRT15+ Myoepi,KRT15+ Myoepi,1317
+T2,B1,KRT15+ Myoepi,Macrophage,2
+T2,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,11
+T2,B1,KRT15+ Myoepi,unassigned,94
+T2,B1,LAMP3+ DC,LAMP3+ DC,127
+T2,B1,LAMP3+ DC,unassigned,5
+T2,B1,Macrophage,CD163+ Macrophage,6
+T2,B1,Macrophage,Fibroblast,2
+T2,B1,Macrophage,Macrophage,4736
+T2,B1,Macrophage,VWF+ Endothelial,1
+T2,B1,Macrophage,unassigned,159
+T2,B1,Mast cells,Mast cells,62
+T2,B1,Mast cells,unassigned,7
+T2,B1,Plasma,CD4 T,2
+T2,B1,Plasma,CD8 T,1
+T2,B1,Plasma,Fibroblast,9
+T2,B1,Plasma,LAMP3+ DC,1
+T2,B1,Plasma,Plasma,3164
+T2,B1,Plasma,unassigned,55
+T2,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,11
+T2,B1,SCGB2A2+ Malignant,CD4 T,1
+T2,B1,SCGB2A2+ Malignant,CD8 T,7
+T2,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,30
+T2,B1,SCGB2A2+ Malignant,ECM1+ Malignant,11
+T2,B1,SCGB2A2+ Malignant,Fibroblast,2
+T2,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,17
+T2,B1,SCGB2A2+ Malignant,Macrophage,2
+T2,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5447
+T2,B1,SCGB2A2+ Malignant,unassigned,624
+T2,B1,STAB2+ Endothelial,STAB2+ Endothelial,29
+T2,B1,STAB2+ Endothelial,unassigned,13
+T2,B1,VWF+ Endothelial,ACTA2+ Myoepi,4
+T2,B1,VWF+ Endothelial,CD163+ Macrophage,1
+T2,B1,VWF+ Endothelial,CD4 T,2
+T2,B1,VWF+ Endothelial,CD8 T,1
+T2,B1,VWF+ Endothelial,Fibroblast,43
+T2,B1,VWF+ Endothelial,Plasma,1
+T2,B1,VWF+ Endothelial,VWF+ Endothelial,4730
+T2,B1,VWF+ Endothelial,unassigned,378
+T2,B1,unassigned,ACTA2+ Myoepi,344
+T2,B1,unassigned,B Cells,96
+T2,B1,unassigned,CD163+ Macrophage,179
+T2,B1,unassigned,CD4 T,376
+T2,B1,unassigned,CD8 T,297
+T2,B1,unassigned,CRABP2+ Malignant,566
+T2,B1,unassigned,ECM1+ Malignant,596
+T2,B1,unassigned,Fibroblast,836
+T2,B1,unassigned,IRF7+ DC,10
+T2,B1,unassigned,KRT15+ Myoepi,101
+T2,B1,unassigned,LAMP3+ DC,4
+T2,B1,unassigned,Macrophage,252
+T2,B1,unassigned,Mast cells,12
+T2,B1,unassigned,Plasma,64
+T2,B1,unassigned,SCGB2A2+ Malignant,654
+T2,B1,unassigned,STAB2+ Endothelial,8
+T2,B1,unassigned,VWF+ Endothelial,401
+T2,B1,unassigned,unassigned,12723
+B0,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2314
+B0,B1,ACTA2+ Myoepi,CRABP2+ Malignant,25
+B0,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+B0,B1,ACTA2+ Myoepi,Fibroblast,44
+B0,B1,ACTA2+ Myoepi,KRT15+ Myoepi,6
+B0,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,12
+B0,B1,ACTA2+ Myoepi,VWF+ Endothelial,6
+B0,B1,ACTA2+ Myoepi,unassigned,356
+B0,B1,B Cells,B Cells,1375
+B0,B1,B Cells,CD163+ Macrophage,3
+B0,B1,B Cells,CD4 T,3
+B0,B1,B Cells,Fibroblast,3
+B0,B1,B Cells,IRF7+ DC,1
+B0,B1,B Cells,Macrophage,7
+B0,B1,B Cells,Plasma,4
+B0,B1,B Cells,unassigned,383
+B0,B1,CD163+ Macrophage,B Cells,1
+B0,B1,CD163+ Macrophage,CD163+ Macrophage,1905
+B0,B1,CD163+ Macrophage,Fibroblast,46
+B0,B1,CD163+ Macrophage,IRF7+ DC,1
+B0,B1,CD163+ Macrophage,Macrophage,21
+B0,B1,CD163+ Macrophage,Plasma,2
+B0,B1,CD163+ Macrophage,VWF+ Endothelial,1
+B0,B1,CD163+ Macrophage,unassigned,412
+B0,B1,CD4 T,CD163+ Macrophage,21
+B0,B1,CD4 T,CD4 T,9694
+B0,B1,CD4 T,CD8 T,6
+B0,B1,CD4 T,ECM1+ Malignant,34
+B0,B1,CD4 T,Fibroblast,146
+B0,B1,CD4 T,IRF7+ DC,2
+B0,B1,CD4 T,KRT15+ Myoepi,1
+B0,B1,CD4 T,Macrophage,50
+B0,B1,CD4 T,Plasma,13
+B0,B1,CD4 T,SCGB2A2+ Malignant,2
+B0,B1,CD4 T,VWF+ Endothelial,24
+B0,B1,CD4 T,unassigned,1353
+B0,B1,CD8 T,ACTA2+ Myoepi,8
+B0,B1,CD8 T,CD163+ Macrophage,4
+B0,B1,CD8 T,CD4 T,17
+B0,B1,CD8 T,CD8 T,4484
+B0,B1,CD8 T,CRABP2+ Malignant,9
+B0,B1,CD8 T,ECM1+ Malignant,58
+B0,B1,CD8 T,Fibroblast,99
+B0,B1,CD8 T,KRT15+ Myoepi,5
+B0,B1,CD8 T,Macrophage,31
+B0,B1,CD8 T,Plasma,7
+B0,B1,CD8 T,SCGB2A2+ Malignant,12
+B0,B1,CD8 T,VWF+ Endothelial,5
+B0,B1,CD8 T,unassigned,882
+B0,B1,CRABP2+ Malignant,ACTA2+ Myoepi,75
+B0,B1,CRABP2+ Malignant,CRABP2+ Malignant,5285
+B0,B1,CRABP2+ Malignant,ECM1+ Malignant,51
+B0,B1,CRABP2+ Malignant,Fibroblast,3
+B0,B1,CRABP2+ Malignant,KRT15+ Myoepi,8
+B0,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,55
+B0,B1,CRABP2+ Malignant,unassigned,646
+B0,B1,ECM1+ Malignant,ACTA2+ Myoepi,2
+B0,B1,ECM1+ Malignant,CD4 T,2
+B0,B1,ECM1+ Malignant,CD8 T,6
+B0,B1,ECM1+ Malignant,CRABP2+ Malignant,86
+B0,B1,ECM1+ Malignant,ECM1+ Malignant,17352
+B0,B1,ECM1+ Malignant,Fibroblast,366
+B0,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+B0,B1,ECM1+ Malignant,Macrophage,38
+B0,B1,ECM1+ Malignant,SCGB2A2+ Malignant,22
+B0,B1,ECM1+ Malignant,VWF+ Endothelial,2
+B0,B1,ECM1+ Malignant,unassigned,967
+B0,B1,Fibroblast,ACTA2+ Myoepi,13
+B0,B1,Fibroblast,CD163+ Macrophage,12
+B0,B1,Fibroblast,CD4 T,19
+B0,B1,Fibroblast,CD8 T,11
+B0,B1,Fibroblast,CRABP2+ Malignant,2
+B0,B1,Fibroblast,ECM1+ Malignant,77
+B0,B1,Fibroblast,Fibroblast,13568
+B0,B1,Fibroblast,Macrophage,16
+B0,B1,Fibroblast,Plasma,21
+B0,B1,Fibroblast,SCGB2A2+ Malignant,1
+B0,B1,Fibroblast,VWF+ Endothelial,81
+B0,B1,Fibroblast,unassigned,1118
+B0,B1,IRF7+ DC,ECM1+ Malignant,2
+B0,B1,IRF7+ DC,Fibroblast,3
+B0,B1,IRF7+ DC,IRF7+ DC,348
+B0,B1,IRF7+ DC,Macrophage,1
+B0,B1,IRF7+ DC,Plasma,2
+B0,B1,IRF7+ DC,unassigned,25
+B0,B1,KRT15+ Myoepi,ACTA2+ Myoepi,12
+B0,B1,KRT15+ Myoepi,CRABP2+ Malignant,6
+B0,B1,KRT15+ Myoepi,KRT15+ Myoepi,1274
+B0,B1,KRT15+ Myoepi,Macrophage,1
+B0,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,21
+B0,B1,KRT15+ Myoepi,unassigned,120
+B0,B1,LAMP3+ DC,CD4 T,1
+B0,B1,LAMP3+ DC,Fibroblast,2
+B0,B1,LAMP3+ DC,LAMP3+ DC,110
+B0,B1,LAMP3+ DC,unassigned,19
+B0,B1,Macrophage,ACTA2+ Myoepi,5
+B0,B1,Macrophage,CD163+ Macrophage,9
+B0,B1,Macrophage,CRABP2+ Malignant,6
+B0,B1,Macrophage,ECM1+ Malignant,7
+B0,B1,Macrophage,Fibroblast,35
+B0,B1,Macrophage,KRT15+ Myoepi,3
+B0,B1,Macrophage,Macrophage,4304
+B0,B1,Macrophage,Plasma,3
+B0,B1,Macrophage,SCGB2A2+ Malignant,4
+B0,B1,Macrophage,VWF+ Endothelial,5
+B0,B1,Macrophage,unassigned,523
+B0,B1,Mast cells,Fibroblast,7
+B0,B1,Mast cells,Mast cells,39
+B0,B1,Mast cells,Plasma,1
+B0,B1,Mast cells,unassigned,22
+B0,B1,Plasma,CD4 T,4
+B0,B1,Plasma,CD8 T,2
+B0,B1,Plasma,ECM1+ Malignant,3
+B0,B1,Plasma,Fibroblast,21
+B0,B1,Plasma,Macrophage,2
+B0,B1,Plasma,Plasma,3064
+B0,B1,Plasma,VWF+ Endothelial,2
+B0,B1,Plasma,unassigned,136
+B0,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,17
+B0,B1,SCGB2A2+ Malignant,CD8 T,2
+B0,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,39
+B0,B1,SCGB2A2+ Malignant,ECM1+ Malignant,12
+B0,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,21
+B0,B1,SCGB2A2+ Malignant,Macrophage,1
+B0,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5393
+B0,B1,SCGB2A2+ Malignant,unassigned,665
+B0,B1,STAB2+ Endothelial,STAB2+ Endothelial,18
+B0,B1,STAB2+ Endothelial,unassigned,24
+B0,B1,VWF+ Endothelial,ACTA2+ Myoepi,3
+B0,B1,VWF+ Endothelial,B Cells,1
+B0,B1,VWF+ Endothelial,CD163+ Macrophage,2
+B0,B1,VWF+ Endothelial,CD4 T,4
+B0,B1,VWF+ Endothelial,CD8 T,1
+B0,B1,VWF+ Endothelial,ECM1+ Malignant,1
+B0,B1,VWF+ Endothelial,Fibroblast,100
+B0,B1,VWF+ Endothelial,Macrophage,1
+B0,B1,VWF+ Endothelial,Plasma,2
+B0,B1,VWF+ Endothelial,VWF+ Endothelial,4493
+B0,B1,VWF+ Endothelial,unassigned,543
+B0,B1,unassigned,ACTA2+ Myoepi,450
+B0,B1,unassigned,B Cells,48
+B0,B1,unassigned,CD163+ Macrophage,236
+B0,B1,unassigned,CD4 T,336
+B0,B1,unassigned,CD8 T,226
+B0,B1,unassigned,CRABP2+ Malignant,654
+B0,B1,unassigned,ECM1+ Malignant,718
+B0,B1,unassigned,Fibroblast,1573
+B0,B1,unassigned,IRF7+ DC,7
+B0,B1,unassigned,KRT15+ Myoepi,142
+B0,B1,unassigned,LAMP3+ DC,4
+B0,B1,unassigned,Macrophage,423
+B0,B1,unassigned,Mast cells,8
+B0,B1,unassigned,Plasma,106
+B0,B1,unassigned,SCGB2A2+ Malignant,711
+B0,B1,unassigned,STAB2+ Endothelial,9
+B0,B1,unassigned,VWF+ Endothelial,497
+B0,B1,unassigned,unassigned,11373
+V1_REGION,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2283
+V1_REGION,B1,ACTA2+ Myoepi,CRABP2+ Malignant,49
+V1_REGION,B1,ACTA2+ Myoepi,ECM1+ Malignant,2
+V1_REGION,B1,ACTA2+ Myoepi,Fibroblast,24
+V1_REGION,B1,ACTA2+ Myoepi,KRT15+ Myoepi,7
+V1_REGION,B1,ACTA2+ Myoepi,Macrophage,1
+V1_REGION,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,23
+V1_REGION,B1,ACTA2+ Myoepi,VWF+ Endothelial,6
+V1_REGION,B1,ACTA2+ Myoepi,unassigned,373
+V1_REGION,B1,B Cells,ACTA2+ Myoepi,1
+V1_REGION,B1,B Cells,B Cells,1055
+V1_REGION,B1,B Cells,CD163+ Macrophage,5
+V1_REGION,B1,B Cells,CD4 T,14
+V1_REGION,B1,B Cells,ECM1+ Malignant,1
+V1_REGION,B1,B Cells,Fibroblast,18
+V1_REGION,B1,B Cells,IRF7+ DC,6
+V1_REGION,B1,B Cells,Macrophage,13
+V1_REGION,B1,B Cells,Plasma,6
+V1_REGION,B1,B Cells,VWF+ Endothelial,3
+V1_REGION,B1,B Cells,unassigned,657
+V1_REGION,B1,CD163+ Macrophage,CD163+ Macrophage,1610
+V1_REGION,B1,CD163+ Macrophage,CRABP2+ Malignant,1
+V1_REGION,B1,CD163+ Macrophage,Fibroblast,94
+V1_REGION,B1,CD163+ Macrophage,Macrophage,39
+V1_REGION,B1,CD163+ Macrophage,VWF+ Endothelial,1
+V1_REGION,B1,CD163+ Macrophage,unassigned,646
+V1_REGION,B1,CD4 T,ACTA2+ Myoepi,6
+V1_REGION,B1,CD4 T,CD163+ Macrophage,32
+V1_REGION,B1,CD4 T,CD4 T,8241
+V1_REGION,B1,CD4 T,CD8 T,13
+V1_REGION,B1,CD4 T,CRABP2+ Malignant,1
+V1_REGION,B1,CD4 T,ECM1+ Malignant,70
+V1_REGION,B1,CD4 T,Fibroblast,339
+V1_REGION,B1,CD4 T,IRF7+ DC,4
+V1_REGION,B1,CD4 T,KRT15+ Myoepi,3
+V1_REGION,B1,CD4 T,Macrophage,130
+V1_REGION,B1,CD4 T,Plasma,36
+V1_REGION,B1,CD4 T,SCGB2A2+ Malignant,2
+V1_REGION,B1,CD4 T,VWF+ Endothelial,47
+V1_REGION,B1,CD4 T,unassigned,2428
+V1_REGION,B1,CD8 T,ACTA2+ Myoepi,18
+V1_REGION,B1,CD8 T,CD163+ Macrophage,6
+V1_REGION,B1,CD8 T,CD4 T,22
+V1_REGION,B1,CD8 T,CD8 T,3552
+V1_REGION,B1,CD8 T,CRABP2+ Malignant,12
+V1_REGION,B1,CD8 T,ECM1+ Malignant,127
+V1_REGION,B1,CD8 T,Fibroblast,234
+V1_REGION,B1,CD8 T,KRT15+ Myoepi,13
+V1_REGION,B1,CD8 T,Macrophage,47
+V1_REGION,B1,CD8 T,Plasma,8
+V1_REGION,B1,CD8 T,SCGB2A2+ Malignant,23
+V1_REGION,B1,CD8 T,VWF+ Endothelial,8
+V1_REGION,B1,CD8 T,unassigned,1553
+V1_REGION,B1,CRABP2+ Malignant,ACTA2+ Myoepi,62
+V1_REGION,B1,CRABP2+ Malignant,CD8 T,1
+V1_REGION,B1,CRABP2+ Malignant,CRABP2+ Malignant,5223
+V1_REGION,B1,CRABP2+ Malignant,ECM1+ Malignant,66
+V1_REGION,B1,CRABP2+ Malignant,Fibroblast,3
+V1_REGION,B1,CRABP2+ Malignant,KRT15+ Myoepi,10
+V1_REGION,B1,CRABP2+ Malignant,Macrophage,1
+V1_REGION,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,74
+V1_REGION,B1,CRABP2+ Malignant,unassigned,690
+V1_REGION,B1,ECM1+ Malignant,ACTA2+ Myoepi,3
+V1_REGION,B1,ECM1+ Malignant,CD8 T,1
+V1_REGION,B1,ECM1+ Malignant,CRABP2+ Malignant,112
+V1_REGION,B1,ECM1+ Malignant,ECM1+ Malignant,17619
+V1_REGION,B1,ECM1+ Malignant,Fibroblast,212
+V1_REGION,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+V1_REGION,B1,ECM1+ Malignant,Macrophage,25
+V1_REGION,B1,ECM1+ Malignant,Plasma,1
+V1_REGION,B1,ECM1+ Malignant,SCGB2A2+ Malignant,21
+V1_REGION,B1,ECM1+ Malignant,VWF+ Endothelial,3
+V1_REGION,B1,ECM1+ Malignant,unassigned,856
+V1_REGION,B1,Fibroblast,ACTA2+ Myoepi,44
+V1_REGION,B1,Fibroblast,CD163+ Macrophage,17
+V1_REGION,B1,Fibroblast,CD4 T,17
+V1_REGION,B1,Fibroblast,CD8 T,11
+V1_REGION,B1,Fibroblast,CRABP2+ Malignant,3
+V1_REGION,B1,Fibroblast,ECM1+ Malignant,168
+V1_REGION,B1,Fibroblast,Fibroblast,13226
+V1_REGION,B1,Fibroblast,Macrophage,23
+V1_REGION,B1,Fibroblast,Plasma,17
+V1_REGION,B1,Fibroblast,SCGB2A2+ Malignant,2
+V1_REGION,B1,Fibroblast,VWF+ Endothelial,123
+V1_REGION,B1,Fibroblast,unassigned,1309
+V1_REGION,B1,IRF7+ DC,CD163+ Macrophage,1
+V1_REGION,B1,IRF7+ DC,ECM1+ Malignant,3
+V1_REGION,B1,IRF7+ DC,Fibroblast,12
+V1_REGION,B1,IRF7+ DC,IRF7+ DC,312
+V1_REGION,B1,IRF7+ DC,Plasma,1
+V1_REGION,B1,IRF7+ DC,unassigned,52
+V1_REGION,B1,KRT15+ Myoepi,ACTA2+ Myoepi,16
+V1_REGION,B1,KRT15+ Myoepi,CD8 T,2
+V1_REGION,B1,KRT15+ Myoepi,CRABP2+ Malignant,7
+V1_REGION,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+V1_REGION,B1,KRT15+ Myoepi,KRT15+ Myoepi,1205
+V1_REGION,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,25
+V1_REGION,B1,KRT15+ Myoepi,unassigned,180
+V1_REGION,B1,LAMP3+ DC,CD4 T,1
+V1_REGION,B1,LAMP3+ DC,Fibroblast,4
+V1_REGION,B1,LAMP3+ DC,LAMP3+ DC,96
+V1_REGION,B1,LAMP3+ DC,Macrophage,2
+V1_REGION,B1,LAMP3+ DC,unassigned,29
+V1_REGION,B1,Macrophage,ACTA2+ Myoepi,21
+V1_REGION,B1,Macrophage,CD163+ Macrophage,9
+V1_REGION,B1,Macrophage,CRABP2+ Malignant,9
+V1_REGION,B1,Macrophage,ECM1+ Malignant,10
+V1_REGION,B1,Macrophage,Fibroblast,97
+V1_REGION,B1,Macrophage,KRT15+ Myoepi,5
+V1_REGION,B1,Macrophage,Macrophage,3913
+V1_REGION,B1,Macrophage,Plasma,5
+V1_REGION,B1,Macrophage,SCGB2A2+ Malignant,10
+V1_REGION,B1,Macrophage,VWF+ Endothelial,8
+V1_REGION,B1,Macrophage,unassigned,818
+V1_REGION,B1,Mast cells,Fibroblast,14
+V1_REGION,B1,Mast cells,Mast cells,28
+V1_REGION,B1,Mast cells,unassigned,27
+V1_REGION,B1,Plasma,CD163+ Macrophage,2
+V1_REGION,B1,Plasma,CD4 T,4
+V1_REGION,B1,Plasma,ECM1+ Malignant,2
+V1_REGION,B1,Plasma,Fibroblast,43
+V1_REGION,B1,Plasma,LAMP3+ DC,1
+V1_REGION,B1,Plasma,Macrophage,2
+V1_REGION,B1,Plasma,Plasma,2942
+V1_REGION,B1,Plasma,VWF+ Endothelial,3
+V1_REGION,B1,Plasma,unassigned,238
+V1_REGION,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,26
+V1_REGION,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,62
+V1_REGION,B1,SCGB2A2+ Malignant,ECM1+ Malignant,16
+V1_REGION,B1,SCGB2A2+ Malignant,Fibroblast,2
+V1_REGION,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,19
+V1_REGION,B1,SCGB2A2+ Malignant,Macrophage,3
+V1_REGION,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5322
+V1_REGION,B1,SCGB2A2+ Malignant,VWF+ Endothelial,1
+V1_REGION,B1,SCGB2A2+ Malignant,unassigned,701
+V1_REGION,B1,STAB2+ Endothelial,ECM1+ Malignant,1
+V1_REGION,B1,STAB2+ Endothelial,Fibroblast,2
+V1_REGION,B1,STAB2+ Endothelial,STAB2+ Endothelial,16
+V1_REGION,B1,STAB2+ Endothelial,unassigned,23
+V1_REGION,B1,VWF+ Endothelial,ACTA2+ Myoepi,10
+V1_REGION,B1,VWF+ Endothelial,CD163+ Macrophage,3
+V1_REGION,B1,VWF+ Endothelial,CD4 T,7
+V1_REGION,B1,VWF+ Endothelial,CRABP2+ Malignant,1
+V1_REGION,B1,VWF+ Endothelial,ECM1+ Malignant,3
+V1_REGION,B1,VWF+ Endothelial,Fibroblast,148
+V1_REGION,B1,VWF+ Endothelial,Macrophage,1
+V1_REGION,B1,VWF+ Endothelial,Plasma,2
+V1_REGION,B1,VWF+ Endothelial,STAB2+ Endothelial,1
+V1_REGION,B1,VWF+ Endothelial,VWF+ Endothelial,4327
+V1_REGION,B1,VWF+ Endothelial,unassigned,650
+V1_REGION,B1,unassigned,ACTA2+ Myoepi,523
+V1_REGION,B1,unassigned,B Cells,38
+V1_REGION,B1,unassigned,CD163+ Macrophage,310
+V1_REGION,B1,unassigned,CD4 T,348
+V1_REGION,B1,unassigned,CD8 T,241
+V1_REGION,B1,unassigned,CRABP2+ Malignant,807
+V1_REGION,B1,unassigned,ECM1+ Malignant,983
+V1_REGION,B1,unassigned,Fibroblast,1976
+V1_REGION,B1,unassigned,IRF7+ DC,10
+V1_REGION,B1,unassigned,KRT15+ Myoepi,161
+V1_REGION,B1,unassigned,LAMP3+ DC,7
+V1_REGION,B1,unassigned,Macrophage,575
+V1_REGION,B1,unassigned,Mast cells,7
+V1_REGION,B1,unassigned,Plasma,139
+V1_REGION,B1,unassigned,SCGB2A2+ Malignant,802
+V1_REGION,B1,unassigned,STAB2+ Endothelial,8
+V1_REGION,B1,unassigned,VWF+ Endothelial,548
+V1_REGION,B1,unassigned,unassigned,10079
+V1_BOUNDARY,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2240
+V1_BOUNDARY,B1,ACTA2+ Myoepi,CRABP2+ Malignant,49
+V1_BOUNDARY,B1,ACTA2+ Myoepi,ECM1+ Malignant,3
+V1_BOUNDARY,B1,ACTA2+ Myoepi,Fibroblast,40
+V1_BOUNDARY,B1,ACTA2+ Myoepi,KRT15+ Myoepi,9
+V1_BOUNDARY,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,28
+V1_BOUNDARY,B1,ACTA2+ Myoepi,VWF+ Endothelial,10
+V1_BOUNDARY,B1,ACTA2+ Myoepi,unassigned,389
+V1_BOUNDARY,B1,B Cells,B Cells,887
+V1_BOUNDARY,B1,B Cells,CD163+ Macrophage,13
+V1_BOUNDARY,B1,B Cells,CD4 T,6
+V1_BOUNDARY,B1,B Cells,CD8 T,1
+V1_BOUNDARY,B1,B Cells,ECM1+ Malignant,2
+V1_BOUNDARY,B1,B Cells,Fibroblast,32
+V1_BOUNDARY,B1,B Cells,IRF7+ DC,1
+V1_BOUNDARY,B1,B Cells,KRT15+ Myoepi,1
+V1_BOUNDARY,B1,B Cells,Macrophage,33
+V1_BOUNDARY,B1,B Cells,Plasma,8
+V1_BOUNDARY,B1,B Cells,VWF+ Endothelial,6
+V1_BOUNDARY,B1,B Cells,unassigned,788
+V1_BOUNDARY,B1,CD163+ Macrophage,B Cells,1
+V1_BOUNDARY,B1,CD163+ Macrophage,CD163+ Macrophage,1498
+V1_BOUNDARY,B1,CD163+ Macrophage,ECM1+ Malignant,1
+V1_BOUNDARY,B1,CD163+ Macrophage,Fibroblast,109
+V1_BOUNDARY,B1,CD163+ Macrophage,Macrophage,43
+V1_BOUNDARY,B1,CD163+ Macrophage,Plasma,1
+V1_BOUNDARY,B1,CD163+ Macrophage,VWF+ Endothelial,8
+V1_BOUNDARY,B1,CD163+ Macrophage,unassigned,730
+V1_BOUNDARY,B1,CD4 T,ACTA2+ Myoepi,9
+V1_BOUNDARY,B1,CD4 T,CD163+ Macrophage,55
+V1_BOUNDARY,B1,CD4 T,CD4 T,7487
+V1_BOUNDARY,B1,CD4 T,CD8 T,21
+V1_BOUNDARY,B1,CD4 T,CRABP2+ Malignant,1
+V1_BOUNDARY,B1,CD4 T,ECM1+ Malignant,81
+V1_BOUNDARY,B1,CD4 T,Fibroblast,488
+V1_BOUNDARY,B1,CD4 T,IRF7+ DC,1
+V1_BOUNDARY,B1,CD4 T,KRT15+ Myoepi,1
+V1_BOUNDARY,B1,CD4 T,LAMP3+ DC,1
+V1_BOUNDARY,B1,CD4 T,Macrophage,212
+V1_BOUNDARY,B1,CD4 T,Plasma,50
+V1_BOUNDARY,B1,CD4 T,SCGB2A2+ Malignant,1
+V1_BOUNDARY,B1,CD4 T,VWF+ Endothelial,85
+V1_BOUNDARY,B1,CD4 T,unassigned,2857
+V1_BOUNDARY,B1,CD8 T,ACTA2+ Myoepi,16
+V1_BOUNDARY,B1,CD8 T,CD163+ Macrophage,14
+V1_BOUNDARY,B1,CD8 T,CD4 T,37
+V1_BOUNDARY,B1,CD8 T,CD8 T,3112
+V1_BOUNDARY,B1,CD8 T,CRABP2+ Malignant,12
+V1_BOUNDARY,B1,CD8 T,ECM1+ Malignant,115
+V1_BOUNDARY,B1,CD8 T,Fibroblast,336
+V1_BOUNDARY,B1,CD8 T,IRF7+ DC,2
+V1_BOUNDARY,B1,CD8 T,KRT15+ Myoepi,12
+V1_BOUNDARY,B1,CD8 T,Macrophage,89
+V1_BOUNDARY,B1,CD8 T,Plasma,14
+V1_BOUNDARY,B1,CD8 T,SCGB2A2+ Malignant,30
+V1_BOUNDARY,B1,CD8 T,VWF+ Endothelial,19
+V1_BOUNDARY,B1,CD8 T,unassigned,1815
+V1_BOUNDARY,B1,CRABP2+ Malignant,ACTA2+ Myoepi,85
+V1_BOUNDARY,B1,CRABP2+ Malignant,CD8 T,2
+V1_BOUNDARY,B1,CRABP2+ Malignant,CRABP2+ Malignant,5070
+V1_BOUNDARY,B1,CRABP2+ Malignant,ECM1+ Malignant,88
+V1_BOUNDARY,B1,CRABP2+ Malignant,Fibroblast,6
+V1_BOUNDARY,B1,CRABP2+ Malignant,KRT15+ Myoepi,8
+V1_BOUNDARY,B1,CRABP2+ Malignant,Macrophage,3
+V1_BOUNDARY,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,71
+V1_BOUNDARY,B1,CRABP2+ Malignant,unassigned,794
+V1_BOUNDARY,B1,ECM1+ Malignant,ACTA2+ Myoepi,1
+V1_BOUNDARY,B1,ECM1+ Malignant,CD4 T,3
+V1_BOUNDARY,B1,ECM1+ Malignant,CD8 T,3
+V1_BOUNDARY,B1,ECM1+ Malignant,CRABP2+ Malignant,96
+V1_BOUNDARY,B1,ECM1+ Malignant,ECM1+ Malignant,17258
+V1_BOUNDARY,B1,ECM1+ Malignant,Fibroblast,374
+V1_BOUNDARY,B1,ECM1+ Malignant,Macrophage,53
+V1_BOUNDARY,B1,ECM1+ Malignant,SCGB2A2+ Malignant,19
+V1_BOUNDARY,B1,ECM1+ Malignant,STAB2+ Endothelial,1
+V1_BOUNDARY,B1,ECM1+ Malignant,VWF+ Endothelial,1
+V1_BOUNDARY,B1,ECM1+ Malignant,unassigned,1039
+V1_BOUNDARY,B1,Fibroblast,ACTA2+ Myoepi,39
+V1_BOUNDARY,B1,Fibroblast,B Cells,2
+V1_BOUNDARY,B1,Fibroblast,CD163+ Macrophage,19
+V1_BOUNDARY,B1,Fibroblast,CD4 T,24
+V1_BOUNDARY,B1,Fibroblast,CD8 T,12
+V1_BOUNDARY,B1,Fibroblast,CRABP2+ Malignant,1
+V1_BOUNDARY,B1,Fibroblast,ECM1+ Malignant,156
+V1_BOUNDARY,B1,Fibroblast,Fibroblast,13123
+V1_BOUNDARY,B1,Fibroblast,IRF7+ DC,1
+V1_BOUNDARY,B1,Fibroblast,Macrophage,26
+V1_BOUNDARY,B1,Fibroblast,Mast cells,1
+V1_BOUNDARY,B1,Fibroblast,Plasma,17
+V1_BOUNDARY,B1,Fibroblast,STAB2+ Endothelial,1
+V1_BOUNDARY,B1,Fibroblast,VWF+ Endothelial,135
+V1_BOUNDARY,B1,Fibroblast,unassigned,1390
+V1_BOUNDARY,B1,IRF7+ DC,CD163+ Macrophage,1
+V1_BOUNDARY,B1,IRF7+ DC,ECM1+ Malignant,1
+V1_BOUNDARY,B1,IRF7+ DC,Fibroblast,12
+V1_BOUNDARY,B1,IRF7+ DC,IRF7+ DC,291
+V1_BOUNDARY,B1,IRF7+ DC,Macrophage,1
+V1_BOUNDARY,B1,IRF7+ DC,VWF+ Endothelial,1
+V1_BOUNDARY,B1,IRF7+ DC,unassigned,74
+V1_BOUNDARY,B1,KRT15+ Myoepi,ACTA2+ Myoepi,18
+V1_BOUNDARY,B1,KRT15+ Myoepi,CD8 T,1
+V1_BOUNDARY,B1,KRT15+ Myoepi,CRABP2+ Malignant,6
+V1_BOUNDARY,B1,KRT15+ Myoepi,ECM1+ Malignant,1
+V1_BOUNDARY,B1,KRT15+ Myoepi,KRT15+ Myoepi,1190
+V1_BOUNDARY,B1,KRT15+ Myoepi,Macrophage,3
+V1_BOUNDARY,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,41
+V1_BOUNDARY,B1,KRT15+ Myoepi,unassigned,175
+V1_BOUNDARY,B1,LAMP3+ DC,CD163+ Macrophage,3
+V1_BOUNDARY,B1,LAMP3+ DC,CD4 T,2
+V1_BOUNDARY,B1,LAMP3+ DC,Fibroblast,3
+V1_BOUNDARY,B1,LAMP3+ DC,LAMP3+ DC,90
+V1_BOUNDARY,B1,LAMP3+ DC,Macrophage,1
+V1_BOUNDARY,B1,LAMP3+ DC,unassigned,33
+V1_BOUNDARY,B1,Macrophage,ACTA2+ Myoepi,18
+V1_BOUNDARY,B1,Macrophage,CD163+ Macrophage,13
+V1_BOUNDARY,B1,Macrophage,CRABP2+ Malignant,10
+V1_BOUNDARY,B1,Macrophage,ECM1+ Malignant,18
+V1_BOUNDARY,B1,Macrophage,Fibroblast,114
+V1_BOUNDARY,B1,Macrophage,KRT15+ Myoepi,4
+V1_BOUNDARY,B1,Macrophage,Macrophage,3622
+V1_BOUNDARY,B1,Macrophage,Plasma,3
+V1_BOUNDARY,B1,Macrophage,SCGB2A2+ Malignant,6
+V1_BOUNDARY,B1,Macrophage,VWF+ Endothelial,17
+V1_BOUNDARY,B1,Macrophage,unassigned,1080
+V1_BOUNDARY,B1,Mast cells,Fibroblast,15
+V1_BOUNDARY,B1,Mast cells,Mast cells,17
+V1_BOUNDARY,B1,Mast cells,Plasma,1
+V1_BOUNDARY,B1,Mast cells,unassigned,36
+V1_BOUNDARY,B1,Plasma,ACTA2+ Myoepi,1
+V1_BOUNDARY,B1,Plasma,CD163+ Macrophage,2
+V1_BOUNDARY,B1,Plasma,CD4 T,3
+V1_BOUNDARY,B1,Plasma,CD8 T,1
+V1_BOUNDARY,B1,Plasma,ECM1+ Malignant,4
+V1_BOUNDARY,B1,Plasma,Fibroblast,49
+V1_BOUNDARY,B1,Plasma,Macrophage,8
+V1_BOUNDARY,B1,Plasma,Plasma,2842
+V1_BOUNDARY,B1,Plasma,VWF+ Endothelial,6
+V1_BOUNDARY,B1,Plasma,unassigned,318
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,32
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,CD8 T,3
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,76
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,ECM1+ Malignant,20
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,Fibroblast,1
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,23
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,Macrophage,6
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5219
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,VWF+ Endothelial,1
+V1_BOUNDARY,B1,SCGB2A2+ Malignant,unassigned,769
+V1_BOUNDARY,B1,STAB2+ Endothelial,Fibroblast,2
+V1_BOUNDARY,B1,STAB2+ Endothelial,STAB2+ Endothelial,13
+V1_BOUNDARY,B1,STAB2+ Endothelial,unassigned,27
+V1_BOUNDARY,B1,VWF+ Endothelial,ACTA2+ Myoepi,14
+V1_BOUNDARY,B1,VWF+ Endothelial,B Cells,1
+V1_BOUNDARY,B1,VWF+ Endothelial,CD4 T,4
+V1_BOUNDARY,B1,VWF+ Endothelial,CD8 T,1
+V1_BOUNDARY,B1,VWF+ Endothelial,ECM1+ Malignant,7
+V1_BOUNDARY,B1,VWF+ Endothelial,Fibroblast,131
+V1_BOUNDARY,B1,VWF+ Endothelial,Macrophage,3
+V1_BOUNDARY,B1,VWF+ Endothelial,Plasma,3
+V1_BOUNDARY,B1,VWF+ Endothelial,VWF+ Endothelial,4297
+V1_BOUNDARY,B1,VWF+ Endothelial,unassigned,691
+V1_BOUNDARY,B1,unassigned,ACTA2+ Myoepi,571
+V1_BOUNDARY,B1,unassigned,B Cells,45
+V1_BOUNDARY,B1,unassigned,CD163+ Macrophage,291
+V1_BOUNDARY,B1,unassigned,CD4 T,393
+V1_BOUNDARY,B1,unassigned,CD8 T,235
+V1_BOUNDARY,B1,unassigned,CRABP2+ Malignant,725
+V1_BOUNDARY,B1,unassigned,ECM1+ Malignant,924
+V1_BOUNDARY,B1,unassigned,Fibroblast,2082
+V1_BOUNDARY,B1,unassigned,IRF7+ DC,7
+V1_BOUNDARY,B1,unassigned,KRT15+ Myoepi,171
+V1_BOUNDARY,B1,unassigned,LAMP3+ DC,5
+V1_BOUNDARY,B1,unassigned,Macrophage,662
+V1_BOUNDARY,B1,unassigned,Mast cells,5
+V1_BOUNDARY,B1,unassigned,Plasma,134
+V1_BOUNDARY,B1,unassigned,SCGB2A2+ Malignant,783
+V1_BOUNDARY,B1,unassigned,STAB2+ Endothelial,12
+V1_BOUNDARY,B1,unassigned,VWF+ Endothelial,605
+V1_BOUNDARY,B1,unassigned,unassigned,9884
+V2_MORPH,B1,ACTA2+ Myoepi,ACTA2+ Myoepi,2273
+V2_MORPH,B1,ACTA2+ Myoepi,CD8 T,1
+V2_MORPH,B1,ACTA2+ Myoepi,CRABP2+ Malignant,51
+V2_MORPH,B1,ACTA2+ Myoepi,ECM1+ Malignant,1
+V2_MORPH,B1,ACTA2+ Myoepi,Fibroblast,23
+V2_MORPH,B1,ACTA2+ Myoepi,KRT15+ Myoepi,4
+V2_MORPH,B1,ACTA2+ Myoepi,Macrophage,2
+V2_MORPH,B1,ACTA2+ Myoepi,SCGB2A2+ Malignant,29
+V2_MORPH,B1,ACTA2+ Myoepi,VWF+ Endothelial,7
+V2_MORPH,B1,ACTA2+ Myoepi,unassigned,376
+V2_MORPH,B1,B Cells,ACTA2+ Myoepi,1
+V2_MORPH,B1,B Cells,B Cells,1600
+V2_MORPH,B1,B Cells,CD4 T,1
+V2_MORPH,B1,B Cells,ECM1+ Malignant,1
+V2_MORPH,B1,B Cells,Fibroblast,3
+V2_MORPH,B1,B Cells,Macrophage,1
+V2_MORPH,B1,B Cells,Plasma,2
+V2_MORPH,B1,B Cells,unassigned,168
+V2_MORPH,B1,CD163+ Macrophage,CD163+ Macrophage,2083
+V2_MORPH,B1,CD163+ Macrophage,ECM1+ Malignant,1
+V2_MORPH,B1,CD163+ Macrophage,Fibroblast,25
+V2_MORPH,B1,CD163+ Macrophage,IRF7+ DC,1
+V2_MORPH,B1,CD163+ Macrophage,Macrophage,17
+V2_MORPH,B1,CD163+ Macrophage,unassigned,260
+V2_MORPH,B1,CD4 T,ACTA2+ Myoepi,1
+V2_MORPH,B1,CD4 T,CD163+ Macrophage,3
+V2_MORPH,B1,CD4 T,CD4 T,10490
+V2_MORPH,B1,CD4 T,CD8 T,7
+V2_MORPH,B1,CD4 T,CRABP2+ Malignant,1
+V2_MORPH,B1,CD4 T,ECM1+ Malignant,37
+V2_MORPH,B1,CD4 T,Fibroblast,57
+V2_MORPH,B1,CD4 T,IRF7+ DC,1
+V2_MORPH,B1,CD4 T,KRT15+ Myoepi,1
+V2_MORPH,B1,CD4 T,Macrophage,11
+V2_MORPH,B1,CD4 T,Plasma,7
+V2_MORPH,B1,CD4 T,SCGB2A2+ Malignant,1
+V2_MORPH,B1,CD4 T,VWF+ Endothelial,5
+V2_MORPH,B1,CD4 T,unassigned,724
+V2_MORPH,B1,CD8 T,ACTA2+ Myoepi,3
+V2_MORPH,B1,CD8 T,CD4 T,10
+V2_MORPH,B1,CD8 T,CD8 T,4949
+V2_MORPH,B1,CD8 T,CRABP2+ Malignant,1
+V2_MORPH,B1,CD8 T,ECM1+ Malignant,45
+V2_MORPH,B1,CD8 T,Fibroblast,41
+V2_MORPH,B1,CD8 T,KRT15+ Myoepi,9
+V2_MORPH,B1,CD8 T,Macrophage,5
+V2_MORPH,B1,CD8 T,Plasma,2
+V2_MORPH,B1,CD8 T,SCGB2A2+ Malignant,11
+V2_MORPH,B1,CD8 T,unassigned,547
+V2_MORPH,B1,CRABP2+ Malignant,ACTA2+ Myoepi,30
+V2_MORPH,B1,CRABP2+ Malignant,CD163+ Macrophage,1
+V2_MORPH,B1,CRABP2+ Malignant,CD8 T,2
+V2_MORPH,B1,CRABP2+ Malignant,CRABP2+ Malignant,5270
+V2_MORPH,B1,CRABP2+ Malignant,ECM1+ Malignant,74
+V2_MORPH,B1,CRABP2+ Malignant,Fibroblast,1
+V2_MORPH,B1,CRABP2+ Malignant,KRT15+ Myoepi,6
+V2_MORPH,B1,CRABP2+ Malignant,Macrophage,1
+V2_MORPH,B1,CRABP2+ Malignant,SCGB2A2+ Malignant,61
+V2_MORPH,B1,CRABP2+ Malignant,VWF+ Endothelial,1
+V2_MORPH,B1,CRABP2+ Malignant,unassigned,680
+V2_MORPH,B1,ECM1+ Malignant,ACTA2+ Myoepi,1
+V2_MORPH,B1,ECM1+ Malignant,CD4 T,1
+V2_MORPH,B1,ECM1+ Malignant,CD8 T,6
+V2_MORPH,B1,ECM1+ Malignant,CRABP2+ Malignant,81
+V2_MORPH,B1,ECM1+ Malignant,ECM1+ Malignant,17921
+V2_MORPH,B1,ECM1+ Malignant,Fibroblast,106
+V2_MORPH,B1,ECM1+ Malignant,KRT15+ Myoepi,1
+V2_MORPH,B1,ECM1+ Malignant,Macrophage,9
+V2_MORPH,B1,ECM1+ Malignant,SCGB2A2+ Malignant,16
+V2_MORPH,B1,ECM1+ Malignant,VWF+ Endothelial,1
+V2_MORPH,B1,ECM1+ Malignant,unassigned,699
+V2_MORPH,B1,Fibroblast,ACTA2+ Myoepi,24
+V2_MORPH,B1,Fibroblast,CD163+ Macrophage,13
+V2_MORPH,B1,Fibroblast,CD4 T,28
+V2_MORPH,B1,Fibroblast,CD8 T,10
+V2_MORPH,B1,Fibroblast,CRABP2+ Malignant,2
+V2_MORPH,B1,Fibroblast,ECM1+ Malignant,191
+V2_MORPH,B1,Fibroblast,Fibroblast,13380
+V2_MORPH,B1,Fibroblast,IRF7+ DC,1
+V2_MORPH,B1,Fibroblast,Macrophage,15
+V2_MORPH,B1,Fibroblast,Plasma,12
+V2_MORPH,B1,Fibroblast,STAB2+ Endothelial,2
+V2_MORPH,B1,Fibroblast,VWF+ Endothelial,81
+V2_MORPH,B1,Fibroblast,unassigned,1162
+V2_MORPH,B1,IRF7+ DC,Fibroblast,1
+V2_MORPH,B1,IRF7+ DC,IRF7+ DC,363
+V2_MORPH,B1,IRF7+ DC,unassigned,17
+V2_MORPH,B1,KRT15+ Myoepi,ACTA2+ Myoepi,3
+V2_MORPH,B1,KRT15+ Myoepi,CD8 T,1
+V2_MORPH,B1,KRT15+ Myoepi,CRABP2+ Malignant,7
+V2_MORPH,B1,KRT15+ Myoepi,ECM1+ Malignant,2
+V2_MORPH,B1,KRT15+ Myoepi,KRT15+ Myoepi,1256
+V2_MORPH,B1,KRT15+ Myoepi,Macrophage,4
+V2_MORPH,B1,KRT15+ Myoepi,SCGB2A2+ Malignant,18
+V2_MORPH,B1,KRT15+ Myoepi,unassigned,145
+V2_MORPH,B1,LAMP3+ DC,CD4 T,1
+V2_MORPH,B1,LAMP3+ DC,Fibroblast,2
+V2_MORPH,B1,LAMP3+ DC,LAMP3+ DC,116
+V2_MORPH,B1,LAMP3+ DC,unassigned,13
+V2_MORPH,B1,Macrophage,ACTA2+ Myoepi,5
+V2_MORPH,B1,Macrophage,CD163+ Macrophage,3
+V2_MORPH,B1,Macrophage,CRABP2+ Malignant,4
+V2_MORPH,B1,Macrophage,ECM1+ Malignant,6
+V2_MORPH,B1,Macrophage,Fibroblast,22
+V2_MORPH,B1,Macrophage,KRT15+ Myoepi,2
+V2_MORPH,B1,Macrophage,Macrophage,4444
+V2_MORPH,B1,Macrophage,SCGB2A2+ Malignant,6
+V2_MORPH,B1,Macrophage,VWF+ Endothelial,5
+V2_MORPH,B1,Macrophage,unassigned,409
+V2_MORPH,B1,Mast cells,Fibroblast,3
+V2_MORPH,B1,Mast cells,Mast cells,53
+V2_MORPH,B1,Mast cells,unassigned,13
+V2_MORPH,B1,Plasma,B Cells,1
+V2_MORPH,B1,Plasma,CD163+ Macrophage,1
+V2_MORPH,B1,Plasma,CD4 T,2
+V2_MORPH,B1,Plasma,ECM1+ Malignant,1
+V2_MORPH,B1,Plasma,Fibroblast,19
+V2_MORPH,B1,Plasma,LAMP3+ DC,1
+V2_MORPH,B1,Plasma,Macrophage,2
+V2_MORPH,B1,Plasma,Plasma,3119
+V2_MORPH,B1,Plasma,VWF+ Endothelial,1
+V2_MORPH,B1,Plasma,unassigned,85
+V2_MORPH,B1,SCGB2A2+ Malignant,ACTA2+ Myoepi,14
+V2_MORPH,B1,SCGB2A2+ Malignant,CD8 T,3
+V2_MORPH,B1,SCGB2A2+ Malignant,CRABP2+ Malignant,60
+V2_MORPH,B1,SCGB2A2+ Malignant,ECM1+ Malignant,14
+V2_MORPH,B1,SCGB2A2+ Malignant,Fibroblast,2
+V2_MORPH,B1,SCGB2A2+ Malignant,KRT15+ Myoepi,12
+V2_MORPH,B1,SCGB2A2+ Malignant,SCGB2A2+ Malignant,5350
+V2_MORPH,B1,SCGB2A2+ Malignant,VWF+ Endothelial,1
+V2_MORPH,B1,SCGB2A2+ Malignant,unassigned,692
+V2_MORPH,B1,STAB2+ Endothelial,STAB2+ Endothelial,25
+V2_MORPH,B1,STAB2+ Endothelial,unassigned,17
+V2_MORPH,B1,VWF+ Endothelial,ACTA2+ Myoepi,9
+V2_MORPH,B1,VWF+ Endothelial,CD4 T,8
+V2_MORPH,B1,VWF+ Endothelial,ECM1+ Malignant,6
+V2_MORPH,B1,VWF+ Endothelial,Fibroblast,117
+V2_MORPH,B1,VWF+ Endothelial,Plasma,3
+V2_MORPH,B1,VWF+ Endothelial,STAB2+ Endothelial,1
+V2_MORPH,B1,VWF+ Endothelial,VWF+ Endothelial,4465
+V2_MORPH,B1,VWF+ Endothelial,unassigned,534
+V2_MORPH,B1,unassigned,ACTA2+ Myoepi,426
+V2_MORPH,B1,unassigned,B Cells,51
+V2_MORPH,B1,unassigned,CD163+ Macrophage,220
+V2_MORPH,B1,unassigned,CD4 T,347
+V2_MORPH,B1,unassigned,CD8 T,257
+V2_MORPH,B1,unassigned,CRABP2+ Malignant,755
+V2_MORPH,B1,unassigned,ECM1+ Malignant,929
+V2_MORPH,B1,unassigned,Fibroblast,1245
+V2_MORPH,B1,unassigned,IRF7+ DC,10
+V2_MORPH,B1,unassigned,KRT15+ Myoepi,130
+V2_MORPH,B1,unassigned,LAMP3+ DC,8
+V2_MORPH,B1,unassigned,Macrophage,355
+V2_MORPH,B1,unassigned,Mast cells,6
+V2_MORPH,B1,unassigned,Plasma,100
+V2_MORPH,B1,unassigned,SCGB2A2+ Malignant,774
+V2_MORPH,B1,unassigned,STAB2+ Endothelial,12
+V2_MORPH,B1,unassigned,VWF+ Endothelial,432
+V2_MORPH,B1,unassigned,unassigned,11460

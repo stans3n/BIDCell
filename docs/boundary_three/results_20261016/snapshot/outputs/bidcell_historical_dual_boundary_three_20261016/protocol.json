@@ -1,0 +1,214 @@
+{
+  "version": "DUAL-F1-v1.0-28methods-20261016",
+  "methods": [
+    "B1",
+    "B1_CONT",
+    "G_CONT",
+    "B1_COS",
+    "G_COS",
+    "A",
+    "B",
+    "C",
+    "S",
+    "SP",
+    "P1",
+    "P2",
+    "T1",
+    "T2",
+    "B0",
+    "V1_REGION",
+    "V1_BOUNDARY",
+    "V2_MORPH",
+    "BASE_MATCH",
+    "V2_INTERACT",
+    "P2_BASE",
+    "P2_MORPH",
+    "MORPH_NO_DAPI",
+    "MORPH_SIMPLE_FUSION",
+    "MORPH_NO_GEO",
+    "A2_GT",
+    "A2_GTC",
+    "A2_SHUFFLED"
+  ],
+  "primary": [
+    "fixed-label P/N F1",
+    "scClassify P/N F1"
+  ],
+  "secondary": "Purity and other diagnostics; capture, RNA retention, structure, QC and spatial uncertainty accompany both profiles",
+  "reference_model": {
+    "path": "/home/zwan0726/work/outputs/crgf_egr_20261008T121953+1100/shared/paper_reference/scClassify_model.rds",
+    "bytes": 28017599,
+    "mtime_ns": 1791423160446808274,
+    "sha256": "37f75b893ac0e4bd334939115f754acf350a108c61a12ac1cb3c680867442df6"
+  },
+  "core": {
+    "qc": {
+      "min_transcripts": 20,
+      "max_transcripts": 2000,
+      "min_genes": 20
+    },
+    "normalization": "scater::logNormCounts on all 313 genes after QC; then reference 307 in reference order",
+    "prediction": {
+      "k": 10,
+      "prob_threshold": 0.7,
+      "cor_threshold_static": 0.5,
+      "cor_threshold_high": 0.7,
+      "features": "limma",
+      "algorithm": "WKNN",
+      "similarity": "pearson",
+      "cutoff_method": "static",
+      "weighted_ensemble": false,
+      "parallel": false,
+      "verbose": false
+    },
+    "markers": {
+      "quantile_type": 7,
+      "q": 0.9,
+      "positive_t": 0.25,
+      "negative_t": 1.0
+    },
+    "nonleaf_mapping": "unassigned; retain original hierarchical label and rejection reason",
+    "label_mapping": {
+      "Firoblast": "Fibroblast"
+    }
+  },
+  "fixed_population": {
+    "path": "/home/zwan0726/work/outputs/bidcell_new_methods_20261013/configs/evaluation_population.csv",
+    "bytes": 3093879,
+    "mtime_ns": 1791824786049936906,
+    "sha256": "6c3505d5b0a70d3977bd88d4cda61281ecec3fa924fdf4cfa63cf2b8720abd0b"
+  },
+  "source_protocol": {
+    "path": "/home/zwan0726/work/projects/BIDCell_crgf_egr_common_20261008T121953/scripts/crgf/configs/egr_evaluation_protocol.json",
+    "bytes": 3578,
+    "mtime_ns": 1791423129821489467,
+    "sha256": "c0244cd49211bff10be493db4ff84c4075c9b3a94f70fff3ee07298ea57c1153"
+  },
+  "annotation_reuse": "Verified identical counts, model, scientific configuration, QC and size factors; scores freshly recomputed.",
+  "purity": "2*p*(1-n)/(p+1-n); independent profile min-max; finite harmonic 0/0 limit=0; missing/degenerate inputs stay NA",
+  "implementations": {
+    "reassess_historical_dual_annotation.py": {
+      "path": "/home/zwan0726/work/scripts/bidcell_benchmark/reassess_historical_dual_annotation.py",
+      "bytes": 18773,
+      "mtime_ns": 1791859475454368943,
+      "sha256": "7dca5b675813071a5c59d9ef7a0335cb10881c1a2b54f7fc02c4ca403ff78c2f"
+    },
+    "recompute_historical_paper_metrics.R": {
+      "path": "/home/zwan0726/work/scripts/bidcell_benchmark/recompute_historical_paper_metrics.R",
+      "bytes": 5657,
+      "mtime_ns": 1791859354334617141,
+      "sha256": "e05a824fdd9d02d51f1329bd7fcf4a5046b1f91701a80e9c0421910b7a46d4f9"
+    }
+  },
+  "spatial_diversity": {
+    "author_blob": "b5901cc0d9041e3c82006bd8bca3c7687a9da414",
+    "source": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/sources/publish_spatialDiversity_metrics.R",
+    "sha256": "07e94fddb2ca16ae4b7a1316bc18c393c299de0d93f589702827f66f300ee69f",
+    "bin_width_um": 500,
+    "binning": "author R ceiling/cut; actual boundaries saved per method",
+    "CV_transcripts_genes_area": "sd(log10(x))/mean(log10(x))",
+    "SD": "sd(raw x)",
+    "unassigned": "retained as an explicit type",
+    "entropy_version": "1.3.2",
+    "library": "isolated report library"
+  },
+  "extension": {
+    "producer": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_extension_20261013/extend_tables.py",
+      "bytes": 19424,
+      "mtime_ns": 1791865506395691567,
+      "sha256": "60f1d37749e5512829e39764f4a4a79fbc5ae1257988c4c8ebaa0d7b13c55482"
+    },
+    "spatial_wrapper": {
+      "path": "/home/zwan0726/work/scripts/bidcell_benchmark/recompute_historical_spatial_diversity.R",
+      "bytes": 3483,
+      "mtime_ns": 1791860445149420188,
+      "sha256": "faa748c031b3dc30d26876242799c001a3e1f29d7626889d0ab526c153b60c4e"
+    },
+    "original_protocol": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_extension_20261013/archive_14/protocol.json",
+      "bytes": 3473,
+      "mtime_ns": 1791860108400937392,
+      "sha256": "d9cd6f31b2038e2d9efb4b0975369f3dd6d371b885fa4d6934d4baf1ee7f200c"
+    },
+    "new_methods": [
+      "B0",
+      "V1_REGION",
+      "V1_BOUNDARY",
+      "V2_MORPH"
+    ],
+    "evaluation_wall_seconds_scope": "Original14: historical reassessment with verified classifier labels reused. New4: actual successful full formal evaluate-stage wall seconds, including classifier and engineering profiles. Different scopes; not a model-cost ranking."
+  },
+  "paired_extension": {
+    "producer": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/sync_results.py",
+      "bytes": 23774,
+      "sha256": "52bfda33ead20de6098ba74364925e31d90c06834cf2ac28e9b550334b5598a6"
+    },
+    "runroot": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014",
+    "completion": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/pipeline_complete.json",
+      "bytes": 5502,
+      "sha256": "bc2a34dcf13ce49d52d89f4d3d08084a0dcc7a471d3d24a7df2d21abe4a1db8c"
+    },
+    "raw_validation": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/raw_validation.json",
+      "bytes": 11059,
+      "sha256": "372616f26b4bf1830690f3265efece16931510e3249fedeeafe72488a0f70010"
+    },
+    "baseline_protocol": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/post_resume/before_20_method_sync/outputs/bidcell_historical_dual_20261013/protocol.json",
+      "bytes": 4797,
+      "sha256": "482141e4deae616d60776fb2e82af451238889926ae4cd8ea366420b9e26c006"
+    },
+    "new_methods": [
+      "BASE_MATCH",
+      "V2_INTERACT"
+    ],
+    "existing_reused_method": "V2_MORPH",
+    "source_bundle": {
+      "path": "/home/zwan0726/work/outputs/bidcell_v2_paired_20261014/reviews/source_bundles/pipeline_execution.json",
+      "bytes": 26310,
+      "sha256": "3aeb1bbcb0aded2e1d8c2d3d6a435048f074e949d6add3135bcc2bd9f40ab783"
+    }
+  },
+  "assessment_policy": "/home/zwan0726/work/outputs/bidcell_historical_dual_boundary_three_20261016/assessment_policy.json",
+  "boundary_extension": {
+    "scientific_source_commit": "ccb846cbf344bfbe965178cd8f9b738e3654c8b0",
+    "predecessor_protocol": {
+      "path": "/home/zwan0726/work/outputs/bidcell_historical_dual_20261013/protocol.json",
+      "bytes": 6330,
+      "sha256": "6ff0f7c0dca81c065263d754dfb41f36adbe269343993b2ef2e648dcaf04edf2"
+    },
+    "complete_check": {
+      "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/boundary-three-20261015-r02/complete-check.json",
+      "bytes": 3114,
+      "sha256": "a0413ee50606eccf45132f1ae61ae61d41d0fc5e483970a52b1f5eea27306f52"
+    },
+    "root_raw_review": {
+      "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/analysis/root_review_20261016/raw_validation.json",
+      "bytes": 95719,
+      "sha256": "299848c5fd1f028d4cfbd6f858e93192389e94989a681630427f139d73bb06e7"
+    },
+    "new_methods": [
+      "P2_BASE",
+      "P2_MORPH",
+      "MORPH_NO_DAPI",
+      "MORPH_SIMPLE_FUSION",
+      "MORPH_NO_GEO",
+      "A2_GT",
+      "A2_GTC",
+      "A2_SHUFFLED"
+    ],
+    "not_new_methods": {
+      "A2_NATIVE": "BASE_MATCH alias",
+      "A1_CORE": "information-only no mask endpoint"
+    },
+    "frozen_scientific_core_unchanged": true,
+    "actual_continuation": {
+      "path": "/home/zwan0726/work/outputs/bidcell_boundary_three_20261015/continuation_morph_first_20261015/state.json",
+      "bytes": 1778,
+      "sha256": "e1f060b187ea66b87f31c31a436ece15d8c3a6e29e65f7d20e744f4627dc824e"
+    }
+  }
+}
