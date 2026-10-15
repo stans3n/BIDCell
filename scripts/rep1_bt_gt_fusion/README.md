@@ -205,3 +205,72 @@ and exact historical-mask recovery. Real-input freeze is read-only hashing only.
 No real BT6, GT endpoint, classifier, complete evaluation or publication was run
 during scientific implementation. Full resource/launch/admission tests remain
 the separately audited controller's responsibility.
+
+## Controller and immutable execution
+
+The controller uses `control.sh`, `bootstrap.py`, `execution.py`, `runtime.py`
+and `context_sync.py`. These are separately reviewed after scientific approval.
+`prepare --plan --output-root --run-id` requires the clean committed authorized
+branch and the exact planned run path. It hashes the actual inputs, copies the
+complete dependency closure into `source_snapshot`, disables writes on all copy
+objects, and saves the complete manifest and environment identity. No symlink or
+hardlink is accepted. Large caches/temp files live outside the snapshot in the
+new run. Environment identity covers interpreters, installed Python/R packages,
+conda metadata, numerical binaries and every fixed entropy-library file.
+
+Every supervisor/worker/R subprocess validates the snapshot and admission before
+execution. Python uses `-I -S -B` and an import guard that checks delayed project
+imports against the snapshot manifest. The worker starts an independent session
+so tmux parent death cannot send HUP to its R descendants. Launch/writer/workspace
+locks are inherited as the same open file descriptions; they are closed without
+an explicit unlock. Actual orphan-R fixtures test parent, worker and both deaths.
+
+The final auditor creates `admission/final.json`; the controller never signs its
+own admission. Required bindings are source commit/digest, actual snapshot root,
+canonical config/input/environment digests, plan/prompt SHA256, exact node order,
+manifest/environment identities, and actual fixture/audit evidence. The reviewer
+must be `gpt-6-astra/xhigh` with `implementation_author: false`.
+
+`validate --config --admission` verifies that receipt. `launch --config` dispatches
+only the four production nodes to tmux. Status `DISPATCHED_NOT_YET_VERIFIED` is
+not launch success: the operator must check real process identities, all locks,
+two fresh heartbeats, and a new committed scientific checkpoint (or a valid
+already-completed terminal receipt). Revalidation of old chunks does not count
+as new scientific computation. `resume-production` is an explicit tracked retry;
+it validates identities and completed receipts, skips only valid completions,
+and refuses surviving descendants/corrupt outputs. It never authorizes evaluation.
+
+`status --config --json` and `tail --config` are strictly read-only. They report
+observed STALE separately from disk state; no restart, grant or control-file
+creation occurs. Heartbeat period is 10s; >60s is stale. Scientific no-progress
+>900s is an inspection flag, never an automatic kill/restart. Only after the
+queue exits, `complete-check --config --phase production` obtains the compute
+locks and validates production. It does not run evaluation.
+
+Only after a new explicit user resume, an exited production hold and validated
+receipts may the operator invoke `grant-resume --user-instruction-utc`. No grant
+is prepared by launch/hold/status or a timer. `evaluate --manual-resume` starts
+the separate serial manual evaluation phase; `publish --manual-resume` requires
+its completed result and a primary results-analysis record. That derived
+`results_analysis.json` must bind EVALUATION8 and all prespecified comparisons,
+document the parallel F1 interpretation and local RNA limitations, and retain
+negative results. This is results review, not another user approval request.
+
+Publication then performs the scientific bundle validation and an atomic,
+recoverable append of the eight context entry files, new experiment record and
+two registry entries. Old context bytes are preserved in the append journal.
+The final context/registration receipt binds table, registry, analysis and all
+updated files. Goal completion remains a main-chat action after verification.
+
+Storage budget separates 4GiB retained node room, 1GiB shared room, 5GiB additional
+temporary/atomic overlap and a separate 15GiB reserve: initial incremental peak
+10GiB, initial required free 25GiB. Existing bytes reduce remaining requirements;
+unused endpoint room also covers manual evaluation. RAM admission uses a
+conservative 20GiB workflow allowance plus 6GiB reserve, anchored by historical
+full native oracle monitors and actual small fixtures, not tiny-test scaling.
+
+Controller tests are `tests.test_rep1_bt_gt_controller` and the actual-host
+`tests/rep1_bt_gt_runtime_fixture.py suite EVIDENCE_ROOT`. Engineering schemas,
+synthetic grants and patched test backends are rejected by formal CLI/config
+validation and cannot authorize the real run. Fixtures never use real endpoint
+inputs or write historical outputs/context.
