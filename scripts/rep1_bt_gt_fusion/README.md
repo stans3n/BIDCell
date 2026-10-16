@@ -122,6 +122,12 @@ Final independent launch admission binds both the immutable plan and the complet
 final TIFF and pass full topology/matrix validation; V2 still runs in full.
 The 1,285,263,411 imported bytes are part of the BT/P2 retained budgets; the
 retained r01 is reported separately, not charged twice to incremental free space.
+Adoption remeasures disk/RAM admission under all five locks before environment
+probes or recovery writes. Every partial attempt keeps its resource report; the
+completed mapping binds the successful attempt's report and is reused unchanged.
+Every lexical target component must be free of symlinks, including dangling and
+inside-run links. JSON paths map only selected files and their actual ancestor
+directories; unknown producer-run references and transformed key collisions fail.
 
 Each receipt binds run, stage, canonical config, source, input and plan digests.
 Output files have absolute paths, bytes and SHA256. A receipt with changed output

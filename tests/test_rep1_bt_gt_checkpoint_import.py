@@ -1,10 +1,12 @@
 """Recovery boundary tests: interrupted adoption, identities and compatibility."""
 from pathlib import Path
+from contextlib import ExitStack
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
 from scripts.rep1_bt_gt_fusion import recovery as rec
-from scripts.rep1_bt_gt_fusion.common import atomic_json, dependencies, identity, read, sha256
+from scripts.rep1_bt_gt_fusion.common import atomic_json, dependencies, digest, identity, read, sha256
 from scripts.rep1_bt_gt_fusion import execution as ex
 
 
@@ -108,6 +110,88 @@ class CheckpointImport(unittest.TestCase):
                 with self.assertRaises(ValueError):rec.verify_plan(dict(cfg,input_digest='wrong-input'))
                 supportcopy=Path(value['source_inventory']['path']);supportcopy.chmod(0o644);supportcopy.write_text('{}')
                 with self.assertRaises(ValueError):rec.verify_plan(cfg)
+
+    def test_all_target_symlinks_fail_before_any_checkpoint_write(self):
+        for kind in ('inside','outside','dangling','nested'):
+            with self.subTest(kind=kind),tempfile.TemporaryDirectory() as tmp:
+                old,new,plan,rows=self.setup_tree(tmp);root=Path(new['run_root'])
+                outside=root/'unselected' if kind in ('inside','nested') else Path(tmp)/'outside'
+                if kind!='dangling':outside.mkdir()
+                if kind=='nested':
+                    source=Path(rows[1]['path']);moved=source.parent/'nested'/source.name;moved.parent.mkdir();source.rename(moved)
+                    rows[1]=dict(**identity(moved),relative='bt_existing6/nested/chunk.json')
+                    complete=Path(rows[0]['path']);obj=read(complete);obj['outputs']['chunk']=identity(moved);atomic_json(complete,obj)
+                    rows[0]=dict(**identity(complete),relative='bt_existing6/complete.json')
+                    (root/'bt_existing6').mkdir();link=root/'bt_existing6/nested'
+                else:link=root/'bt_existing6'
+                link.symlink_to(outside,target_is_directory=kind!='nested')
+                with self.assertRaisesRegex(ValueError,'symlink'):rec.Importer(new,old,plan,rows).run()
+                self.assertFalse(outside.exists() and list(outside.iterdir()))
+                self.assertFalse((root/'bt_existing6/science.csv').exists())
+
+    def test_exact_string_paths_and_dict_key_collision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old,new,plan,rows=self.setup_tree(tmp);imp=rec.Importer(new,old,plan,rows)
+            for value in (old['run_root']+'/bt_existing6/unselected.npy',old['run_root']+'/config.json',old['run_root']):
+                with self.assertRaisesRegex(ValueError,'unselected old-run path'):imp.transform({'path_string':value})
+            self.assertEqual(imp.transform(old['run_root']+'/bt_existing6'),new['run_root']+'/bt_existing6')
+            original=rows[-1]['path'];mapped=new['run_root']+'/bt_existing6/science.csv'
+            with self.assertRaisesRegex(ValueError,'key collision'):imp.transform({original:1,mapped:2})
+            self.assertFalse((Path(new['run_root'])/'bt_existing6').exists())
+
+    def test_adopt_five_lock_resource_gate_and_partial_retry(self):
+        from scripts.rep1_bt_gt_fusion import runtime as rt, inputs, science, NODE_ORDER
+        for condition in ('low_disk','low_ram','adequate_partial_retry'):
+            with self.subTest(condition=condition),tempfile.TemporaryDirectory() as tmp:
+                old,new,plan,rows=self.setup_tree(tmp);base=Path(tmp);oldroot=Path(old['run_root']);root=Path(new['run_root'])
+                (oldroot/'control').mkdir();(root/'admission').mkdir()
+                for name in ('launch.lock','writer.lock'):(oldroot/'control'/name).touch()
+                failed=oldroot/'failed.json';atomic_json(failed,dict(status='FAILED',child_exit_codes={'BT_EXISTING6':0,'P2_BASE_GT_PRODUCE':1}))
+                inventory=base/'inventory.json';atomic_json(inventory,dict(files=rows))
+                plan.update(source_failed_state=identity(failed),source_inventory=identity(inventory),source_root=str(oldroot),
+                    source_config_digest=digest(old),source_digest=old['source_digest'],source_commit=old['source_commit'],
+                    files_n=len(rows),copy_bytes=sum(r['bytes'] for r in rows),required_post_import_science=['fixture only'])
+                new.update(source_snapshot=str(root/'fixture_snapshot'),resources=dict(retained_bytes=dict(zip(NODE_ORDER,[100000,0,0,0])),
+                    shared_bytes=0,temporary_peak_bytes=0,reserve_bytes=100,ram_allowance_bytes=100,ram_reserve_bytes=100))
+                lockpaths=lambda c:[Path(c['run_root'])/'control/launch.lock',Path(c['run_root'])/'control/writer.lock',base/'compute.lock']
+                checks=[];original_forecast=rt.resource_forecast
+                def forecast(c,state):
+                    self.assertTrue(all(rt.lock_held(p) for p in (*lockpaths(new),*lockpaths(old)[:2])))
+                    value=original_forecast(c,state);checks.append(value);return value
+                before={r['path']:Path(r['path']).read_bytes() for r in rows}
+                with ExitStack() as stack:
+                    stubs=[patch.object(rec,'verify_plan',return_value=plan),patch.object(rt,'paths',side_effect=lockpaths),
+                        patch.object(rt,'bound_state',return_value={'status':'PREPARED'}),patch.object(rt,'resource_forecast',side_effect=forecast),
+                        patch.object(rt.shutil,'disk_usage',return_value=SimpleNamespace(free=0 if condition=='low_disk' else 1000000)),
+                        patch.object(rt,'memory',return_value=0 if condition=='low_ram' else 1000000),patch.object(ex,'OLD_ROOT',oldroot),
+                        patch.object(ex,'verify_snapshot'),patch.object(ex,'verify_environment'),patch.object(inputs,'load_inputs',return_value={}),
+                        patch.object(science,'validate_stage'),patch.object(rec,'compatibility',return_value={'status':'fixture-compatible'}),
+                        patch.object(rec,'partial_gt',return_value={'cursor':196771}),patch.object(rt,'child_environment',return_value={}),
+                        patch.object(rec.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='{"status":"PASS_LEGACY_CHECKPOINTS"}',stderr=''))]
+                    mocks=[stack.enter_context(p) for p in stubs]
+                    if condition!='adequate_partial_retry':
+                        with self.assertRaisesRegex(RuntimeError,'resources not admitted'):rec.adopt(new)
+                        self.assertFalse((root/'bt_existing6').exists());self.assertFalse(list((root/'admission').iterdir()))
+                        mocks[8].assert_not_called();mocks[9].assert_not_called()
+                    else:
+                        real=rec.atomic
+                        def interrupted(path,writer,*args,**kwargs):
+                            if Path(path)==root/'bt_existing6/complete.json':raise OSError('interrupted root commit')
+                            return real(path,writer,*args,**kwargs)
+                        with patch.object(rec,'atomic',side_effect=interrupted):
+                            with self.assertRaises(OSError):rec.adopt(new)
+                        child=root/'bt_existing6/chunk.json';committed=(child.read_bytes(),child.stat().st_ino)
+                        result=rec.adopt(new);self.assertEqual(result['status'],'ADOPTED')
+                        self.assertLess(checks[1]['remaining_retained_bytes']['BT_EXISTING6'],checks[0]['remaining_retained_bytes']['BT_EXISTING6'])
+                        self.assertEqual((child.read_bytes(),child.stat().st_ino),committed)
+                        receipt=read(root/'admission/checkpoint_import.json')
+                        self.assertEqual(read(receipt['resource_admission']['path'])['forecast'],checks[1])
+                        resources=list((root/'admission/import_resource_attempts').glob('*.json'));self.assertEqual(len(resources),2)
+                        finalbytes=(root/'admission/checkpoint_import.json').read_bytes();self.assertEqual(rec.adopt(new),result)
+                        self.assertEqual((root/'admission/checkpoint_import.json').read_bytes(),finalbytes)
+                        self.assertEqual(len(list((root/'admission/import_resource_attempts').glob('*.json'))),2)
+                    self.assertFalse(any(rt.lock_held(p) for p in (*lockpaths(new),*lockpaths(old)[:2])))
+                self.assertEqual({r['path']:Path(r['path']).read_bytes() for r in rows},before)
 
 
 if __name__=='__main__':unittest.main()

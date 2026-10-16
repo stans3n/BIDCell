@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import uuid
 from .common import (atomic, atomic_json, check_identity, check_receipt, dependencies,
                      digest, identity, read, sha256, within)
 from . import execution as ex
@@ -146,15 +147,29 @@ class Importer:
     """Deterministic leaf-to-root rehash; existing different files fail closed."""
     def __init__(self,cfg,old,plan,rows,notify=None):
         self.cfg=cfg;self.old=old;self.plan=plan;self.root=Path(cfg['run_root']);self.origin=Path(old['run_root'])
-        self.rows={r['path']:r for r in rows};self.done={};self.active=set();self.notify=notify
+        self.rows={r['path']:r for r in rows};self.done={};self.active=set();self.notify=notify;self.directories=set()
         if len(self.rows)!=len(rows):raise ValueError('duplicate import source')
         for row in rows:
             p=Path(row['path']);rel=p.relative_to(self.origin)
-            if row['relative']!=str(rel) or not any(rel.is_relative_to(t) for t in TREES):raise ValueError('unapproved import tree')
+            if '..' in p.parts or not p.is_absolute() or row['relative']!=str(rel) or not any(rel.is_relative_to(t) for t in TREES):
+                raise ValueError('unapproved import tree')
             independent_file(p);check_identity(row)
+            self.target(p)  # Preflight every destination before any copy.
+            for directory in p.parents:
+                if directory==self.origin:break
+                self.directories.add(str(directory))
 
     def target(self,p):
-        return within(self.root,Path(p).relative_to(self.origin))
+        relative=Path(p).relative_to(self.origin)
+        if '..' in relative.parts:raise ValueError('noncanonical checkpoint target')
+        target=self.root/relative
+        # Resolve only after inspecting lexical components: resolve would hide
+        # both inside-root links and dangling links in an interrupted target.
+        for component in (target,*target.parents):
+            if component.is_symlink():raise ValueError('symlink in import target: '+str(component))
+        canonical=within(self.root,relative)
+        if canonical!=target:raise ValueError('noncanonical checkpoint target')
+        return target
 
     def transform(self,obj):
         if isinstance(obj,dict):
@@ -173,11 +188,13 @@ class Importer:
                 stage=obj['stage']
                 if stage not in STAGES or any(obj[k]!=v for k,v in dependencies(self.old,stage).items()):raise ValueError('unapproved dependency rebinding')
                 return dict(self.transform({k:v for k,v in obj.items() if k not in common}),**dependencies(self.cfg,stage))
-            return {self.transform(k):self.transform(v) for k,v in obj.items()}
+            keys=[self.transform(k) for k in obj]
+            if len(set(keys))!=len(keys):raise ValueError('transformed JSON key collision')
+            return {k:self.transform(v) for k,v in zip(keys,obj.values())}
         if isinstance(obj,list):return [self.transform(v) for v in obj]
-        if isinstance(obj,str) and obj.startswith(str(self.origin)+'/'):
-            rel=Path(obj).relative_to(self.origin)
-            if obj in self.rows or any(rel==Path(t) or rel.is_relative_to(t) for t in TREES):return str(self.target(obj))
+        if isinstance(obj,str) and (obj==str(self.origin) or obj.startswith(str(self.origin)+'/')):
+            if obj in self.rows or obj in self.directories:return str(self.target(obj))
+            raise ValueError('unselected old-run path reference: '+obj)
         return obj
 
     def materialize(self,source):
@@ -236,7 +253,10 @@ def verify_import(cfg):
         target=within(cfg['run_root'],Path(old['path']).relative_to(plan['source_root']))
         if new['path']!=str(target):raise ValueError('adoption consumer path mismatch')
         independent_file(target);check_identity(new)
-    for key in ('legacy_validation','compatibility','consumer_validation'):check_identity(receipt[key])
+    for key in ('legacy_validation','compatibility','consumer_validation','resource_admission'):check_identity(receipt[key])
+    resources=read(receipt['resource_admission']['path'])
+    if resources.get('config_digest')!=digest(cfg) or resources.get('forecast',{}).get('admitted') is not True or resources.get('imported_bytes_included_in_retained') is not True:
+        raise ValueError('invalid checkpoint import resource evidence')
     return identity(Path(cfg['run_root'])/'admission/checkpoint_import.json')
 
 
@@ -253,7 +273,22 @@ def adopt(cfg):
             raise ValueError('adoption requires inactive PREPARED target and dead old queue')
         if oldstate['status']!='FAILED' or oldstate['child_exit_codes']!={'BT_EXISTING6':0,'P2_BASE_GT_PRODUCE':1}:
             raise ValueError('unexpected failed producer state')
-        rt.check_fds(cfg,newfds);ex.verify_snapshot(cfg);ex.verify_environment(cfg,newfds);manifest=load_inputs(cfg)
+        forecast=rt.resource_forecast(cfg,state)
+        if not forecast['admitted']:raise RuntimeError('checkpoint import resources not admitted: '+json.dumps(forecast))
+        rt.check_fds(cfg,newfds);ex.verify_snapshot(cfg)
+        destination=root/'admission/checkpoint_import.json'
+        # Completed adoption is read-only and idempotent. A partial retry keeps
+        # every earlier resource report and binds the fresh attempt in its final
+        # receipt, while resource_forecast subtracts already copied retained bytes.
+        if destination.exists():
+            verify_import(cfg);ex.verify_environment(cfg,newfds);manifest=load_inputs(cfg)
+            validate_stage(cfg,'BT_EXISTING6',manifest);gt=partial_gt(cfg,manifest)
+            return dict(status='ADOPTED',files=plan['files_n'],producer_bytes=plan['copy_bytes'],GT_cursor=gt['cursor'],
+                        receipt=identity(destination),formal_launch_still_requires_independent_admission=True)
+        resource_path=root/'admission/import_resource_attempts'/(uuid.uuid4().hex+'.json')
+        atomic_json(resource_path,dict(config_digest=digest(cfg),forecast=forecast,
+                    imported_bytes_included_in_retained=True,producer_copy_bytes=plan['copy_bytes']))
+        ex.verify_environment(cfg,newfds);manifest=load_inputs(cfg)
         if digest(old)!=plan['source_config_digest'] or old['source_digest']!=plan['source_digest'] or old['source_commit']!=plan['source_commit']:
             raise ValueError('producer config differs from recovery contract')
         comp=compatibility(cfg,plan);atomic_json(root/'admission/recovery_compatibility.json',comp)
@@ -289,7 +324,7 @@ def adopt(cfg):
             legacy_validation=identity(root/'admission/legacy_checkpoint_validation.json'),
             compatibility=identity(root/'admission/recovery_compatibility.json'),
             consumer_validation=identity(root/'admission/consumer_checkpoint_validation.json'),mapping=mapping)
-        destination=root/'admission/checkpoint_import.json'
+        receipt['resource_admission']=identity(resource_path)
         if destination.exists():
             if read(destination)!=receipt:raise ValueError('completed adoption receipt differs')
         else:atomic_json(destination,receipt)
