@@ -171,44 +171,77 @@ def domain_cardinalities(root):
     actual=dict(cell_groups=len(groups.files),local_groups=local,spatial_groups=len(list(spatial_masks(empty,cells))),interface_groups=len(groups.files)+4)
     bounds=dict(cell_groups=1600,local_groups=4993,spatial_groups=1836,interface_groups=1604)
     obj=dict(actual=actual,measured_projection_bounds=bounds,interface_pairs=len(pd.read_csv(frozen/'interfaces/pairs.csv')),within_measured_bounds=all(actual[k]<=bounds[k] for k in actual),scope='frozen outcome-independent inputs; no new endpoint production')
-    atomic_json(Path(root)/'admission/domain_cardinalities.json',obj)
+    target=Path(root)/'admission/domain_cardinalities.json'
+    if target.exists():
+        if read(target)!=obj:raise ValueError('committed domain cardinality proof differs')
+    else:atomic_json(target,obj)
     if not obj['within_measured_bounds']:raise RuntimeError('frozen cardinalities exceed measured resource projection; new review required')
     return obj
 
 def prepare(output_root,run_id,plans_manifest):
     if Path(output_root).resolve()!=ex.OUTPUT or Path(plans_manifest).resolve()!=ex.PLAN or not re.fullmatch(r'rep1-triple-simple-boundary-20261017-r[0-9]{2,}',run_id):raise ValueError('unauthorized preparation path')
     if ex.git('branch','--show-current')!=ex.BRANCH or ex.git('status','--porcelain','--untracked-files=all'):raise ValueError('prepare requires clean committed authorized branch')
-    commit=ex.git('rev-parse','HEAD');root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
+    commit=ex.git('rev-parse','HEAD');audit=ex.preparation_audit(commit);root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
     for name in ('configs','control','logs','admission','tmp','cache/matplotlib','cache/numba'):(root/name).mkdir(parents=True,exist_ok=True)
-    partial=dict(run_id=run_id,run_root=str(root),resources=resource_contract())
+    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(),preparation_audit=audit,resource_proposal=identity(ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
     with ExitStack() as stack:
         fds=tuple(stack.enter_context(lock(p)) for p in paths(partial));ResourceGuard(partial)(True);source=ex.copy_snapshot(root,commit)
         partial.update(source_snapshot=source['snapshot_root'],source_commit=commit,source_digest=source['source_digest'])
         params=root/'control/preparation.json';atomic_json(params,partial)
+        atomic_json(root/'control/preparation_binding.json',dict(params=identity(params),source_manifest=identity(root/'source_manifest.json')))
         cmd=bootstrap_command(partial,'_prepare','--config',params,'--fds',','.join(map(str,fds)))
         with (root/'logs/preparation.log').open('a') as f:
             result=subprocess.run(cmd,cwd=source['snapshot_root'],env=ex.child_environment(partial),stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,pass_fds=fds)
         if result.returncode:raise RuntimeError('snapshot preparation failed; preserve all evidence: '+str(root/'logs/preparation.log'))
     return read(root/'configs/run.json')
 
+def resume_prepare(params):
+    params=Path(params).resolve(strict=True);partial=read(params);root=Path(partial['run_root']).resolve(strict=True)
+    if root.parent!=ex.OUTPUT or root.name!=partial['run_id'] or not re.fullmatch(r'rep1-triple-simple-boundary-20261017-r[0-9]{2,}',root.name):raise ValueError('preparation resume requires original authorized run')
+    if Path.cwd()!=Path(partial['source_snapshot']) or Path(__file__).resolve().parents[2]!=Path(partial['source_snapshot']):raise PermissionError('resume-prepare must run the original immutable snapshot')
+    with ExitStack() as stack:
+        fds=tuple(stack.enter_context(lock(p,False)) for p in paths(partial));ex.verify_preparation(partial,params)
+        if (root/'admission/final.json').exists():raise PermissionError('admitted run cannot resume preparation')
+        for name in ('endpoints','analysis','replay','reused'):
+            if (root/name).exists():raise PermissionError('compute output exists; preparation cannot resume')
+        if (root/'state.json').exists():
+            s=read(root/'state.json')
+            if s.get('attempts') or s.get('status')!='PREPARED':raise PermissionError('formal dispatch already attempted')
+        prepare_snapshot(params,fds)
+    return read(root/'configs/run.json')
+
 def prepare_snapshot(params,fds):
-    partial=read(params);check_fds(partial,fds);ex.verify_snapshot(partial)
+    partial=read(params);check_fds(partial,fds);ex.verify_preparation(partial,params)
     root=Path(partial['run_root'])
-    if (root/'configs/run.json').exists():raise FileExistsError('immutable configuration already committed')
     guard=ResourceGuard(partial);guard(True)
     from .inputs import freeze_inputs
     from .frozen_domains import freeze
     def progress(x):
         guard()
         atomic_json(root/'control/preparation_progress.json',dict(time=utc(),**x));print(json.dumps(x),flush=True)
-    manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress);domain_cardinalities(root)
-    shutil.copyfile(Path(__file__).with_name('approved_dag.json'),root/'configs/comparisons.json')
-    resource=read(ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json');atomic_json(root/'configs/resource_budget.json',resource)
-    env=ex.environment(partial['source_snapshot'],fds,partial);atomic_json(root/'environment.json',env)
+    manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress)
+    domain_cardinalities(root)
+    def immutable_json(path,value):
+        if path.exists():
+            if read(path)!=value:raise ValueError('existing preparation output differs: '+str(path))
+        else:atomic_json(path,value)
+    comparison=root/'configs/comparisons.json';dag=Path(__file__).with_name('approved_dag.json')
+    if comparison.exists():
+        if sha256(comparison)!=sha256(dag):raise ValueError('prepared DAG drift')
+    else:shutil.copyfile(dag,comparison)
+    immutable_json(root/'configs/resource_budget.json',read(check_identity(partial['resource_proposal'])))
+    env=ex.environment(partial['source_snapshot'],fds,partial);immutable_json(root/'environment.json',env)
     cfg=dict(partial,schema='rep1-triple-simple-boundary-run-v1',input_manifest=str(root/'configs/inputs_manifest.json'),input_digest=digest(manifest),domain_manifest=str(root/'frozen_domain/complete.json'),domain_digest=sha256(root/'frozen_domain/complete.json'),plan_manifest=str(ex.PLAN),plan_digest=sha256(ex.PLAN),comparison_manifest=str(root/'configs/comparisons.json'),environment_digest=digest(env),python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',stage_order=list(STAGE_ORDER),science_audit=identity(ex.SCIENCE_AUDIT),resource_budget=identity(root/'configs/resource_budget.json'),
-        resources=resource_contract(),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
-    atomic_json(root/'configs/run.json',cfg);atomic_json(root/'state.json',new_state(cfg));ex.make_preflight(cfg,fds)
-    result=forecast(cfg,True);atomic_json(root/'admission/resource_preflight.json',result)
+        resources=resource_contract(),preparation_params=identity(params),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
+    immutable_json(root/'configs/run.json',cfg)
+    if not (root/'state.json').exists():atomic_json(root/'state.json',new_state(cfg))
+    else:
+        s=bound_state(cfg)
+        if s['status']!='PREPARED' or s['attempts']:raise ValueError('preparation cannot overwrite compute state')
+    ex.make_preflight(cfg,fds)
+    result=forecast(cfg,True);resource_receipt=root/'admission/resource_preflight.json'
+    if resource_receipt.exists():resource_receipt=root/'admission'/('resource_preflight_'+uuid.uuid4().hex+'.json')
+    atomic_json(resource_receipt,result)
     if not result['admitted']:raise RuntimeError('prepared but resources cannot admit; no formal compute launched')
     print(json.dumps(dict(prepared=True,config=str(root/'configs/run.json'),source_commit=cfg['source_commit'])),flush=True)
 
@@ -337,7 +370,7 @@ def supervise(path,attempt):
                 print(utc(),'stage',stage,STAGES[stage]['name'],'starting',flush=True)
                 logpath=root/'logs'/f'{stage}_{STAGES[stage]["name"]}_{attempt}.log'
                 with logpath.open('a') as log:
-                    child=subprocess.Popen(worker_command(cfg,path,stage,attempt,fds),cwd=cfg['source_snapshot'],env=ex.child_environment(cfg),stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,pass_fds=fds)
+                    child=subprocess.Popen(worker_command(cfg,path,stage,attempt,fds),cwd=cfg['source_snapshot'],env=ex.child_environment(cfg),stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,pass_fds=fds,start_new_session=True)
                     pid=process_identity(child.pid)
                     with mutex:s['worker']=pid;s['attempts'][-1]['worker']=pid;save()
                     sequence=0

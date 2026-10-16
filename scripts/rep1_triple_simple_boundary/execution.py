@@ -24,6 +24,7 @@ PLAN=WORK/'docs/BIDCell_Rep1_Triple_Simple_PlanManifest_20261017.json'
 INSPECTED=WORK/'docs/BIDCell_Rep1_Triple_Simple_Inputs_20261017.json'
 AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_ChangePlan_Audit_20261017.json'
 SCIENCE_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_ScienceCodeAudit_20261017.json'
+CONTROLLER_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_ControllerCodeAudit_20261017.json'
 PROMPT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Boundary_LaunchPrompt_20261017.txt'
 PROMPT_SHA='07052b65e43dfcbe23ee7416db2e1ccc47dce149ef2c7fd1d3c505e81bf5e4b8'
 AUDITOR='/root/independent_code_auditor'
@@ -117,6 +118,24 @@ def controlled_environment(cfg):
 
 def child_environment(cfg):return dict(os.environ,**controlled_environment(cfg))
 
+def preparation_audit(commit,records=None):
+    a=read(CONTROLLER_AUDIT)
+    reviewer=dict(agent_id=AUDITOR,model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False)
+    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=reviewer or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
+    if a.get('source_files_digest')!=digest(source_files() if records is None else records):raise PermissionError('preparation source inventory differs from code audit')
+    for item in a.get('evidence',[]):check_identity(item)
+    return identity(CONTROLLER_AUDIT)
+
+def verify_preparation(partial,params):
+    root=Path(partial['run_root']);params=Path(params)
+    if partial.get('schema')!='rep1-triple-simple-preparation-v1' or partial.get('resources')!=__import__(__package__+'.runtime',fromlist=['resource_contract']).resource_contract():raise ValueError('preparation contract drift')
+    if params!=root/'control/preparation.json' or Path(partial['source_snapshot'])!=root/'source_snapshot':raise ValueError('preparation path mismatch')
+    binding=read(root/'control/preparation_binding.json');check_identity(binding['params']);check_identity(binding['source_manifest']);check_identity(partial['preparation_audit']);check_identity(partial['resource_proposal'])
+    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(CONTROLLER_AUDIT):raise ValueError('preparation identity location drift')
+    m=read(root/'source_manifest.json');rows=[dict(path=r['original'],bytes=r['bytes'],sha256=r['sha256'],snapshot_relative=r['relative']) for r in m['files']]
+    if preparation_audit(partial['source_commit'],rows)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
+    verify_snapshot(partial)
+
 def environment(root,lock_fds=(),cfg=None):
     import cv2,numpy,scipy,pandas,tifffile,skimage,h5py,matplotlib
     modules=(cv2,numpy,scipy,pandas,tifffile,skimage,h5py,matplotlib)
@@ -171,7 +190,7 @@ def verify_contracts(cfg):
 
 def immutable_paths(cfg):
     root=Path(cfg['run_root']);m=read(root/'source_manifest.json');inputs=read(cfg['input_manifest']);env=read(root/'environment.json');domain=read(cfg['domain_manifest'])
-    paths=[root/'configs/run.json',root/'source_manifest.json',root/'environment.json',cfg['input_manifest'],cfg['domain_manifest'],root/'configs/resource_budget.json',root/'configs/comparisons.json',root/'admission/domain_cardinalities.json',PLAN,AUDIT,PROMPT,cfg['science_audit']['path']]
+    paths=[root/'configs/run.json',root/'source_manifest.json',root/'environment.json',cfg['input_manifest'],cfg['domain_manifest'],root/'configs/resource_budget.json',root/'configs/comparisons.json',root/'admission/domain_cardinalities.json',root/'control/preparation.json',root/'control/preparation_binding.json',cfg['preparation_audit']['path'],cfg['resource_proposal']['path'],PLAN,AUDIT,PROMPT,cfg['science_audit']['path']]
     paths += [r['snapshot_path'] for r in m['files']]+[r['path'] for r in inputs['files'].values()]+[r['path'] for r in env['files']]+[r['path'] for r in domain['outputs'].values()]
     paths += [Path(cfg['source_snapshot'])]+[p for p in Path(cfg['source_snapshot']).rglob('*') if p.is_dir()]+env['directories']
     return paths+[r['path'] for r in read(PLAN)['files']]
@@ -183,7 +202,11 @@ def make_preflight(cfg,fds):
     actual=environment(cfg['source_snapshot'],fds,cfg)
     if digest(actual)!=cfg['environment_digest'] or actual!=read(Path(cfg['run_root'])/'environment.json'):raise ValueError('environment changed during preparation')
     obj=dict(schema='rep1-triple-simple-preflight-v1',config_digest=digest(cfg),source_digest=cfg['source_digest'],input_digest=cfg['input_digest'],domain_digest=cfg['domain_digest'],environment_digest=cfg['environment_digest'],fingerprints=fingerprints(immutable_paths(cfg)),full_content_checks=True)
-    atomic_json(Path(cfg['run_root'])/'admission/preflight.json',obj);return obj
+    target=Path(cfg['run_root'])/'admission/preflight.json'
+    if target.exists():
+        if read(target)!=obj:raise ValueError('committed preparation preflight drift; preserve it')
+    else:atomic_json(target,obj)
+    return obj
 
 def verify_admission(cfg):
     root=Path(cfg['run_root']);p=root/'admission/final.json';a=read(p)

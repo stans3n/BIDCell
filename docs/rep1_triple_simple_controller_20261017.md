@@ -17,13 +17,24 @@ Live checkout permits only `prepare --output-root ... --run-id ...
 --plans-manifest ...`. It first copies committed code, then a private snapshot
 process freezes input and outcome-independent domains under three inherited
 locks. Config, environment and full-content preflight follow in one direction.
+An independent controller audit binds the clean commit/source inventory before
+preparation is allowed. `resume-prepare --config RUN/control/preparation.json`
+runs only from that same snapshot, acquires the three original locks and verifies
+the original parameter/source/audit bindings. It rejects any compute attempt,
+endpoint output or final admission. It advances input/domain/environment/config/
+preflight by filling missing items; existing configuration and successful
+receipts remain byte-identical. Domain or post-config interruption fixtures
+exercise this path, and source/config drift refuses recovery.
+
 The independent final admission binds them without embedding its future hash
 in the config. Mutation fingerprints include inode, mode, size, mtime and ctime;
 the worker also performs the scientific full-input hashes at each stage.
 
 `launch --config ...` dispatches tmux and returns. It releases the dispatcher
 gate immediately; supervisor then owns launch/run/workspace locks and passes
-the same OFDs to workers, R and fork descendants. There is no LOCK_UN. An
+the same OFDs to workers, R and fork descendants. The entry retains one PTY
+descriptor while using file logs and /dev/null stdin; workers start independent
+sessions, so entry termination cannot HUP orphan fork descendants. There is no LOCK_UN. An
 unresolved prior dispatch refuses a fresh launch. Explicit `resume-compute
 --config ... --attempt-reason ...` requires prior identities exited, all locks
 free and the same admitted immutable source/config. Code repair needs a newly

@@ -49,4 +49,48 @@ class ControllerContracts(unittest.TestCase):
     def test_controlled_environment_overrides_loader_R_and_cache(self):
         env=ex.controlled_environment(dict(run_root='/isolated/run'));self.assertEqual(env['R_LIBS'],'');self.assertEqual(env['LD_PRELOAD'],'');self.assertEqual(env['TMPDIR'],'/isolated/run/tmp');self.assertEqual(env['R_HOME'],'/home/zwan0726/work/envs/bidcell_egr_r/lib/R')
 
+    def test_preparation_audit_and_original_source_params_cannot_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'run';root.mkdir();(root/'control').mkdir();origin=Path(tmp)/'original.py';origin.write_text('x=1\n');budget=Path(tmp)/'budget.json';atomic_json(budget,{})
+            rows=[dict(**identity(origin),snapshot_relative='scripts/payload.py')];audit=Path(tmp)/'audit.json';reviewer=dict(agent_id=ex.AUDITOR,model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False)
+            atomic_json(audit,dict(decision='PASS_FOR_PREPARATION',source_commit='fixture',open_blockers=[],reviewer=reviewer,source_files_digest=digest(rows),evidence=[]))
+            with patch.object(ex,'source_files',return_value=rows),patch.object(ex,'CONTROLLER_AUDIT',audit):
+                m=ex.copy_snapshot(root,'fixture');partial=dict(schema='rep1-triple-simple-preparation-v1',run_root=str(root),source_snapshot=m['snapshot_root'],source_commit='fixture',source_digest=m['source_digest'],resources=rt.resource_contract(),preparation_audit=identity(audit),resource_proposal=identity(budget));params=root/'control/preparation.json';atomic_json(params,partial);atomic_json(root/'control/preparation_binding.json',dict(params=identity(params),source_manifest=identity(root/'source_manifest.json')))
+                with patch.object(Path,'cwd',return_value=Path(m['snapshot_root'])),patch.object(ex,'module_origins',return_value={}):
+                    ex.verify_preparation(partial,params)
+                    p=Path(m['snapshot_root'])/'scripts/payload.py';p.chmod(0o644);p.write_text('x=2\n');p.chmod(0o444)
+                    with self.assertRaises(ValueError):ex.verify_preparation(partial,params)
+                with self.assertRaises(PermissionError):ex.preparation_audit('wrong',rows)
+                atomic_json(params,dict(partial,run_id='tampered'))
+                with self.assertRaises(ValueError):ex.verify_preparation(partial,params)
+
+    def test_resume_preparation_after_domain_and_after_config_before_preflight(self):
+        from scripts.rep1_triple_simple_boundary import inputs,frozen_domains
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'control').mkdir();(root/'configs').mkdir();(root/'admission').mkdir();budget=root/'budget.json';atomic_json(budget,{});params=root/'control/preparation.json'
+            partial=dict(schema='rep1-triple-simple-preparation-v1',run_id='fixture',run_root=tmp,source_snapshot=tmp,source_commit='fixture',source_digest='fixture',resources=rt.resource_contract(),resource_proposal=identity(budget));atomic_json(params,partial);state={'domain_interrupt':True,'preflight_interrupt':True}
+            def freeze_inputs(*args):return {}
+            def freeze_domain(*args):
+                folder=root/'frozen_domain';folder.mkdir(exist_ok=True);p=folder/'chunk.json'
+                if not p.exists():atomic_json(p,dict(committed=True))
+                if state['domain_interrupt']:state['domain_interrupt']=False;raise InterruptedError('owned fixture domain checkpoint')
+                if not (folder/'complete.json').exists():atomic_json(folder/'complete.json',dict(status='succeeded',outputs={'chunk':identity(p)}))
+            def preflight(cfg,fds):
+                if state['preflight_interrupt']:state['preflight_interrupt']=False;raise InterruptedError('owned fixture after immutable config')
+                p=root/'admission/preflight.json'
+                if not p.exists():atomic_json(p,dict(config_digest=digest(cfg)))
+            with patch.object(rt,'check_fds'),patch.object(ex,'verify_preparation'),patch.object(inputs,'freeze_inputs',side_effect=freeze_inputs),patch.object(frozen_domains,'freeze',side_effect=freeze_domain),patch.object(rt,'domain_cardinalities'),patch.object(ex,'environment',return_value={'fixture':'environment'}),patch.object(ex,'make_preflight',side_effect=preflight),patch.object(rt,'ResourceGuard',side_effect=lambda c:lambda *args:None),patch.object(rt,'forecast',return_value={'admitted':True}):
+                with self.assertRaises(InterruptedError):rt.prepare_snapshot(params,(9,10,11))
+                chunk=(root/'frozen_domain/chunk.json').read_bytes()
+                with self.assertRaises(InterruptedError):rt.prepare_snapshot(params,(9,10,11))
+                config=(root/'configs/run.json').read_bytes();domain=(root/'frozen_domain/complete.json').read_bytes()
+                rt.prepare_snapshot(params,(9,10,11));self.assertEqual(config,(root/'configs/run.json').read_bytes());self.assertEqual(chunk,(root/'frozen_domain/chunk.json').read_bytes());self.assertEqual(domain,(root/'frozen_domain/complete.json').read_bytes());self.assertTrue((root/'admission/preflight.json').exists())
+                atomic_json(root/'configs/run.json',{'corrupted':True})
+                with self.assertRaises(ValueError):rt.prepare_snapshot(params,(9,10,11))
+
+    def test_resume_preparation_rejects_forged_existing_run(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'rep1-triple-simple-boundary-20261017-r99';(root/'control').mkdir(parents=True);p=root/'control/preparation.json';atomic_json(p,dict(run_id=root.name,run_root=str(root),source_snapshot=str(root/'source_snapshot')))
+            with patch.object(ex,'OUTPUT',root.parent),self.assertRaises(PermissionError):rt.resume_prepare(p)
+
 if __name__=='__main__':unittest.main()
