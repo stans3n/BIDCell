@@ -160,15 +160,17 @@ def entry_command(cfg,path,attempt):return bootstrap_command(cfg,'_entry','--con
 def supervisor_command(cfg,path,attempt):return bootstrap_command(cfg,'_supervise','--config',path,'--attempt',attempt)
 def worker_command(cfg,path,stage,attempt,fds):return bootstrap_command(cfg,'_worker','--config',path,'--stage',stage,'--attempt',attempt,'--fds',','.join(map(str,fds)))
 def execution_validator(cfg,fds):return ex.ExecutionValidator(cfg,fds)
+def resource_contract():
+    return dict(p2_workers=4,retained_bytes=dict(gt=int(4.5*GIB),p2_replay=int(5.5*GIB),analysis=15*GIB),shared_bytes=2*GIB,temporary_peak_bytes=4*GIB,reserve_bytes=15*GIB,ram_allowance_bytes=22*GIB,ram_reserve_bytes=6*GIB,heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900)
 
 def prepare(output_root,run_id,plans_manifest):
     if Path(output_root).resolve()!=ex.OUTPUT or Path(plans_manifest).resolve()!=ex.PLAN or not re.fullmatch(r'rep1-triple-simple-boundary-20261017-r[0-9]{2,}',run_id):raise ValueError('unauthorized preparation path')
     if ex.git('branch','--show-current')!=ex.BRANCH or ex.git('status','--porcelain','--untracked-files=all'):raise ValueError('prepare requires clean committed authorized branch')
     commit=ex.git('rev-parse','HEAD');root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
     for name in ('configs','control','logs','admission','tmp','cache/matplotlib','cache/numba'):(root/name).mkdir(parents=True,exist_ok=True)
-    partial=dict(run_id=run_id,run_root=str(root))
+    partial=dict(run_id=run_id,run_root=str(root),resources=resource_contract())
     with ExitStack() as stack:
-        fds=tuple(stack.enter_context(lock(p)) for p in paths(partial));source=ex.copy_snapshot(root,commit)
+        fds=tuple(stack.enter_context(lock(p)) for p in paths(partial));ResourceGuard(partial)(True);source=ex.copy_snapshot(root,commit)
         partial.update(source_snapshot=source['snapshot_root'],source_commit=commit,source_digest=source['source_digest'])
         params=root/'control/preparation.json';atomic_json(params,partial)
         cmd=bootstrap_command(partial,'_prepare','--config',params,'--fds',','.join(map(str,fds)))
@@ -181,16 +183,18 @@ def prepare_snapshot(params,fds):
     partial=read(params);check_fds(partial,fds);ex.verify_snapshot(partial)
     root=Path(partial['run_root'])
     if (root/'configs/run.json').exists():raise FileExistsError('immutable configuration already committed')
+    guard=ResourceGuard(partial);guard(True)
     from .inputs import freeze_inputs
     from .frozen_domains import freeze
     def progress(x):
+        guard()
         atomic_json(root/'control/preparation_progress.json',dict(time=utc(),**x));print(json.dumps(x),flush=True)
     manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress)
     shutil.copyfile(Path(__file__).with_name('approved_dag.json'),root/'configs/comparisons.json')
     resource=read(ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json');atomic_json(root/'configs/resource_budget.json',resource)
     env=ex.environment(partial['source_snapshot'],fds,partial);atomic_json(root/'environment.json',env)
     cfg=dict(partial,schema='rep1-triple-simple-boundary-run-v1',input_manifest=str(root/'configs/inputs_manifest.json'),input_digest=digest(manifest),domain_manifest=str(root/'frozen_domain/complete.json'),domain_digest=sha256(root/'frozen_domain/complete.json'),plan_manifest=str(ex.PLAN),plan_digest=sha256(ex.PLAN),comparison_manifest=str(root/'configs/comparisons.json'),environment_digest=digest(env),python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',stage_order=list(STAGE_ORDER),science_audit=identity(ex.SCIENCE_AUDIT),resource_budget=identity(root/'configs/resource_budget.json'),
-        resources=dict(p2_workers=4,retained_bytes=dict(gt=int(4.5*GIB),p2_replay=int(5.5*GIB),analysis=15*GIB),shared_bytes=2*GIB,temporary_peak_bytes=4*GIB,reserve_bytes=15*GIB,ram_allowance_bytes=22*GIB,ram_reserve_bytes=6*GIB,heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
+        resources=resource_contract(),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
     atomic_json(root/'configs/run.json',cfg);atomic_json(root/'state.json',new_state(cfg));ex.make_preflight(cfg,fds)
     result=forecast(cfg,True);atomic_json(root/'admission/resource_preflight.json',result)
     if not result['admitted']:raise RuntimeError('prepared but resources cannot admit; no formal compute launched')
@@ -220,7 +224,10 @@ def launch(path,resume=False,reason=None):
         s.update(status='STARTING',attempt=attempt,exit_code=None,error=None,entry=None,supervisor=None,worker=None);s['attempts'].append(dict(attempt=attempt,created=utc(),reason=reason,dispatch=identity(token)));atomic_json(root/'state.json',s)
         session='bidcell-triple-'+attempt;cmd=['tmux','new-session','-d','-s',session,'-c',cfg['source_snapshot']]
         for k,val in ex.controlled_environment(cfg).items():cmd+=['-e',k+'='+val]
-        shell='exec '+shlex.join(entry_command(cfg,path,attempt))+' >> '+shlex.quote(str(root/'logs/queue.log'))+' 2>&1 < /dev/null'
+        # Retain one PTY descriptor in the small entry waiter. Redirecting all
+        # three streams closes the pane PTY and tmux can HUP the process before
+        # Python starts. FD3 is not passed to supervisor/scientific children.
+        shell='exec '+shlex.join(entry_command(cfg,path,attempt))+' 3<&0 >> '+shlex.quote(str(root/'logs/queue.log'))+' 2>&1 < /dev/null'
         result=subprocess.run([*cmd,shell],env=ex.child_environment(cfg),stdin=subprocess.DEVNULL,capture_output=True,text=True)
         atomic_json(root/'control'/('tmux_dispatch_'+attempt+'.json'),dict(session=session,returncode=result.returncode,stdout=result.stdout,stderr=result.stderr,token=identity(token)))
         if result.returncode:
