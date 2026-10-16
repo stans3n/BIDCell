@@ -10,7 +10,8 @@ from . import execution as ex
 def parser():
     p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
     prepare=sub.add_parser('prepare');prepare.add_argument('--plan',required=True);prepare.add_argument('--output-root',required=True);prepare.add_argument('--run-id',required=True)
-    for name in ('validate','launch','resume-production','status','tail','complete-check','grant-resume','evaluate','resume-evaluation','publish','recover-historical-mask','_supervise','_worker'):
+    prepare.add_argument('--import-seed',required=True)
+    for name in ('adopt-checkpoints','validate','launch','resume-production','status','tail','complete-check','grant-resume','evaluate','resume-evaluation','publish','recover-historical-mask','_supervise','_worker'):
         q=sub.add_parser(name);q.add_argument('--config',required=True)
         if name=='validate':q.add_argument('--admission',required=True)
         if name=='status':q.add_argument('--json',action='store_true')
@@ -27,7 +28,7 @@ def parser():
 
 def main(argv=None):
     args=parser().parse_args(argv);command=args.command
-    if command=='prepare':result=rt.prepare(args.plan,args.output_root,args.run_id)
+    if command=='prepare':result=rt.prepare(args.plan,args.output_root,args.run_id,args.import_seed)
     elif command=='status':result=rt.status(args.config)
     elif command=='tail':
         if not 1<=args.lines<=10000:raise ValueError('tail lines must be 1..10000')
@@ -36,7 +37,10 @@ def main(argv=None):
         return
     else:
         cfg=rt.load_config(args.config);ex.install_import_guard(cfg)
-        if command=='validate':result=rt.validate(args.config,args.admission)
+        if command=='adopt-checkpoints':
+            from .recovery import adopt
+            result=adopt(cfg)
+        elif command=='validate':result=rt.validate(args.config,args.admission)
         elif command in ('launch','resume-production'):result=rt.launch(args.config,resume=command=='resume-production')
         elif command=='complete-check':result=rt.complete_check(args.config)
         elif command=='grant-resume':result=rt.grant_resume(args.config,args.user_instruction_utc)

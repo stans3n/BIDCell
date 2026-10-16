@@ -15,7 +15,10 @@ from .common import atomic_json, check_identity, digest, identity, read, sha256,
 WORK = Path('/home/zwan0726/work')
 REPO = WORK/'projects/BIDCell_boundary_three_20261015'
 OUTPUT = WORK/'outputs/bidcell_rep1_bt_gt_fusion_20261016'
-RUN_ID = 'rep1-bt-gt-fusion-20261016-r01'
+RUN_ID = 'rep1-bt-gt-fusion-20261016-r02'
+OLD_ROOT = OUTPUT/'rep1-bt-gt-fusion-20261016-r01'
+IMPORT_SEED_SHA = '6f65f614e2dd5e780226e0a2c311aca7030748f4dc9a998c75c43b9f94174f7b'
+AMENDMENT_SHA = '49d11a09cb26a1791c3de58b2bea1636a96f153b28c3147f6dc8132fcf11b859'
 PYTHON = '/home/zwan0726/miniforge3/envs/bidcell_local/bin/python'
 RSCRIPT = '/home/zwan0726/work/envs/bidcell_egr_r/bin/Rscript'
 R_LIBRARY = WORK/'outputs/bidcell_historical_dual_20261013/sources/R_library'
@@ -180,6 +183,8 @@ def verify_environment(cfg,lock_fds=()):
 def verify_contracts(cfg):
     check_identity(dict(path=str(PLAN),sha256=PLAN_SHA));check_identity(dict(path=str(PROMPT),sha256=PROMPT_SHA))
     if cfg['plan_sha256']!=PLAN_SHA or cfg['prompt_sha256']!=PROMPT_SHA:raise ValueError('contract identity drift')
+    from .recovery import verify_plan
+    verify_plan(cfg)
 
 
 def verify_admission(cfg):
@@ -196,4 +201,10 @@ def verify_admission(cfg):
     check_identity(r['source_manifest']);check_identity(r['environment'])
     if r['source_manifest']['path']!=str(Path(cfg['run_root'])/'source_manifest.json') or r['environment']['path']!=str(Path(cfg['run_root'])/'environment.json'):
         raise ValueError('admission refers to another manifest/environment')
+    for key,expected_path in (('import_plan',cfg['checkpoint_import_plan']['path']),
+                              ('checkpoint_import',str(Path(cfg['run_root'])/'admission/checkpoint_import.json'))):
+        check_identity(r[key])
+        if r[key]['path']!=expected_path:raise ValueError('recovery admission location mismatch')
+    from .recovery import verify_import
+    verify_import(cfg)
     return identity(p)

@@ -178,7 +178,7 @@ def child_environment(cfg):
     return dict(os.environ,**controlled_environment(cfg))
 
 
-def prepare(plan,output_root,run_id):
+def prepare(plan,output_root,run_id,import_seed):
     if Path(plan).resolve()!=ex.PLAN or Path(output_root).resolve()!=ex.OUTPUT or run_id!=ex.RUN_ID:raise ValueError('prepare paths differ from authorized plan')
     if ex.git('branch','--show-current')!='feature/rep1-bt-gt-fusion-20261016' or ex.git('status','--porcelain','--untracked-files=all'):
         raise ValueError('commit the final source on the authorized clean branch before prepare')
@@ -189,6 +189,8 @@ def prepare(plan,output_root,run_id):
     with ExitStack() as stack:
         fds=tuple(stack.enter_context(lock(p)) for p in (root/'control/launch.lock',root/'control/writer.lock',ex.COMPUTE))
         from .inputs import freeze_inputs
+        from .recovery import prepare_plan
+        recovery_plan=prepare_plan(root,import_seed)
         inputs=freeze_inputs(root)
         source=ex.copy_snapshot(root,commit)
         env=ex.environment(source['snapshot_root'],fds)
@@ -199,12 +201,16 @@ def prepare(plan,output_root,run_id):
                  input_digest=digest(inputs),environment_digest=digest(env),plan_sha256=ex.PLAN_SHA,prompt_sha256=ex.PROMPT_SHA,
                  python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',node_order=list(NODE_ORDER),
                  no_ai_dependency=True,auto_ai_wakeup=False,results_root='/home/zwan0726/work/outputs/bidcell_historical_dual_bt_gt_fusion_20261017',
+                 checkpoint_import_plan=recovery_plan,
                  resources=dict(retained_bytes=dict(zip(NODE_ORDER,[GiB,3*GiB//2,3*GiB//2,0])),shared_bytes=GiB,
                                 temporary_peak_bytes=5*GiB,reserve_bytes=15*GiB,ram_allowance_bytes=20*GiB,ram_reserve_bytes=6*GiB,
+                                imported_checkpoint_bytes=dict(BT_EXISTING6=847188689,P2_BASE_GT_PRODUCE=438074722),
+                                imported_bytes_included_in_retained=True,old_run_retained_bytes=disk_bytes(ex.OLD_ROOT),
                                 heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900),
-                 estimates=dict(existing_BT_seconds=[600,1800],two_GT_matrix_seconds=[1800,5400],
+                 estimates=dict(existing_BT_seconds=[0,0],P2_remaining_seconds=[300,1200],V2_remaining_seconds=[900,3600],
+                                checkpoint_copy_bytes=1285263411,checkpoint_copy_is_subset_of_retained_budgets=True,
                                 future_evaluation_publication_seconds=[5400,10800],retained_GiB=[3,6],
-                                evidence='historical full matrix monitors, change_plan_resource_evidence, actual small science/runtime fixtures; engineering bounds, not new full-run timings'))
+                                evidence='r01 actual BT 3 minutes and P2 GT 15 minutes; completed BT and full P2 proposal cursor imported; remaining bounds include TIFF, full topology, own matrices and V2 GT'))
         atomic_json(root/'configs/run.json',cfg);atomic_json(root/'state.json',state_new(cfg))
         forecast=resource_forecast(cfg);atomic_json(root/'admission/resource_forecast.json',forecast)
         ex.verify_snapshot(cfg,False)
@@ -379,7 +385,9 @@ def supervise(config,attempt,mode='production'):
                 if node in NODE_ORDER and receipt_path(cfg,node).exists():
                     rec=validate_stage(cfg,node)
                     writer.edit(lambda s:s['nodes'][node].update(status='validated_complete',receipt=identity(receipt_path(cfg,node)),reused=True))
-                    event(cfg,'NODE_REUSED_VALIDATED',node=node);continue
+                    adopted=identity(Path(cfg['run_root'])/'admission/checkpoint_import.json') if cfg.get('checkpoint_import_plan') else None
+                    if adopted:writer.edit(lambda s:s['nodes'][node].update(checkpoint_import=adopted,new_computation_claim=False))
+                    event(cfg,'NODE_REUSED_VALIDATED',node=node,checkpoint_import=adopted,new_computation_claim=False);continue
                 forecast=resource_forecast(cfg,state)
                 if not forecast['admitted']:raise RuntimeError('RESOURCE_NOT_ADMITTED: '+json.dumps(forecast))
                 phase='EXISTING_BT_EVALUATION' if node=='BT_EXISTING6' else 'PRODUCTION_VALIDATION' if node=='PRODUCTION_VALIDATE' else 'NEW_ENDPOINT_EVALUATION' if node=='EVALUATE_NEW2' else 'NEW_ENDPOINT_PRODUCTION'

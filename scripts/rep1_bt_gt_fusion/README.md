@@ -32,7 +32,7 @@ interfaces take its dictionary. Required fields are:
 
 ```json
 {
-  "run_id": "rep1-bt-gt-fusion-20261016-r01",
+  "run_id": "rep1-bt-gt-fusion-20261016-r02",
   "run_root": "/absolute/new/run/root",
   "source_snapshot": "/absolute/new/run/root/source_snapshot",
   "input_manifest": "/absolute/new/run/root/configs/inputs_manifest.json",
@@ -106,6 +106,22 @@ and fixture source can additionally be included in the audit manifest; they are
 not imported as runtime dependencies.
 
 ## Receipt and recovery behavior
+
+The r02 recovery uses the independently reviewed recovery amendment and exact
+`recovery_import_seed.json` identity. Run `prepare --import-seed PATH` only after
+the controller commit passes review, then run `adopt-checkpoints --config PATH`
+from the new read-only snapshot. Adoption holds both runs' launch/writer locks
+and the workspace compute lock. An isolated old-snapshot subprocess validates
+the old admission, environment, inputs, B/T and completed proposal cursor.
+Scientific binary/CSV files are independent byte-identical copies; JSON identity
+edges are rehashed leaf-to-root and retain explicit producer/consumer provenance.
+Common and GT full-module AST compatibility and 27 byte-fixed scientific sources
+are checked. Import receipts never claim new scientific work or grant resume.
+Final independent launch admission binds both the immutable plan and the complete
+3394-file mapping receipt. Old r01 remains unchanged. P2 still must write its
+final TIFF and pass full topology/matrix validation; V2 still runs in full.
+The 1,285,263,411 imported bytes are part of the BT/P2 retained budgets; the
+retained r01 is reported separately, not charged twice to incremental free space.
 
 Each receipt binds run, stage, canonical config, source, input and plan digests.
 Output files have absolute paths, bytes and SHA256. A receipt with changed output
