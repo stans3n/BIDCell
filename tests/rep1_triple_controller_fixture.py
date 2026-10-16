@@ -82,7 +82,10 @@ def initialize(root,behavior=None,live_clone=None):
         finally:ex.source_files=original
     else:m=ex.copy_snapshot(root,ex.git('rev-parse','HEAD'))
     cfg=dict(schema='rep1-triple-engineering-fixture-v1',run_id=root.name,run_root=str(root),source_snapshot=m['snapshot_root'],source_digest=m['source_digest'],source_commit=m['source_commit'],input_digest='engineering',domain_digest='engineering',plan_digest='engineering',environment_digest='engineering',python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',resources=dict(retained_bytes=dict(gt=1_000_000,p2_replay=1_000_000,analysis=1_000_000),shared_bytes=10_000_000,temporary_peak_bytes=1_000_000,reserve_bytes=256*1024**2,ram_allowance_bytes=4*1024**3,ram_reserve_bytes=256*1024**2,heartbeat_seconds=1,stale_seconds=60,no_progress_seconds=900))
-    atomic_json(root/'configs/run.json',cfg);atomic_json(root/'state.json',rt.new_state(cfg));atomic_json(root/'fixture_binding.json',dict(config_digest=digest(cfg)));atomic_json(root/'fixture_behavior.json',behavior or {});atomic_json(root/'admission/not_formal.json',dict(approved_for_formal_launch=False,engineering_only=True,config_digest=digest(cfg)));return cfg
+    atomic_json(root/'configs/run.json',cfg);atomic_json(root/'state.json',rt.new_state(cfg));atomic_json(root/'fixture_binding.json',dict(config_digest=digest(cfg)));atomic_json(root/'fixture_behavior.json',behavior or {});atomic_json(root/'admission/not_formal.json',dict(approved_for_formal_launch=False,engineering_only=True,config_digest=digest(cfg)))
+    with ExitStack() as stack:
+        for p in rt.paths(cfg):stack.enter_context(rt.lock(p))
+    return cfg
 def command(config,*args,success=True):
     cfg=read(config);entry=Path(cfg['source_snapshot'])/'tests/rep1_triple_controller_fixture.py'
     p=subprocess.run([ex.PYTHON,'-I','-S','-B',str(entry),args[0],str(config),*map(str,args[1:])],capture_output=True,text=True,timeout=50)
