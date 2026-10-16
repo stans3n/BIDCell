@@ -1,0 +1,1740 @@
+{
+  "schema": "rep1-triple-simple-boundary-plan-dag-v1",
+  "version": "REP1-TRIPLE-SIMPLE-20261017-v1.0",
+  "status": "PLAN_FOR_ROOT_AUDIT_NOT_RUN_CONFIG",
+  "plans": [
+    "/home/zwan0726/work/docs/BIDCell_Rep1_Triple_ChangePlan_20261017.md",
+    "/home/zwan0726/work/docs/BIDCell_Rep1_FixedBoundary_ChangePlan_20261017.md",
+    "/home/zwan0726/work/docs/BIDCell_Rep1_SimpleControls_ChangePlan_20261017.md",
+    "/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_Execution_ChangePlan_20261017.md"
+  ],
+  "inputs_inspection": "/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_Inputs_20261017.json",
+  "source_baseline": {
+    "root": "/home/zwan0726/work/projects/BIDCell_boundary_three_20261015",
+    "branch": "feature/rep1-bt-gt-fusion-20261016",
+    "commit": "a205f46409ead17753ef71b57acd966aae792158",
+    "new_branch": "feature/rep1-triple-simple-boundary-20261017"
+  },
+  "output_root": "/home/zwan0726/work/outputs/bidcell_rep1_triple_simple_boundary_20261017",
+  "proposed_run_id": "rep1-triple-simple-boundary-20261017-r01",
+  "collision_policy": "choose_new_run_id_and_refreeze_never_overwrite",
+  "methods12": [
+    "BASE_MATCH",
+    "V2_MORPH",
+    "P2_BASE",
+    "A2_GT",
+    "P2_MORPH",
+    "V2_MORPH_GT",
+    "P2_BASE_GT",
+    "P2_MORPH_GT",
+    "MORPH_SIMPLE_FUSION",
+    "P2_SIMPLE",
+    "SIMPLE_GT",
+    "P2_SIMPLE_GT"
+  ],
+  "reused8": [
+    "BASE_MATCH",
+    "V2_MORPH",
+    "P2_BASE",
+    "A2_GT",
+    "P2_MORPH",
+    "V2_MORPH_GT",
+    "P2_BASE_GT",
+    "MORPH_SIMPLE_FUSION"
+  ],
+  "new4": [
+    "P2_MORPH_GT",
+    "P2_SIMPLE",
+    "SIMPLE_GT",
+    "P2_SIMPLE_GT"
+  ],
+  "background_only": [
+    "B0"
+  ],
+  "historical_P2_is_P2_BASE": false,
+  "cube_axis_order": [
+    "Morph",
+    "P2",
+    "GT"
+  ],
+  "cube": {
+    "000": "BASE_MATCH",
+    "100": "V2_MORPH",
+    "010": "P2_BASE",
+    "001": "A2_GT",
+    "110": "P2_MORPH",
+    "101": "V2_MORPH_GT",
+    "011": "P2_BASE_GT",
+    "111": "P2_MORPH_GT"
+  },
+  "endpoints": {
+    "P2_MORPH_GT": {
+      "parent": "P2_MORPH",
+      "operation": "GT_parent_final",
+      "input_role": "parent_final",
+      "input_ref": "inspected:P2_MORPH.final_mask",
+      "full_evaluate_required": true,
+      "parent_assigned": "dynamic_verified_parent_full_313_int64_sum",
+      "own_full_matrix_and_independent_oracle": true
+    },
+    "P2_SIMPLE": {
+      "parent": "MORPH_SIMPLE_FUSION",
+      "operation": "P2_native_postconnect",
+      "input_role": "native_pre",
+      "input_ref": "inspected:MORPH_SIMPLE_FUSION.pre_mask",
+      "full_evaluate_required": true,
+      "parent_assigned": "dynamic_verified_parent_full_313_int64_sum",
+      "own_full_matrix_and_independent_oracle": true
+    },
+    "SIMPLE_GT": {
+      "parent": "MORPH_SIMPLE_FUSION",
+      "operation": "GT_parent_final",
+      "input_role": "parent_final",
+      "input_ref": "inspected:MORPH_SIMPLE_FUSION.final_mask",
+      "full_evaluate_required": true,
+      "parent_assigned": "dynamic_verified_parent_full_313_int64_sum",
+      "own_full_matrix_and_independent_oracle": true
+    },
+    "P2_SIMPLE_GT": {
+      "parent": "P2_SIMPLE",
+      "operation": "GT_parent_final",
+      "input_role": "parent_final",
+      "input_ref": "produced:P2_SIMPLE.final",
+      "full_evaluate_required": true,
+      "parent_assigned": "dynamic_verified_parent_full_313_int64_sum",
+      "own_full_matrix_and_independent_oracle": true
+    }
+  },
+  "prelaunch": [
+    "plan_root_audit_zero_blockers",
+    "science_implementation_commit",
+    "independent_science_audit",
+    "root_supervisor_implementation",
+    "final_independent_whole_code_audit",
+    "all_required_fixtures",
+    "real_copy_source_snapshot",
+    "freeze_inputs",
+    "freeze_domain_strata_ROI_and_weights_before_new_results",
+    "freeze_run_config",
+    "final_admission"
+  ],
+  "stages": [
+    {
+      "id": "01",
+      "name": "INPUT_AND_FROZEN_DOMAIN_VALIDATE",
+      "depends_on": [
+        "PRELAUNCH_ADMISSION"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest"
+      ],
+      "required_receipt": "receipts/01.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "02",
+      "name": "P2_MORPH_GT_PRODUCE_MATRIX_VALIDATE",
+      "depends_on": [
+        "01"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "inputs:endpoints.P2_MORPH"
+      ],
+      "required_receipt": "endpoints/P2_MORPH_GT/production_complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "03",
+      "name": "P2_MORPH_GT_FULL_EVALUATE",
+      "depends_on": [
+        "02"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:02"
+      ],
+      "required_receipt": "endpoints/P2_MORPH_GT/evaluation/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "04",
+      "name": "FIXED_BOUNDARY_INITIAL_ANALYSIS",
+      "depends_on": [
+        "03"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:03",
+        "inputs:old8"
+      ],
+      "required_receipt": "analysis/initial/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "05",
+      "name": "SIMPLE_NATIVE_REPLAY_VALIDATE",
+      "depends_on": [
+        "04"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "inputs:endpoints.MORPH_SIMPLE_FUSION.pre"
+      ],
+      "required_receipt": "replay/SIMPLE_NATIVE/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "06",
+      "name": "P2_SIMPLE_PRODUCE_MATRIX_VALIDATE",
+      "depends_on": [
+        "05"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:05"
+      ],
+      "required_receipt": "endpoints/P2_SIMPLE/production_complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "07",
+      "name": "P2_SIMPLE_FULL_EVALUATE",
+      "depends_on": [
+        "06"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:06"
+      ],
+      "required_receipt": "endpoints/P2_SIMPLE/evaluation/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "08",
+      "name": "SIMPLE_GT_PRODUCE_MATRIX_VALIDATE",
+      "depends_on": [
+        "07"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "inputs:endpoints.MORPH_SIMPLE_FUSION.final"
+      ],
+      "required_receipt": "endpoints/SIMPLE_GT/production_complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "09",
+      "name": "SIMPLE_GT_FULL_EVALUATE",
+      "depends_on": [
+        "08"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:08"
+      ],
+      "required_receipt": "endpoints/SIMPLE_GT/evaluation/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "10",
+      "name": "P2_SIMPLE_GT_PRODUCE_MATRIX_VALIDATE",
+      "depends_on": [
+        "09"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:06",
+        "artifact:stage06.parent_matrix_assigned"
+      ],
+      "required_receipt": "endpoints/P2_SIMPLE_GT/production_complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "11",
+      "name": "P2_SIMPLE_GT_FULL_EVALUATE",
+      "depends_on": [
+        "10"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:10"
+      ],
+      "required_receipt": "endpoints/P2_SIMPLE_GT/evaluation/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "12",
+      "name": "REUSED_ENDPOINT_COMPLETION_AND_BT",
+      "depends_on": [
+        "11"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "inputs:old8",
+        "stage:11"
+      ],
+      "required_receipt": "reused/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "13",
+      "name": "FIXED_BOUNDARY_ALL12_AND_PAIRED_FACTORIAL_ANALYSIS",
+      "depends_on": [
+        "12"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:04",
+        "stage:12",
+        "artifact:all_four_full_evaluation"
+      ],
+      "required_receipt": "analysis/all12/complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "14",
+      "name": "COMPUTE_COMPLETE_CHECK",
+      "depends_on": [
+        "13"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "artifact:all_required_coverage"
+      ],
+      "required_receipt": "compute_complete.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    },
+    {
+      "id": "15",
+      "name": "COMPUTE_COMPLETE_AWAITING_MANUAL_RESUME",
+      "depends_on": [
+        "14"
+      ],
+      "semantic_inputs": [
+        "frozen_input_manifest",
+        "frozen_domain_manifest",
+        "frozen_source_manifest",
+        "frozen_comparison_manifest",
+        "stage:14"
+      ],
+      "required_receipt": "control/compute_exit.json",
+      "must_stop_on": [
+        "engineering_error",
+        "identity_mismatch",
+        "unsafe_resource"
+      ],
+      "must_continue_on": [
+        "negative_result",
+        "no_op",
+        "F1_tradeoff",
+        "guardrail_alarm",
+        "prespecified_sparse_NA"
+      ],
+      "parallel_heavy_stages": false,
+      "requires_manual_resume": false
+    }
+  ],
+  "initial_methods9": [
+    "BASE_MATCH",
+    "V2_MORPH",
+    "P2_BASE",
+    "A2_GT",
+    "P2_MORPH",
+    "V2_MORPH_GT",
+    "P2_BASE_GT",
+    "MORPH_SIMPLE_FUSION",
+    "P2_MORPH_GT"
+  ],
+  "comparisons": [
+    {
+      "id": "P2_MORPH_GT__minus__P2_MORPH",
+      "candidate": "P2_MORPH_GT",
+      "control": "P2_MORPH",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "P2_MORPH": -1
+      },
+      "reasons": [
+        "triple_primary",
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH_GT__minus__V2_MORPH_GT",
+      "candidate": "P2_MORPH_GT",
+      "control": "V2_MORPH_GT",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "V2_MORPH_GT": -1
+      },
+      "reasons": [
+        "triple_primary",
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH_GT__minus__P2_BASE_GT",
+      "candidate": "P2_MORPH_GT",
+      "control": "P2_BASE_GT",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "P2_BASE_GT": -1
+      },
+      "reasons": [
+        "triple_primary",
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH_GT__minus__BASE_MATCH",
+      "candidate": "P2_MORPH_GT",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "triple_primary",
+        "new_endpoint_vs_BASE_MATCH"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_SIMPLE__minus__MORPH_SIMPLE_FUSION",
+      "candidate": "P2_SIMPLE",
+      "control": "MORPH_SIMPLE_FUSION",
+      "coefficient": {
+        "P2_SIMPLE": 1,
+        "MORPH_SIMPLE_FUSION": -1
+      },
+      "reasons": [
+        "simple_controls"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "SIMPLE_GT__minus__MORPH_SIMPLE_FUSION",
+      "candidate": "SIMPLE_GT",
+      "control": "MORPH_SIMPLE_FUSION",
+      "coefficient": {
+        "SIMPLE_GT": 1,
+        "MORPH_SIMPLE_FUSION": -1
+      },
+      "reasons": [
+        "simple_controls"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_SIMPLE_GT__minus__P2_SIMPLE",
+      "candidate": "P2_SIMPLE_GT",
+      "control": "P2_SIMPLE",
+      "coefficient": {
+        "P2_SIMPLE_GT": 1,
+        "P2_SIMPLE": -1
+      },
+      "reasons": [
+        "simple_controls"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_SIMPLE_GT__minus__SIMPLE_GT",
+      "candidate": "P2_SIMPLE_GT",
+      "control": "SIMPLE_GT",
+      "coefficient": {
+        "P2_SIMPLE_GT": 1,
+        "SIMPLE_GT": -1
+      },
+      "reasons": [
+        "simple_controls"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_SIMPLE_GT__minus__MORPH_SIMPLE_FUSION",
+      "candidate": "P2_SIMPLE_GT",
+      "control": "MORPH_SIMPLE_FUSION",
+      "coefficient": {
+        "P2_SIMPLE_GT": 1,
+        "MORPH_SIMPLE_FUSION": -1
+      },
+      "reasons": [
+        "simple_controls"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "V2_MORPH__minus__MORPH_SIMPLE_FUSION",
+      "candidate": "V2_MORPH",
+      "control": "MORPH_SIMPLE_FUSION",
+      "coefficient": {
+        "V2_MORPH": 1,
+        "MORPH_SIMPLE_FUSION": -1
+      },
+      "reasons": [
+        "same_postprocessing_full_minus_simple"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH__minus__P2_SIMPLE",
+      "candidate": "P2_MORPH",
+      "control": "P2_SIMPLE",
+      "coefficient": {
+        "P2_MORPH": 1,
+        "P2_SIMPLE": -1
+      },
+      "reasons": [
+        "same_postprocessing_full_minus_simple"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "V2_MORPH_GT__minus__SIMPLE_GT",
+      "candidate": "V2_MORPH_GT",
+      "control": "SIMPLE_GT",
+      "coefficient": {
+        "V2_MORPH_GT": 1,
+        "SIMPLE_GT": -1
+      },
+      "reasons": [
+        "same_postprocessing_full_minus_simple"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH_GT__minus__P2_SIMPLE_GT",
+      "candidate": "P2_MORPH_GT",
+      "control": "P2_SIMPLE_GT",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "P2_SIMPLE_GT": -1
+      },
+      "reasons": [
+        "same_postprocessing_full_minus_simple"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_SIMPLE__minus__BASE_MATCH",
+      "candidate": "P2_SIMPLE",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "P2_SIMPLE": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "new_endpoint_vs_BASE_MATCH"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "SIMPLE_GT__minus__BASE_MATCH",
+      "candidate": "SIMPLE_GT",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "SIMPLE_GT": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "new_endpoint_vs_BASE_MATCH"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_SIMPLE_GT__minus__BASE_MATCH",
+      "candidate": "P2_SIMPLE_GT",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "P2_SIMPLE_GT": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "new_endpoint_vs_BASE_MATCH"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "MORPH_SIMPLE_FUSION__minus__BASE_MATCH",
+      "candidate": "MORPH_SIMPLE_FUSION",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "MORPH_SIMPLE_FUSION": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "preserve_simple_vs_base_background"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "V2_MORPH__minus__BASE_MATCH",
+      "candidate": "V2_MORPH",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "V2_MORPH": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "V2_MORPH_GT__minus__A2_GT",
+      "candidate": "V2_MORPH_GT",
+      "control": "A2_GT",
+      "coefficient": {
+        "V2_MORPH_GT": 1,
+        "A2_GT": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH__minus__P2_BASE",
+      "candidate": "P2_MORPH",
+      "control": "P2_BASE",
+      "coefficient": {
+        "P2_MORPH": 1,
+        "P2_BASE": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_BASE__minus__BASE_MATCH",
+      "candidate": "P2_BASE",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "P2_BASE": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_BASE_GT__minus__A2_GT",
+      "candidate": "P2_BASE_GT",
+      "control": "A2_GT",
+      "coefficient": {
+        "P2_BASE_GT": 1,
+        "A2_GT": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_MORPH__minus__V2_MORPH",
+      "candidate": "P2_MORPH",
+      "control": "V2_MORPH",
+      "coefficient": {
+        "P2_MORPH": 1,
+        "V2_MORPH": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "A2_GT__minus__BASE_MATCH",
+      "candidate": "A2_GT",
+      "control": "BASE_MATCH",
+      "coefficient": {
+        "A2_GT": 1,
+        "BASE_MATCH": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "P2_BASE_GT__minus__P2_BASE",
+      "candidate": "P2_BASE_GT",
+      "control": "P2_BASE",
+      "coefficient": {
+        "P2_BASE_GT": 1,
+        "P2_BASE": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    },
+    {
+      "id": "V2_MORPH_GT__minus__V2_MORPH",
+      "candidate": "V2_MORPH_GT",
+      "control": "V2_MORPH",
+      "coefficient": {
+        "V2_MORPH_GT": 1,
+        "V2_MORPH": -1
+      },
+      "reasons": [
+        "factorial_conditional_edge"
+      ],
+      "population": "pairwise_four_way_finite_per_metric",
+      "direction": "candidate_minus_control",
+      "required_products": [
+        "raw_full_population",
+        "paired_sc_fixed_6metrics",
+        "three_scale_spatial_CI",
+        "fixed_boundary_strata",
+        "pixel_molecule_cell_transfers_313genes",
+        "six_marker_BT_0_40_CI"
+      ],
+      "scientific_negative_blocks": false
+    }
+  ],
+  "factorial_contrasts": [
+    {
+      "id": "delta_M_000",
+      "order": 1,
+      "factor": "M",
+      "coefficient": {
+        "V2_MORPH": 1,
+        "BASE_MATCH": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_M_001",
+      "order": 1,
+      "factor": "M",
+      "coefficient": {
+        "V2_MORPH_GT": 1,
+        "A2_GT": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_M_010",
+      "order": 1,
+      "factor": "M",
+      "coefficient": {
+        "P2_MORPH": 1,
+        "P2_BASE": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_M_011",
+      "order": 1,
+      "factor": "M",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "P2_BASE_GT": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_P_000",
+      "order": 1,
+      "factor": "P",
+      "coefficient": {
+        "P2_BASE": 1,
+        "BASE_MATCH": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_P_001",
+      "order": 1,
+      "factor": "P",
+      "coefficient": {
+        "P2_BASE_GT": 1,
+        "A2_GT": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_P_100",
+      "order": 1,
+      "factor": "P",
+      "coefficient": {
+        "P2_MORPH": 1,
+        "V2_MORPH": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_P_101",
+      "order": 1,
+      "factor": "P",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "V2_MORPH_GT": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_T_000",
+      "order": 1,
+      "factor": "T",
+      "coefficient": {
+        "A2_GT": 1,
+        "BASE_MATCH": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_T_010",
+      "order": 1,
+      "factor": "T",
+      "coefficient": {
+        "P2_BASE_GT": 1,
+        "P2_BASE": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_T_100",
+      "order": 1,
+      "factor": "T",
+      "coefficient": {
+        "V2_MORPH_GT": 1,
+        "V2_MORPH": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "delta_T_110",
+      "order": 1,
+      "factor": "T",
+      "coefficient": {
+        "P2_MORPH_GT": 1,
+        "P2_MORPH": -1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_MP_at_0",
+      "order": 2,
+      "coefficient": {
+        "BASE_MATCH": 1,
+        "P2_BASE": -1,
+        "V2_MORPH": -1,
+        "P2_MORPH": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_MP_at_1",
+      "order": 2,
+      "coefficient": {
+        "A2_GT": 1,
+        "P2_BASE_GT": -1,
+        "V2_MORPH_GT": -1,
+        "P2_MORPH_GT": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_MT_at_0",
+      "order": 2,
+      "coefficient": {
+        "BASE_MATCH": 1,
+        "A2_GT": -1,
+        "V2_MORPH": -1,
+        "V2_MORPH_GT": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_MT_at_1",
+      "order": 2,
+      "coefficient": {
+        "P2_BASE": 1,
+        "P2_BASE_GT": -1,
+        "P2_MORPH": -1,
+        "P2_MORPH_GT": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_PT_at_0",
+      "order": 2,
+      "coefficient": {
+        "BASE_MATCH": 1,
+        "A2_GT": -1,
+        "P2_BASE": -1,
+        "P2_BASE_GT": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_PT_at_1",
+      "order": 2,
+      "coefficient": {
+        "V2_MORPH": 1,
+        "V2_MORPH_GT": -1,
+        "P2_MORPH": -1,
+        "P2_MORPH_GT": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    },
+    {
+      "id": "interaction_MPT",
+      "order": 3,
+      "coefficient": {
+        "BASE_MATCH": -1,
+        "V2_MORPH": 1,
+        "P2_BASE": 1,
+        "A2_GT": 1,
+        "P2_MORPH": -1,
+        "V2_MORPH_GT": -1,
+        "P2_BASE_GT": -1,
+        "P2_MORPH_GT": 1
+      },
+      "population": "factorial8_common_four_way_finite_per_metric",
+      "shared_weights": "global_frozen_W"
+    }
+  ],
+  "background_comparisons": [
+    {
+      "candidate": "BASE_MATCH",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "V2_MORPH",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "P2_BASE",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "A2_GT",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "P2_MORPH",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "V2_MORPH_GT",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "P2_BASE_GT",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "P2_MORPH_GT",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "MORPH_SIMPLE_FUSION",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "P2_SIMPLE",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "SIMPLE_GT",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    },
+    {
+      "candidate": "P2_SIMPLE_GT",
+      "control": "B0",
+      "population": "original_full_profile_population",
+      "paired": false,
+      "interpretation": "historical_unpaired_performance_only"
+    }
+  ],
+  "score_metrics": [
+    "positive_F1",
+    "negative_F1",
+    "positive_Precision",
+    "positive_Recall",
+    "negative_Precision",
+    "negative_Recall"
+  ],
+  "profiles": [
+    "sc_ownQC",
+    "fixed_historical_B1_103000"
+  ],
+  "paired_populations": {
+    "pairwise": "F intersect Qa intersect Qb then finite across a_sc,a_fixed,b_sc,b_fixed per metric",
+    "factorial8": "F intersect all eight Q then finite all eight methods and both profiles per metric",
+    "all12": "F intersect all twelve Q then finite all twelve methods and both profiles per metric",
+    "region_subsets": "intersect_only_precomputed_BASE_cell_membership",
+    "do_not_replace_raw_population_results": true
+  },
+  "scientific_constants": {
+    "n_cells": 107955,
+    "n_genes_matrix": 313,
+    "n_genes_reference": 307,
+    "eligible_transcripts": 34442716,
+    "pixel_um": 1.0,
+    "lookup_scale_xy": [
+      0.2125,
+      0.2125
+    ],
+    "GT_beta": 1,
+    "GT_margin": "log(2)",
+    "GT_interface_band_um": 2,
+    "GT_topology_connectivity": 8,
+    "GT_score_uses_cell_specific_q": false,
+    "A1_applicable_types": [
+      0,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      13
+    ],
+    "P2_distance": "minimum_int64_squared_Euclidean_to_complete_global_nucleus_pixels",
+    "P2_tie": "smallest_global_ID",
+    "P2_tile_size": 1024,
+    "P2_seed": 1234,
+    "P2_workers_max": 4,
+    "P2_max_query_pairs": 262144,
+    "QC_transcripts_inclusive": [
+      20,
+      2000
+    ],
+    "QC_min_detected_genes": 20,
+    "marker_q": 0.9,
+    "positive_t": 0.25,
+    "negative_t": 1,
+    "capture_loss_guardrail_pp": 0.5,
+    "local_retention_guardrail": 0.995,
+    "guardrails_block_compute": false
+  },
+  "fixed_domain": {
+    "primary_regions": [
+      "nuclear_exterior_support_K_ge_2",
+      "BASE_positive_positive_8neighbor_interface_EDT_le_2um_extranuclear_including_BASE_background"
+    ],
+    "diagnostic_regions": [
+      "nuclear",
+      "noncompetitive_extranuclear",
+      "interface_positive_BASE_only"
+    ],
+    "cell_membership": "exists_BASE_owned_pixel_in_fixed_region; supplementary_support_exposure_separate",
+    "unknown_priority": true,
+    "multiplicity_bins": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4+"
+    ],
+    "BASE_count_edges": [
+      78,
+      140,
+      272
+    ],
+    "nuclear_crowding_radius_um": 30,
+    "nuclear_crowding_edges": [
+      8,
+      11,
+      14
+    ],
+    "local_RNA_density_radius_um": 10,
+    "quantiles": "linear; duplicate edges merged; equal_to_edge_lower_group",
+    "morphology": [
+      "complete_nuclear_area_quartiles",
+      "moment_eccentricity_quartiles",
+      "nuclear_components_1_or_multi"
+    ],
+    "interface_unique_assignment": "minimum(distance_squared,cellID_i,cellID_j) within 2um; full overlapping exposure retained",
+    "transfer_format": "sparse_observed_combinations_chunked_no_dense_cartesian_product",
+    "unit_anchors": {
+      "cell": "frozen_complete_nuclear_centroid",
+      "pixel": "native_pixel_xy",
+      "molecule": "fixed_native_lookup_pixel_xy",
+      "interface": "BASE_contact_edge_midpoint"
+    }
+  },
+  "bootstrap": {
+    "scales_um": [
+      1000,
+      500,
+      2000
+    ],
+    "origin_um": [
+      0,
+      0
+    ],
+    "replicates": 2000,
+    "seed": 20261013,
+    "rng": "PCG64",
+    "block_universe": "fixed_full_nuclear_ID_universe_per_scale_sorted_xy; preserve_empty_contribution_blocks",
+    "weights": "single_frozen_W_matrix_per_scale_for_all_methods_pairs_profiles_strata_factorials",
+    "statistic": "pooled_sums_divided_by_pooled_finite_counts",
+    "minimum_contributing_blocks": 10,
+    "minimum_valid_replicates": 1900,
+    "minimum_cells_for_CI": 20,
+    "NA_never_zero": true
+  },
+  "BT": {
+    "panels": [
+      {
+        "recipient": [
+          "B Cells"
+        ],
+        "target": [
+          "CD4 T",
+          "CD8 T"
+        ],
+        "markers": [
+          "CD4",
+          "CD8A",
+          "CD8B"
+        ]
+      },
+      {
+        "recipient": [
+          "CD4 T",
+          "CD8 T"
+        ],
+        "target": [
+          "B Cells"
+        ],
+        "markers": [
+          "CD79A",
+          "CD79B",
+          "MS4A1"
+        ]
+      }
+    ],
+    "expression_rule": "full313_count_gt_0",
+    "bins_um": [
+      "[0,10]",
+      "(10,20]",
+      "(20,30]",
+      "(30,40]",
+      "(40,50]",
+      "(50,100]",
+      "(100,max]"
+    ],
+    "prespecified_window_um": [
+      0,
+      40
+    ],
+    "frozen_target_pool": "F intersect complete_nuclear_IDs with original_B1_valid_BT_labels",
+    "empty_bin": "NA_with_reason"
+  },
+  "ROI": {
+    "seed": 20261017,
+    "size_um": 128,
+    "target_count": 32,
+    "selection": "1 per two_regions x three_fixed_type_classes x four_local_RNA_density_quartiles plus 1 per two_control_regions x four_density_quartiles",
+    "empty_strata": "selected0_with_reason_no_replacement",
+    "render_all12_same_coordinates": true
+  },
+  "required_full_evaluate": [
+    "own_matrix_full_oracle",
+    "ownQC313_logNormCounts",
+    "frozen_scClassify_reference307",
+    "author_marker_six_metrics",
+    "fixed_full_panel_six_metrics",
+    "QC_unassigned_missing_unknown",
+    "capture_cell_RNA_genes_area",
+    "4_and_8_connectivity_nucleus_ID_integrity",
+    "reference_expression_detection_correlations",
+    "author_spatial_diversity500um",
+    "six_marker_BT_official_and_fixed",
+    "stage_dependency_and_population_receipts"
+  ],
+  "fixture_ids": [
+    "F01",
+    "F02",
+    "F03",
+    "F04",
+    "F05",
+    "F06",
+    "F07",
+    "F08",
+    "F09",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+    "F14"
+  ],
+  "resource_upper_GiB": {
+    "retained_GT3": 4.5,
+    "retained_P2_and_replay": 5.5,
+    "retained_analysis12": 6,
+    "shared_once": 2,
+    "additional_temporary_peak": 6,
+    "incremental_peak": 24,
+    "reserve": 15,
+    "RAM_process_tree_peak": 22,
+    "RAM_reserve": 6
+  },
+  "execution": {
+    "detached": "tmux_supervisor_after_fixture",
+    "workspace_compute_lock": "/home/zwan0726/work/outputs/cos_gpu.lock",
+    "inherit_locks_all_children_including_R_and_fork_pool": true,
+    "heartbeat_seconds": 10,
+    "launch_acceptance_bounded_seconds": 120,
+    "automatic_retry_count": 0,
+    "background_AI_calls": false,
+    "background_publication": false,
+    "compute_end": "COMPUTE_COMPLETE_AWAITING_MANUAL_RESUME",
+    "pause_Goal_only_after_successful_launch": true,
+    "compute_authorization": {
+      "config_field": "static_allowed_modes_and_stages_only",
+      "runtime_payload": "derived_after_admission_bind_run_config_admission_stage_and_completed_production",
+      "never_write_runtime_payload_back_to_config": true
+    }
+  },
+  "manual_resume_after_compute": [
+    "verify_true_user_resume_and_compute_receipts",
+    "write_bound_manual_resume_receipt",
+    "new_independent_Astra_max_result_analyst",
+    "root_result_review",
+    "staging34_registry_protocol_validation",
+    "atomic_new_version_publication",
+    "backup_then_context_sync",
+    "final_acceptance_then_Goal_complete"
+  ]
+}
