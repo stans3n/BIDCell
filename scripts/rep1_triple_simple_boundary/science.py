@@ -56,7 +56,7 @@ def validate_stage(cfg,stage,manifest=None):
         name=EVALUATION_STAGES[stage];spec=new_spec(cfg,name)
         expected=dict(dependencies(cfg,stage),production=identity(Path(spec['root'])/'production_complete.json'))
         if rec['dependencies']!=expected or rec.get('full_evaluate') is not True:raise ValueError('full evaluate stage identity/coverage mismatch')
-        validate_endpoint_products(spec,manifest=manifest);return rec
+        validate_endpoint_products(spec,manifest=manifest,cfg=cfg);return rec
     if stage in ('04','13'):
         from .coverage import validate_analysis
         methods=DAG['initial_methods9'] if stage=='04' else list(METHODS)
@@ -122,10 +122,11 @@ def analyze(cfg,manifest,phase,callback=None):
         from .coverage import validate_analysis
         validate_analysis(cfg,'initial',DAG['initial_methods9'])
         validate_stage(cfg,'12',manifest)
-    tables=populations.prepare(cfg,manifest,specs,out/'populations',callback,initial/'populations' if initial else None)
-    compare_module.run(cfg,manifest,specs,tables,out/'populations',out/'comparisons',callback,initial/'comparisons' if initial else None)
+    from .evaluation_pairs import reuse_sources
+    tables=populations.prepare(cfg,manifest,specs,out/'populations',callback,reuse_sources(cfg,methods,'populations',initial))
+    compare_module.run(cfg,manifest,specs,tables,out/'populations',out/'comparisons',callback,reuse_sources(cfg,methods,'comparisons',initial))
     boundary_analysis.run(cfg,manifest,specs,out/'boundary',callback,initial/'boundary' if initial else None,include_structure=phase=='all12')
-    bt.paired(cfg,manifest,specs,out/'bt',callback,initial/'bt' if initial else None)
+    bt.paired(cfg,manifest,specs,out/'bt',callback,reuse_sources(cfg,methods,'bt',initial))
     roi.render(cfg,manifest,specs,out/'roi',callback)
     atomic_json(out/'availability.json',dict(methods=methods,not_yet_available=[m for m in METHODS if m not in methods],
                 frozen_domain=identity(cfg['domain_manifest']),initial_not_final=phase=='initial',

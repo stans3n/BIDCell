@@ -9,12 +9,68 @@ Base: `a205f46409ead17753ef71b57acd966aae792158`.
 Branch: `feature/rep1-triple-simple-boundary-20261017`.
 The committed implementation identity is recorded by
 `tests/rep1_triple_source_manifest.py` in the external source manifest
-`/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_ScienceSourceManifest_20261017.json`.
+`/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_ScienceSourceManifest_20261017.SCI01.json`.
 This avoids embedding a self-referential commit hash in committed documentation.
 The external implementation evidence manifest at
-`/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_ScienceImplementation_20261017.json`
+`/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_ScienceImplementation_20261017.SCI01.json`
 binds that source manifest, actual fixture receipts/logs, resource assumptions
-and remaining work. No old tracked source was changed.
+and remaining work. The original two reports without `.SCI01` remain byte
+identical and bind the original science commit
+`758b8e35aa51c16614b3782cdb5788f2f30dc988`. No pre-task source was changed.
+
+## SCI-01 repair for independent re-review
+
+Independent review1 of the original science commit found one blocker:
+FULL_EVALUATE could complete before the required parent/BASE paired products.
+The original review at
+`/home/zwan0726/work/docs/BIDCell_Rep1_Triple_Simple_ScienceCodeAudit_20261017.review1.json`
+is retained. This repair is submitted for independent re-review; it does not
+declare that blocker independently closed or authorize launch.
+
+`evaluation_pairs.py` now requires the two candidate-minus-control pairs at
+each of stages 03/07/09/11 before full completion. The controls are respectively
+P2_MORPH/BASE, MORPH_SIMPLE_FUSION/BASE, MORPH_SIMPLE_FUSION/BASE, and the
+validated current-run P2_SIMPLE/BASE. It reads existing scores, full matrices,
+annotations and centroids without triggering old-eight completion or R.
+Actual six-metric four-way finite IDs and exclusions, both full profiles,
+every frozen stratum and three global W scales are retained. The separate B/T
+commonQC population retains all six markers and seven bins for both endpoints,
+and signed fixed 0–40 µm paired CI at all three scales. Empty populations have
+complete NA coverage and continue. Validation recomputes the actual finite
+populations, marker numerators/pools and fixed-W B/T intervals; changing hashes
+around an incomplete table cannot satisfy full evaluation.
+
+The eight pair jobs already belong to the frozen 26-pair/69-job final analysis.
+Stage 04 links the first two producers; stage 13 validates and prefers stage 04,
+then links the other six evaluation producers. Same-run scientific data,
+curves, compressed intervals and sufficient statistics are hardlinked rather
+than recomputed or copied. Consumer receipts retain producer identity and the
+config/source/input/domain/W/population/coefficient binding. The DAG and old
+eight-method completion order are unchanged.
+
+The SCI-01 storage increment is explicitly estimated at 64 MiB (67,108,864 B)
+for the four evaluation paired wrappers, coverage/raw summaries and additional
+consumer/inventory receipts. The scientific payload for these eight jobs was
+already included in the original 26-pair/69-job estimate. The increment is
+added to the original 15,223,392,152 B projection, giving approximately
+15,290,501,016 B (14.2404 GiB), before rounding to the candidate 15 GiB analysis
+allowance. This accounting does not silently consume and then add the existing
+1 GiB inventory allowance twice. It is an estimate, not a measured full-run
+upper bound or admission approval. Actual synthetic apparent/unique/allocated
+bytes and the two-hop inode evidence are retained in
+`F/SCI01_attempt_03/test_SCI01_complete_actual_pairs_required_and_reused/paired_reuse_storage.json`.
+That record is written before intentional table corruption; the fixture then
+re-signs every enclosing output hash and confirms semantic full-evaluation
+validation still rejects the incomplete table. Its final corrupted test tree
+is deliberately retained as rejection evidence, not an accepted science result.
+
+For its two pairs, six IDs and three strata, the producer occupied 3,066,914
+logical / 4,128,768 allocated bytes across 369 files. The initial consumer's
+368 files added only 375,377 unique logical / 405,504 allocated bytes; the
+second consumer added 373,795 / 405,504 bytes. Across all three trees this is
+8,777,704 apparent bytes but 3,816,086 unique logical / 4,939,776 allocated
+bytes after `(device,inode)` deduplication. These measurements demonstrate
+reuse accounting at fixture scale; they do not bound full-scene metadata.
 
 The API, stage mapping, plan-to-code table, scientific invariants, stage-04/13
 reuse, failure/recovery and controller responsibilities are documented in
@@ -59,7 +115,8 @@ Output prefix `F` below means
 
 | Fixture | Exact command suffix / output | Actual result |
 |---|---|---|
-| Final F01–F08 and scientific F10–F14 synthetic suite | `-m unittest tests.test_rep1_triple_simple_science -v`, `REP1_TRIPLE_SCIENCE_FIXTURE_ROOT=F/attempt_06/synthetic`; log `F/attempt_06/synthetic.log` | PASS, 27 tests, 41.859 s |
+| SCI-01 final full regression | `-m unittest tests.test_rep1_triple_simple_science tests.test_rep1_triple_evaluation_pairs -v`, `REP1_TRIPLE_SCIENCE_FIXTURE_ROOT=F/SCI01_attempt_03`; log `F/SCI01_attempt_03.log` | PASS, 30 tests, 112.913 s; includes two-hop reuse and re-signed truncation rejection |
+| Original F01–F08 and scientific F10–F14 synthetic suite | `-m unittest tests.test_rep1_triple_simple_science -v`, `REP1_TRIPLE_SCIENCE_FIXTURE_ROOT=F/attempt_06/synthetic`; log `F/attempt_06/synthetic.log` | PASS at original science commit, 27 tests, 41.859 s |
 | Four actual maximum-candidate Simple tiles | `tests/rep1_triple_p2_resource_fixture.py --output F/attempt_01/F14_max_tiles` | PASS, 4/4, 1319.594 s; `complete.json` and four native/P2 tile receipts |
 | Actual Simple small ROI, workers 1/4, interrupted tile recovery | `tests/rep1_triple_real_fixtures.py mini --output F/attempt_02/mini` | PASS; `fixture_receipt.json`; fixed 128×128 ROI, complete global nuclei, no full-slide replay claim |
 | Actual maximum R prediction batch and recovery | `tests/rep1_triple_real_fixtures.py r_batch --output F/attempt_06/r_batch` | PASS; actual 256 cells ×313 genes, annotation/RDS/committed receipt bytes unchanged on recovery; log and receipt retained |
@@ -73,6 +130,12 @@ The old-seven B/T fixture was invoked through its Python function in an isolated
 serial driver; the table gives the equivalent supported CLI. R failure coverage
 was extended after the initial callback-only pass. Final compilation and
 `git diff --check` are recorded in the external evidence manifest.
+The actual-input/P2/R/group/transfer fixtures above remain the original
+measurements bound by review1 and the preserved implementation report. They
+were not rerun for SCI-01. Only the complete synthetic regression and the
+three new paired-evaluation tests were rerun. Earlier SCI-01 attempts 01
+(three tests, 72.785 s) and 02 (30 tests, 113.701 s) passed and are retained;
+attempt 03 adds the final two-hop and re-signed-truncation assertions.
 
 The 27 retained synthetic tests include the original four exhaustive native/P2
 fixtures and four GT final-TIFF/repair fixtures, adapted to the new package and
@@ -86,6 +149,12 @@ actual full-pair table keys and truncation rejection; atomic retained failures;
 bootstrap batch/corruption/retirement recovery; deterministic JSON gzip;
 independent compute/publication authorization; R-resource sampler failure
 rejection; and rejecting matrix-only claims of full evaluation.
+The three SCI-01 tests additionally cover all four true-parent/BASE mappings,
+actual finite/QC separation (including finite zero), signed B/T changes,
+all six markers/seven bins/three scales, legal empty populations, absence of
+old-eight completion or R reclassification, required paired evidence before
+full evaluation, two-hop immutable partition reuse, and refusal of re-signed
+incomplete paired tables.
 
 ROI seed indices are exactly `[20261017, region_index, type_index, density]`.
 Known interface classes use 0/1/2 for same/heterotypic/Unknown. Control regions
@@ -193,7 +262,8 @@ preparation, full disabled Simple replay, all four full productions and full
 evaluations, final12-method analysis and compute-complete have not been run.
 The small fixtures do not substitute for those required formal DAG nodes.
 
-Independent scientific review remains required. Controller source freezing,
+Independent review1 completed with only SCI-01 open; the repair still requires
+independent re-review. Controller source freezing,
 interpreter isolation, resource admission/failure controls, host parent-death
 and orphan-lock rejection, read-only status/tail, startup proof, and controller
 portions of F09–F14 remain separate pending work. Resource capacity reconciliation

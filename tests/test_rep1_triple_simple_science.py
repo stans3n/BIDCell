@@ -392,7 +392,7 @@ class ScienceFixtures(unittest.TestCase):
         root=self.root/'matrix';root.mkdir();v=root/'validation.json';atomic_json(v,dict(integer_count_differences=0,owner_differences=0))
         atomic_json(root/'complete.json',dict(validation_kind='independent_full_native_resize_lookup_and_conservation',validation=identity(v)))
         spec=dict(name='P2_SIMPLE',evaluation=str(self.root/'missing_evaluation'),matrix=str(root),sc_scores=str(self.root/'no_scores'),fixed_scores=str(self.root/'no_fixed'))
-        with self.assertRaises(FileNotFoundError):validate_endpoint_products(spec)
+        with self.assertRaisesRegex(ValueError,'parent/BASE paired evidence'):validate_endpoint_products(spec)
 
     def test_F13_actual_comparison_and_marker_keys_reject_truncation(self):
         from itertools import product

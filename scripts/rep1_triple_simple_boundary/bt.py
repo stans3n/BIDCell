@@ -208,8 +208,8 @@ def run_endpoint(cfg,manifest,spec,out,callback=None):
     return write_receipt(out/'complete.json',deps,inventory(out),endpoint=spec['name'],markers=MARKERS,profiles=[p[0] for p in populations],fixed_target_pool_does_not_use_new_QC=True)
 
 
-def paired(cfg,manifest,specs,out,callback=None,reuse_from=None):
-    from .common import reuse_partition
+def paired(cfg,manifest,specs,out,callback=None,reuse_from=None,pair_list=None):
+    from .common import reuse_partition,partition_source
     from .contracts import comparisons,comparison_id,FACTORIAL8,METHODS,SCALES
     from .comparisons import pooled_interval
     out=Path(out);out.mkdir(parents=True,exist_ok=True);deps=dependencies(cfg,'BT_PAIRED_'+str(len(specs)))
@@ -217,19 +217,22 @@ def paired(cfg,manifest,specs,out,callback=None,reuse_from=None):
     frames={m:endpoint_frame(cfg,manifest,s) for m,s in specs.items()};frozen=Path(cfg['run_root'])/'frozen_domain'
     ref=checked_ids(pd.read_csv(frozen/'cells.csv'),'nuclear reference');target=frozen/'bt_targets'
     fixed=set(pd.read_csv(manifest['fixed_population']).cell_id);sets=[]
-    for a,b in comparisons(tuple(specs)):
+    pairs=comparisons(tuple(specs)) if pair_list is None else pair_list
+    if any(a not in specs or b not in specs for a,b in pairs):raise ValueError('paired B/T endpoint unavailable')
+    for a,b in pairs:
         q=np.asarray(sorted(fixed&set(frames[a].index[frames[a].own_qc])&set(frames[b].index[frames[b].own_qc])),np.int64)
         sets.append((comparison_id(a,b),(a,b),q))
     for name,methods in [('commonQC8',FACTORIAL8),('commonQC12',METHODS)]:
-        if set(methods).issubset(specs):sets.append((name,methods,np.asarray(sorted(fixed&set.intersection(*(set(frames[m].index[frames[m].own_qc]) for m in methods))),np.int64)))
+        if pair_list is None and set(methods).issubset(specs):sets.append((name,methods,np.asarray(sorted(fixed&set.intersection(*(set(frames[m].index[frames[m].own_qc]) for m in methods))),np.int64)))
     rows=[]
     for index,(key,methods,q) in enumerate(sets):
         dest=out/key;dest.mkdir(parents=True,exist_ok=True);dep=dict(deps,key=key,population=id_hash(q))
         binding=dict(methods=list(methods),population_ids_sha256=id_hash(q),target=identity(target/'complete.json'),
+            coefficient={methods[0]:1,methods[1]:-1} if len(methods)==2 else None,
             weights={str(s):identity(frozen/f'bootstrap_weights_{s}.npz') for s in SCALES},
             matrix={m:identity(Path(specs[m]['matrix'])/'complete.json') for m in methods})
         if (dest/'complete.json').exists():check_receipt(dest/'complete.json',dep);continue
-        source=Path(reuse_from)/key if reuse_from is not None else None
+        source=partition_source(reuse_from,key)
         if source is not None and (source/'complete.json').exists():reuse_partition(source,dest,dep,binding);continue
         atomic_csv(dest/'population.csv',pd.DataFrame({'cell_id':q}))
         for m in methods:
@@ -245,7 +248,7 @@ def paired(cfg,manifest,specs,out,callback=None,reuse_from=None):
                     for side in SCALES:
                         W=np.load(frozen/f'bootstrap_weights_{side}.npz')['W'];bi=ref.loc[ids,'block_'+str(side)].to_numpy(int)
                         n=np.bincount(bi,minlength=W.shape[1]);s=np.bincount(bi,weights=delta,minlength=W.shape[1])
-                        row=dict(comparison=key,marker=g,direction=panel['direction'],window_um='0-40 inclusive',scale_um=side,
+                        row=dict(comparison=key,candidate=a,control=b,marker=g,direction=panel['direction'],window_um='0-40 inclusive',scale_um=side,
                                  ids_sha256=id_hash(ids),population='fixed_pairwise_commonQC_no_F1_finite_filter',**pooled_interval(s,n,W))
                         summary.append(row)
             atomic_csv(dest/'paired_0_40um.csv',pd.DataFrame(summary))

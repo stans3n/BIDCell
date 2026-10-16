@@ -229,6 +229,8 @@ def evaluate_endpoint(cfg,manifest,name,authorization,callback,lock_fds,validate
         progress(callback,'author_spatial_diversity',1,1,endpoint=name)
     from .bt import run_endpoint
     bt=run_endpoint(cfg,manifest,spec,out/'bt',callback)
+    from .evaluation_pairs import run as run_pairs
+    paired=run_pairs(cfg,manifest,name,callback)
     scores=pd.read_csv(spec['sc_scores']);ann=pd.read_csv(paper/'annotation.csv')
     metrics={}
     for profile,path in [('scclassify',spec['sc_scores']),('fixed',spec['fixed_scores'])]:
@@ -245,6 +247,6 @@ def evaluate_endpoint(cfg,manifest,name,authorization,callback,lock_fds,validate
                  no_true_boundary_accuracy=True)
     atomic_json(out/'summary.json',summary)
     from .coverage import validate_endpoint_products
-    coverage=validate_endpoint_products(spec,manifest=manifest)
+    coverage=validate_endpoint_products(spec,manifest=manifest,cfg=cfg)
     atomic_json(out/'coverage.json',coverage)
     return write_receipt(out/'complete.json',deps,inventory(out),paper_method_complete=True,full_evaluate=True,summary=summary,coverage=coverage)

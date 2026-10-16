@@ -219,7 +219,7 @@ def resume_chunk(path, deps):
 
 
 def reuse_partition(source, target, deps, binding, receipt_name='complete.json'):
-    """Validate an immutable INITIAL partition and install an ALL12 consumer.
+    """Validate an immutable scientific producer and install a later consumer.
 
     Hard links keep both named products without duplicating scientific data.
     All source bytes are verified before linking; preexisting target bytes must
@@ -230,7 +230,7 @@ def reuse_partition(source, target, deps, binding, receipt_name='complete.json')
     old=check_receipt(source/'complete.json')
     invariant=('config_digest','source_digest','input_digest','domain_digest','plan_digest')
     if any(old['dependencies'].get(k)!=deps.get(k) for k in invariant) or old.get('reuse_binding')!=safe(binding):
-        raise ValueError('INITIAL partition is incompatible with ALL12 consumer')
+        raise ValueError('scientific producer partition is incompatible with consumer')
     target.mkdir(parents=True,exist_ok=True)
     for p in sorted(source.rglob('*')):
         if not p.is_file() or p==source/'complete.json' or any(x.startswith('.') for x in p.relative_to(source).parts):continue
@@ -241,6 +241,14 @@ def reuse_partition(source, target, deps, binding, receipt_name='complete.json')
     fields={k:v for k,v in old.items() if k not in ('schema','status','dependencies','outputs','reused_from','producer_dependencies')}
     fields.update(reused_from=identity(source/'complete.json'),producer_dependencies=old['dependencies'])
     return write_receipt(target/receipt_name,deps,inventory(target),**fields)
+
+
+def partition_source(reuse_from,key):
+    """Resolve a verified partition producer from INITIAL or endpoint evaluate."""
+    if isinstance(reuse_from,dict):
+        value=reuse_from.get(key)
+        return Path(value) if value is not None else None
+    return Path(reuse_from)/key if reuse_from is not None else None
 
 
 def id_hash(ids):

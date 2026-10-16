@@ -129,6 +129,29 @@ populations, and the now-available structure costs. Producer/consumer receipts
 are retained. Same-run immutable partitions use hard links; historical files
 are copied or read without mutation.
 
+Every FULL_EVALUATE stage (03/07/09/11) also completes exactly two paired
+comparisons before its full-evaluation receipt: candidate minus its true parent,
+and candidate minus BASE_MATCH. The parent mapping is P2_MORPH_GT→P2_MORPH,
+P2_SIMPLE→MORPH_SIMPLE_FUSION, SIMPLE_GT→MORPH_SIMPLE_FUSION, and
+P2_SIMPLE_GT→this run's validated P2_SIMPLE. `evaluation_pairs.py` uses only
+the existing parent/BASE matrices, scores, annotations and centroids; it does
+not call old-eight completion or R classification. For each of the six metrics,
+the same four-way finite population is used for sc and fixed profiles, with
+the actual IDs, hashes and all QC/missing/nonfinite exclusions retained. B/T
+instead uses fixed-panel intersect both ownQC, without the score-finite filter:
+both full six-marker/seven-bin curves and signed candidate-minus-control
+0–40 µm CI at all three scales are required. Empty populations retain complete
+NA rows. Semantic validation independently checks actual arrays, every frozen
+stratum key, source marker counts, pools and frozen-W B/T intervals.
+
+These eight paired jobs are members of the already frozen 26 pairs. Stage 04
+reuses the two P2_MORPH_GT evaluation producers; stage 13 prefers its validated
+stage-04 producers, then reuses the other six evaluation producers. Scientific
+data and bootstrap sufficient statistics are hardlinked, with distinct consumer
+receipts binding the original producer. No extra pair or repeated CI job is
+introduced. Additional evaluation wrapper/coverage/raw-summary/consumer
+receipts have a separately reported storage allowance in the SCI-01 handoff.
+
 The final comparison set is 26 pairs, 12 conditional edges, 6 second-order and
 1 third-order contrast. There are also 12 raw full-profile and 12 common-all12
 endpoint mean jobs: 69 final comparison jobs. Pairwise four-way finite,
@@ -191,6 +214,7 @@ Changing the hash of a truncated table cannot make it complete.
 | Shared W, 19 contrasts and every stratum | comparisons, spatial_bootstrap | F06, F07, real-N resource probe |
 | Full transfer/local/interface costs | boundary_analysis, local_statistics | F08 categorical/ledger conservation |
 | Complete evaluation and R snapshots | evaluation, paper_evaluation.R, spatial_diversity.R | F11, R max batch/recovery, R failure |
+| Parent/BASE pairing before each full evaluation | evaluation_pairs, contracts, populations, comparisons, bt, coverage | SCI-01 four-parent map, actual complete/empty grids, re-signed truncation rejection and two-hop reuse |
 | Six-marker official/fixed B/T | bt | F07 hand calculations, seven real legacy profiles |
 | Atomic recovery and stage-04 reuse | common and all chunk writers | scientific F10 |
 | Full semantic coverage / terminal evidence | coverage, science | F12/F13 |

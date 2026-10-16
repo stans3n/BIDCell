@@ -50,3 +50,7 @@ def comparisons(methods=METHODS):
 
 def comparison_id(a,b):
     return a+'__minus__'+b
+
+def evaluation_pairs(name):
+    if name not in NEW:raise ValueError('paired full evaluation is restricted to the four new endpoints')
+    return list(dict.fromkeys(((name,PARENTS[name]),(name,'BASE_MATCH'))))

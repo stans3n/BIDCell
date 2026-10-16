@@ -51,6 +51,7 @@ def paired_bt_coverage(folder,key,methods,pair,frozen,expected_ids):
         if not frame.population_ids_sha256.eq(id_hash(q)).all():raise ValueError('paired B/T table uses another population')
     if pair:
         f=pd.read_csv(folder/'paired_0_40um.csv');exact_keys(f,('direction','marker','scale_um'),[(p['direction'],m,s) for p in PANELS for m in p['markers'] for s in SCALES],'paired B/T fixed-window CI');interval_rows(f,'paired B/T fixed-window CI')
+        if not f.candidate.eq(methods[0]).all() or not f.control.eq(methods[1]).all() or not f.comparison.eq(key).all():raise ValueError('paired B/T candidate minus control direction differs')
         if not f.window_um.eq('0-40 inclusive').all():raise ValueError('paired B/T reporting window changed')
         for panel in PANELS:
             d=pd.read_csv(frozen/'bt_targets'/(panel['direction']+'_frozen_distances.csv'));ids=np.intersect1d(q,d.loc[d.distance_um.le(40),'cell_id'])
@@ -118,8 +119,14 @@ def roi_coverage(folder,frozen,methods,expected_pairs):
         if set(z.files)!={'nuclei','dapi','transcripts',*methods} or not np.array_equal(z['transcripts'],raw) or m['molecule_points']!=len(raw):raise ValueError('actual ROI full raw molecule/mask coverage differs')
         for name in ('panels.pdf','masks.png',*[f'changes_{i:02d}.png' for i in range(0,len(expected_pairs),8)]):identity(dest/name)
 
-def validate_endpoint_products(spec,structure_root=None,bt_root=None,spatial_root=None,manifest=None):
+def validate_endpoint_products(spec,structure_root=None,bt_root=None,spatial_root=None,manifest=None,cfg=None):
     root=Path(spec['evaluation']);matrix=Path(spec['matrix'])
+    paired=None
+    if spec['name'] in NEW:
+        if not (root/'paired/complete.json').exists():raise ValueError('full evaluate requires parent/BASE paired evidence')
+        if cfg is None or manifest is None:raise ValueError('full paired evaluation requires frozen config and inputs')
+        from .evaluation_pairs import validate as validate_pairs
+        paired=validate_pairs(cfg,manifest,spec['name'])
     mr=read(matrix/'complete.json');validation=read(matrix/'validation.json')
     if mr.get('validation_kind')!='independent_full_native_resize_lookup_and_conservation' or validation.get('integer_count_differences')!=0 or validation.get('owner_differences')!=0:
         raise ValueError('full evaluate requires complete independent matrix oracle')
@@ -179,7 +186,8 @@ def validate_endpoint_products(spec,structure_root=None,bt_root=None,spatial_roo
         f=pd.read_csv(bt/profile/'full_curves.csv')
         bt_curve_rows(f,'endpoint full BT curves')
         if ((f.n_eligible==0)&f.fraction.notna()).any() or ((f.n_eligible>0)&~np.isfinite(f.fraction)).any():raise ValueError('BT empty-bin semantics differ')
-    return dict(status='passed',endpoint=spec['name'],required_products=list(required),records=records,full_evaluate=True)
+    if paired is not None:records.extend(paired['score_records'])
+    return dict(status='passed',endpoint=spec['name'],required_products=list(required),records=records,paired_parent_BASE=paired,full_evaluate=True)
 
 def validate_analysis(cfg,phase,methods):
     from .inputs import load_inputs,new_spec

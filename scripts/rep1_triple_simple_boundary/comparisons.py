@@ -35,8 +35,8 @@ def _intervals_for_groups(ids,values,cells,groups,weights,projector=None,checkpo
     return block_intervals(sums,counts,weights['W'],projector.names,checkpoint=checkpoint,callback=callback)
 
 
-def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None):
-    from .common import reuse_partition
+def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None,pair_list=None):
+    from .common import reuse_partition,partition_source
     out=Path(out);out.mkdir(parents=True,exist_ok=True);methods=tuple(specs);deps=dependencies(cfg,'COMPARISONS_'+str(len(methods)))
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps)
     frozen=Path(cfg['run_root'])/'frozen_domain';cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
@@ -44,10 +44,13 @@ def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None):
     weights={s:dict(np.load(frozen/f'bootstrap_weights_{s}.npz'),side=s) for s in SCALES}
     from .spatial_bootstrap import GroupProjector
     projector=GroupProjector(cells,groups)
-    jobs=[(comparison_id(a,b),{a:1,b:-1},'pairwise') for a,b in comparisons(methods)]
-    jobs += [('raw_'+m,{m:1},'raw_full_profile') for m in methods]
-    if set(FACTORIAL8).issubset(methods):jobs += [(c['id'],c['coefficient'],'factorial8') for c in DAG['factorial_contrasts']]
-    if set(METHODS).issubset(methods):jobs += [('all12_'+m,{m:1},'all12') for m in METHODS]
+    pairs=comparisons(methods) if pair_list is None else pair_list
+    if any(a not in specs or b not in specs for a,b in pairs):raise ValueError('paired comparison endpoint unavailable')
+    jobs=[(comparison_id(a,b),{a:1,b:-1},'pairwise') for a,b in pairs]
+    if pair_list is None:
+        jobs += [('raw_'+m,{m:1},'raw_full_profile') for m in methods]
+        if set(FACTORIAL8).issubset(methods):jobs += [(c['id'],c['coefficient'],'factorial8') for c in DAG['factorial_contrasts']]
+        if set(METHODS).issubset(methods):jobs += [('all12_'+m,{m:1},'all12') for m in METHODS]
     summaries=[]
     for index,(key,coeff,kind) in enumerate(jobs):
         dest=out/key;dest.mkdir(exist_ok=True);dep=dict(deps,comparison=key,coefficient=coeff,population=kind)
@@ -58,7 +61,7 @@ def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None):
             scores={m:{p:identity(specs[m][p+'_scores']) for p in ('sc','fixed')} for m in coeff},
             weights={str(s):identity(frozen/f'bootstrap_weights_{s}.npz') for s in SCALES},groups=identity(frozen/'cell_groups.npz'))
         if (dest/'complete.json').exists():check_receipt(dest/'complete.json',dep);continue
-        source=Path(reuse_from)/key if reuse_from is not None else None
+        source=partition_source(reuse_from,key)
         if source is not None and (source/'complete.json').exists():reuse_partition(source,dest,dep,binding);continue
         results=[]
         for metric in METRICS:
@@ -81,15 +84,15 @@ def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None):
         progress(callback,'prespecified_comparisons',index+1,len(jobs),receipt=str(dest/'complete.json'))
     # Original ownQC/fixed whole-panel comparisons remain distinct from paired diagnostics.
     raw=pd.read_csv(Path(pop_root)/'raw_full_population.csv');rows=[]
-    for a,b in comparisons(methods):
+    for a,b in pairs:
         for profile in ('sc','fixed'):
             for metric in METRICS:
                 ar=raw[(raw.endpoint==a)&(raw.profile==profile)&(raw.metric==metric)].iloc[0];br=raw[(raw.endpoint==b)&(raw.profile==profile)&(raw.metric==metric)].iloc[0]
                 rows.append(dict(candidate=a,control=b,profile=profile,metric=metric,candidate_mean=ar['mean'],control_mean=br['mean'],delta=ar['mean']-br['mean'],
                                  candidate_finite=int(ar.n_finite),control_finite=int(br.n_finite),population='original_full_profile_not_paired'))
     atomic_csv(out/'raw_differences.csv',pd.DataFrame(rows))
-    b0=manifest['background']['B0'];background=[]
-    for profile,key in [('sc','sc_scores'),('fixed','fixed_scores')]:
+    b0=manifest.get('background',{}).get('B0');background=[]
+    for profile,key in ([] if pair_list is not None else [('sc','sc_scores'),('fixed','fixed_scores')]):
         f=pd.read_csv(b0[key])
         for metric in METRICS:
             v=f[metric].to_numpy(float);v=v[np.isfinite(v)];mean=v.mean() if len(v) else np.nan
@@ -97,9 +100,9 @@ def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None):
                 ar=raw[(raw.endpoint==m)&(raw.profile==profile)&(raw.metric==metric)].iloc[0]
                 background.append(dict(candidate=m,control='B0',profile=profile,metric=metric,delta=ar['mean']-mean,
                                        paired=False,interpretation='historical training-unpaired performance background only'))
-    atomic_csv(out/'B0_historical_background.csv',pd.DataFrame(background))
-    atomic_json(out/'coverage.json',dict(jobs=[j[0] for j in jobs],comparisons=[comparison_id(a,b) for a,b in comparisons(methods)],
-                 factorial=19 if set(FACTORIAL8).issubset(methods) else 0,metrics=list(METRICS),profiles=['sc','fixed'],scales=list(SCALES),strata=list(groups)))
+    if pair_list is None:atomic_csv(out/'B0_historical_background.csv',pd.DataFrame(background))
+    atomic_json(out/'coverage.json',dict(jobs=[j[0] for j in jobs],comparisons=[comparison_id(a,b) for a,b in pairs],
+                 factorial=19 if pair_list is None and set(FACTORIAL8).issubset(methods) else 0,metrics=list(METRICS),profiles=['sc','fixed'],scales=list(SCALES),strata=list(groups)))
     return write_receipt(out/'complete.json',deps,inventory(out),methods=list(methods),jobs=[j[0] for j in jobs])
 
 def json_coefficient(coeff):

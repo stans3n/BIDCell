@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from .contracts import METRICS,FACTORIAL8,METHODS,comparisons,comparison_id
 from .common import (atomic_csv,atomic_json,atomic_npz,dependencies,identity,id_hash,read,
-                     check_receipt,write_receipt,inventory,progress,reuse_partition)
+                     check_receipt,write_receipt,inventory,progress,reuse_partition,partition_source)
 from .bt import checked_ids
 from .inputs import matrix_arrays
 
@@ -34,15 +34,17 @@ def common_finite(tables,methods,fixed_ids,metric):
             finite&=ok
     return initial,initial[finite],dict(initial_ids=initial,four_way_or_all_finite=finite,**exclusions),dict(fixed_ids=full,**reasons)
 
-def prepare(cfg,manifest,specs,out,callback=None,reuse_from=None):
+def prepare(cfg,manifest,specs,out,callback=None,reuse_from=None,pair_list=None):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);methods=tuple(specs)
     deps=dependencies(cfg,'POPULATIONS_'+str(len(methods)))
     fixed=pd.read_csv(manifest['fixed_population']).cell_id.to_numpy(np.int64)
     tables={name:endpoint_scores(spec,fixed) for name,spec in specs.items()}
     if (out/'complete.json').exists():check_receipt(out/'complete.json',deps);return tables
-    rows=[];raw=[];sets=[(comparison_id(a,b),(a,b),'pairwise') for a,b in comparisons(methods)]
-    if set(FACTORIAL8).issubset(methods):sets.append(('factorial8',FACTORIAL8,'factorial8'))
-    if set(METHODS).issubset(methods):sets.append(('all12',METHODS,'all12'))
+    pairs=comparisons(methods) if pair_list is None else pair_list
+    if any(a not in specs or b not in specs for a,b in pairs):raise ValueError('paired population endpoint unavailable')
+    rows=[];raw=[];sets=[(comparison_id(a,b),(a,b),'pairwise') for a,b in pairs]
+    if pair_list is None and set(FACTORIAL8).issubset(methods):sets.append(('factorial8',FACTORIAL8,'factorial8'))
+    if pair_list is None and set(METHODS).issubset(methods):sets.append(('all12',METHODS,'all12'))
     for name,t in tables.items():
         for profile in ('sc','fixed'):
             for metric in METRICS:
@@ -55,7 +57,7 @@ def prepare(cfg,manifest,specs,out,callback=None,reuse_from=None):
             metrics=list(METRICS),scores={m:{p:identity(specs[m][p+'_scores']) for p in ('sc','fixed')} for m in names},
             QC={m:id_hash(tables[m]['qc_ids']) for m in names})
         cd=dict(deps,key=key)
-        source=Path(reuse_from)/key if reuse_from is not None else None
+        source=partition_source(reuse_from,key)
         if (dest/'complete.json').exists():
             rec=check_receipt(dest/'complete.json',cd)
             if rec.get('reuse_binding')!=binding:raise ValueError('population binding drift')
