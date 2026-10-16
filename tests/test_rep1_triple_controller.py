@@ -4,7 +4,7 @@ from contextlib import ExitStack
 from unittest.mock import patch
 import fcntl,json,os,tempfile,unittest
 from scripts.rep1_triple_simple_boundary import runtime as rt,execution as ex
-from scripts.rep1_triple_simple_boundary.common import atomic_json,digest,identity,dependencies,write_receipt
+from scripts.rep1_triple_simple_boundary.common import atomic_json,digest,identity,dependencies,write_receipt,read as read_json
 
 class ControllerContracts(unittest.TestCase):
     def test_fingerprints_detect_same_size_timestamp_restored_mutation(self):
@@ -67,8 +67,10 @@ class ControllerContracts(unittest.TestCase):
     def test_resume_preparation_after_domain_and_after_config_before_preflight(self):
         from scripts.rep1_triple_simple_boundary import inputs,frozen_domains
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);(root/'control').mkdir();(root/'configs').mkdir();(root/'admission').mkdir();budget=root/'budget.json';atomic_json(budget,{});params=root/'control/preparation.json'
-            partial=dict(schema='rep1-triple-simple-preparation-v1',run_id='fixture',run_root=tmp,source_snapshot=tmp,source_commit='fixture',source_digest='fixture',resources=rt.resource_contract(),resource_proposal=identity(budget));atomic_json(params,partial);state={'domain_interrupt':True,'preflight_interrupt':True}
+            root=Path(tmp)/'rep1-triple-simple-boundary-20261017-r99';root.mkdir();(root/'control').mkdir();(root/'configs').mkdir();(root/'admission').mkdir();snapshot=root/'source_snapshot';snapshot.mkdir();budget=root/'budget.json';atomic_json(budget,{});params=root/'control/preparation.json'
+            dag=snapshot/'scripts/rep1_triple_simple_boundary/approved_dag.json';dag.parent.mkdir(parents=True);dag.write_bytes(Path(rt.__file__).with_name('approved_dag.json').read_bytes())
+            partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=root.name,run_root=str(root),source_snapshot=str(snapshot),source_commit='fixture',source_digest='fixture',resources=rt.resource_contract(),resource_proposal=identity(budget));atomic_json(params,partial);state={'domain_interrupt':True,'preflight_interrupt':True}
+            for p in (root/'control/launch.lock',root/'control/run.lock',root/'workspace.lock'):p.touch()
             def freeze_inputs(*args):return {}
             def freeze_domain(*args):
                 folder=root/'frozen_domain';folder.mkdir(exist_ok=True);p=folder/'chunk.json'
@@ -79,12 +81,18 @@ class ControllerContracts(unittest.TestCase):
                 if state['preflight_interrupt']:state['preflight_interrupt']=False;raise InterruptedError('owned fixture after immutable config')
                 p=root/'admission/preflight.json'
                 if not p.exists():atomic_json(p,dict(config_digest=digest(cfg)))
-            with patch.object(rt,'check_fds'),patch.object(ex,'verify_preparation'),patch.object(inputs,'freeze_inputs',side_effect=freeze_inputs),patch.object(frozen_domains,'freeze',side_effect=freeze_domain),patch.object(rt,'domain_cardinalities'),patch.object(ex,'environment',return_value={'fixture':'environment'}),patch.object(ex,'make_preflight',side_effect=preflight),patch.object(rt,'ResourceGuard',side_effect=lambda c:lambda *args:None),patch.object(rt,'forecast',return_value={'admitted':True}):
+            from types import SimpleNamespace
+            with patch.object(rt,'check_fds'),patch.object(ex,'verify_preparation'),patch.object(inputs,'freeze_inputs',side_effect=freeze_inputs),patch.object(frozen_domains,'freeze',side_effect=freeze_domain),patch.object(rt,'domain_cardinalities'),patch.object(ex,'environment',return_value={'fixture':'environment'}),patch.object(ex,'make_preflight',side_effect=preflight),patch.object(rt.shutil,'disk_usage',return_value=SimpleNamespace(free=100*rt.GIB)),patch.object(rt,'memory_available',return_value=64*rt.GIB),patch.object(ex,'OUTPUT',root.parent),patch.object(ex,'COMPUTE',root/'workspace.lock'),patch.object(Path,'cwd',return_value=snapshot),patch.object(rt,'__file__',str(snapshot/'scripts/rep1_triple_simple_boundary/runtime.py')):
                 with self.assertRaises(InterruptedError):rt.prepare_snapshot(params,(9,10,11))
                 chunk=(root/'frozen_domain/chunk.json').read_bytes()
-                with self.assertRaises(InterruptedError):rt.prepare_snapshot(params,(9,10,11))
+                with self.assertRaises(InterruptedError):rt.resume_prepare(params)
                 config=(root/'configs/run.json').read_bytes();domain=(root/'frozen_domain/complete.json').read_bytes()
-                rt.prepare_snapshot(params,(9,10,11));self.assertEqual(config,(root/'configs/run.json').read_bytes());self.assertEqual(chunk,(root/'frozen_domain/chunk.json').read_bytes());self.assertEqual(domain,(root/'frozen_domain/complete.json').read_bytes());self.assertTrue((root/'admission/preflight.json').exists())
+                # ResourceGuard -> forecast -> pss -> owned_pids are REAL here.
+                # Existing state is bound to final cfg, not preparation params.
+                self.assertNotEqual(read_json(root/'state.json')['config_digest'],digest(partial))
+                rt.resume_prepare(params);self.assertEqual(config,(root/'configs/run.json').read_bytes());self.assertEqual(chunk,(root/'frozen_domain/chunk.json').read_bytes());self.assertEqual(domain,(root/'frozen_domain/complete.json').read_bytes());self.assertTrue((root/'admission/preflight.json').exists())
+                bad=dict(read_json(root/'configs/run.json'),source_digest='drift')
+                with self.assertRaisesRegex(ValueError,'state/config mismatch'):rt.owned_pids(bad)
                 atomic_json(root/'configs/run.json',{'corrupted':True})
                 with self.assertRaises(ValueError):rt.prepare_snapshot(params,(9,10,11))
 

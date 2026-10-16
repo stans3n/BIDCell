@@ -105,6 +105,10 @@ def tree(roots):
     return sorted(p for p in found if p in records and records[p][1]!='Z')
 def owned_pids(cfg):
     roots={os.getpid()}
+    # Preparation parameters and the final run configuration are intentionally
+    # different immutable objects. A resumed preparer owns only this process
+    # tree; it must not interpret an existing final state as partial-config state.
+    if cfg.get('schema')=='rep1-triple-simple-preparation-v1':return tree(roots)
     try:
         state=bound_state(cfg)
         for key in ('entry','supervisor','worker'):
