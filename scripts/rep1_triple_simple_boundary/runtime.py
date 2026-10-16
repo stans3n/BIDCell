@@ -162,6 +162,18 @@ def worker_command(cfg,path,stage,attempt,fds):return bootstrap_command(cfg,'_wo
 def execution_validator(cfg,fds):return ex.ExecutionValidator(cfg,fds)
 def resource_contract():
     return dict(p2_workers=4,retained_bytes=dict(gt=int(4.5*GIB),p2_replay=int(5.5*GIB),analysis=15*GIB),shared_bytes=2*GIB,temporary_peak_bytes=4*GIB,reserve_bytes=15*GIB,ram_allowance_bytes=22*GIB,ram_reserve_bytes=6*GIB,heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900)
+def domain_cardinalities(root):
+    import numpy as np,pandas as pd
+    from .local_statistics import spatial_masks
+    frozen=Path(root)/'frozen_domain';groups=np.load(frozen/'cell_groups.npz');cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
+    local=len(groups.files)+sum(cells.groupby(['original_type',field],dropna=False).ngroups for field in ('block_500','block_1000','block_2000','RNA_density_quartile','nuclear_crowding_quartile'))
+    empty={k:np.empty(0,np.int64) for k in ('BASE_owner','region_bits','competition_type','interface_type','K','local_density','single_unknown')}
+    actual=dict(cell_groups=len(groups.files),local_groups=local,spatial_groups=len(list(spatial_masks(empty,cells))),interface_groups=len(groups.files)+4)
+    bounds=dict(cell_groups=1600,local_groups=4993,spatial_groups=1836,interface_groups=1604)
+    obj=dict(actual=actual,measured_projection_bounds=bounds,interface_pairs=len(pd.read_csv(frozen/'interfaces/pairs.csv')),within_measured_bounds=all(actual[k]<=bounds[k] for k in actual),scope='frozen outcome-independent inputs; no new endpoint production')
+    atomic_json(Path(root)/'admission/domain_cardinalities.json',obj)
+    if not obj['within_measured_bounds']:raise RuntimeError('frozen cardinalities exceed measured resource projection; new review required')
+    return obj
 
 def prepare(output_root,run_id,plans_manifest):
     if Path(output_root).resolve()!=ex.OUTPUT or Path(plans_manifest).resolve()!=ex.PLAN or not re.fullmatch(r'rep1-triple-simple-boundary-20261017-r[0-9]{2,}',run_id):raise ValueError('unauthorized preparation path')
@@ -189,7 +201,7 @@ def prepare_snapshot(params,fds):
     def progress(x):
         guard()
         atomic_json(root/'control/preparation_progress.json',dict(time=utc(),**x));print(json.dumps(x),flush=True)
-    manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress)
+    manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress);domain_cardinalities(root)
     shutil.copyfile(Path(__file__).with_name('approved_dag.json'),root/'configs/comparisons.json')
     resource=read(ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json');atomic_json(root/'configs/resource_budget.json',resource)
     env=ex.environment(partial['source_snapshot'],fds,partial);atomic_json(root/'environment.json',env)

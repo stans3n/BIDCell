@@ -11,10 +11,10 @@ import hashlib,importlib,json,multiprocessing as mp,os,signal,subprocess,time
 from contextlib import ExitStack
 from scripts.rep1_triple_simple_boundary import runtime as rt,execution as ex,science
 from scripts.rep1_triple_simple_boundary.common import atomic_json,check_identity,check_receipt,dependencies,digest,identity,inventory,read,write_receipt
-from scripts.rep1_triple_simple_boundary.contracts import STAGE_ORDER
+from scripts.rep1_triple_simple_boundary.contracts import STAGE_ORDER,STAGES
 
 def fixture_receipt(cfg,stage):
-    return Path(cfg['run_root'])/('compute_complete.json' if stage=='14' else 'control/compute_exit.json' if stage=='15' else 'products/'+stage+'/complete.json')
+    return Path(cfg['run_root'])/STAGES[stage]['required_receipt']
 def fixture_validate(cfg,stage,manifest=None):
     r=check_receipt(fixture_receipt(cfg,stage),dependencies(cfg,stage),cfg['run_root'])
     if stage=='15' and (r.get('terminal_state')!=rt.HOLD or r.get('exit_code')!=0):raise ValueError('fixture terminal incomplete')

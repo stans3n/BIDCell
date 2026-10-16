@@ -139,15 +139,20 @@ def environment(root,lock_fds=(),cfg=None):
     cfg=cfg or dict(run_root=str(Path(root).parent));script=Path(root)/'scripts/rep1_triple_simple_boundary/environment_probe.R'
     result=subprocess.run([RSCRIPT,'--vanilla',str(script)],cwd=root,env=child_environment(cfg),stdin=subprocess.DEVNULL,capture_output=True,text=True,check=True,pass_fds=tuple(lock_fds),timeout=45)
     R=json.loads(result.stdout)
+    libraries=R['libraries'] if isinstance(R['libraries'],list) else [R['libraries']]
+    directories={Path(p).resolve() for p in libraries}|{Path(sysconfig.get_paths()['purelib']).resolve()}
     for r in R['packages']:
         package=Path(r['library'])/r['package']
+        directories.add(package.resolve())
         for p in package.rglob('*'):
             relative=p.relative_to(package)
-            if p.is_file() and not any(x in ('doc','help','html','tests','demo') for x in relative.parts):files.add(p.resolve())
+            if not any(x in ('doc','help','html','tests','demo') for x in relative.parts):
+                if p.is_file():files.add(p.resolve())
+                elif p.is_dir():directories.add(p.resolve())
     return dict(schema='rep1-triple-simple-environment-v1',python=PYTHON,python_version=sys.version,rscript=RSCRIPT,
         packages=sorted(packages,key=lambda x:(x['name'].lower(),x['path'])),R=R,
         numerical_modules={m.__name__:dict(version=m.__version__,path=m.__file__) for m in modules},
-        files=[identity(p) for p in sorted(files) if p.is_file()],probe_sha256=sha256(script),controlled=controlled_environment(cfg))
+        files=[identity(p) for p in sorted(files) if p.is_file()],directories=sorted(map(str,directories)),probe_sha256=sha256(script),controlled=controlled_environment(cfg))
 
 def fingerprints(paths):
     out={}
@@ -166,9 +171,9 @@ def verify_contracts(cfg):
 
 def immutable_paths(cfg):
     root=Path(cfg['run_root']);m=read(root/'source_manifest.json');inputs=read(cfg['input_manifest']);env=read(root/'environment.json');domain=read(cfg['domain_manifest'])
-    paths=[root/'configs/run.json',root/'source_manifest.json',root/'environment.json',cfg['input_manifest'],cfg['domain_manifest'],root/'configs/resource_budget.json',root/'configs/comparisons.json',PLAN,AUDIT,PROMPT,cfg['science_audit']['path']]
+    paths=[root/'configs/run.json',root/'source_manifest.json',root/'environment.json',cfg['input_manifest'],cfg['domain_manifest'],root/'configs/resource_budget.json',root/'configs/comparisons.json',root/'admission/domain_cardinalities.json',PLAN,AUDIT,PROMPT,cfg['science_audit']['path']]
     paths += [r['snapshot_path'] for r in m['files']]+[r['path'] for r in inputs['files'].values()]+[r['path'] for r in env['files']]+[r['path'] for r in domain['outputs'].values()]
-    paths += [Path(cfg['source_snapshot'])]+[p for p in Path(cfg['source_snapshot']).rglob('*') if p.is_dir()]
+    paths += [Path(cfg['source_snapshot'])]+[p for p in Path(cfg['source_snapshot']).rglob('*') if p.is_dir()]+env['directories']
     return paths+[r['path'] for r in read(PLAN)['files']]
 
 def make_preflight(cfg,fds):
@@ -186,7 +191,7 @@ def verify_admission(cfg):
     if a.get('reviewer')!=dict(agent_id=AUDITOR,model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False):raise PermissionError('wrong final independent auditor')
     for k,v in dict(source_commit=cfg['source_commit'],source_digest=cfg['source_digest'],config_digest=digest(cfg),input_digest=cfg['input_digest'],domain_digest=cfg['domain_digest'],plan_digest=cfg['plan_digest'],environment_digest=cfg['environment_digest'],source_snapshot=cfg['source_snapshot'],stage_order=list(STAGE_ORDER)).items():
         if a.get(k)!=v:raise PermissionError('final admission binding differs: '+k)
-    for key,path in dict(source_manifest=root/'source_manifest.json',environment=root/'environment.json',preflight=root/'admission/preflight.json',config=root/'configs/run.json',input_manifest=Path(cfg['input_manifest']),domain_manifest=Path(cfg['domain_manifest']),resource_budget=root/'configs/resource_budget.json').items():
+    for key,path in dict(source_manifest=root/'source_manifest.json',environment=root/'environment.json',preflight=root/'admission/preflight.json',config=root/'configs/run.json',input_manifest=Path(cfg['input_manifest']),domain_manifest=Path(cfg['domain_manifest']),resource_budget=root/'configs/resource_budget.json',domain_cardinalities=root/'admission/domain_cardinalities.json').items():
         check_identity(a[key])
         if a[key]['path']!=str(path):raise PermissionError('admission evidence location mismatch: '+key)
     if not a.get('evidence'):raise PermissionError('admission lacks fixture evidence')
