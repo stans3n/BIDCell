@@ -18,7 +18,7 @@ from scripts.boundary_three.core_refine import (NuclearSupport, interface_band, 
 from scripts.boundary_three.core_scores import (reference_arrays, legal_types, matched_donors,
                                                SHUFFLE_SEEDS, PARAMETERS, MIN_FOLD)
 from . import PARENTS, APPLICABLE_TYPES, N_CELLS, N_GENES, ELIGIBLE
-from .common import (atomic, atomic_csv, atomic_json, atomic_npy, atomic_npz, check_identity,
+from .common import (atomic, atomic_csv, atomic_json, atomic_npy, atomic_npz, atomic_tiff, check_identity,
                      check_receipt, chunk_receipt, dependencies, digest, identity, inventory,
                      progress, read, resume_chunk, within, write_receipt)
 
@@ -374,7 +374,7 @@ def refine(cfg,manifest,endpoint,callback=None):
     proposals,score_info=score_domain(data,domain,expression,out/'scores',dict(deps,domain=identity(out/'domain/complete.json')),callback)
     mask,apply_info=apply_gt(data['baseline'],data['nuclei'],proposals,out/'recovery',dict(deps,proposals=identity(out/'scores/proposals.npy')),callback)
     final=within(cfg['run_root'],'endpoints',endpoint,'final.tif')
-    if not final.exists():atomic(final,lambda f:tifffile.imwrite(f,mask.astype(np.uint32)))
+    if not final.exists():atomic_tiff(final,mask.astype(np.uint32))
     elif not np.array_equal(tifffile.imread(final),mask):raise ValueError('completed final mask differs from recovery')
     validation=validate_topology(data['baseline'],mask,data['nuclei'],data['ids'],proposals,out/'validation',dict(deps,final=identity(final)),callback)
     decisions=np.load(read(out/'recovery/state.json')['decisions']['path'])

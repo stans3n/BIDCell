@@ -221,7 +221,7 @@ class ScientificFixtures(unittest.TestCase):
         mr=self.root/'original/matrix_complete.json';atomic_json(mr,dict(dependencies={'mask':expected}))
         record=dict(mask=expected,matrix_receipt=identity(mr),available=False,recovery_relative='recovered_historical_masks/C/final.tif')
         manifest=dict(historical_masks={'C':record})
-        with self.assertRaises(ValueError):require_publication_masks(cfg,manifest)
+        self.assertIsNone(require_publication_masks(cfg,manifest)['C'])
         archive=self.root/'archive.tif';archive.write_bytes(b'wrong bytes')
         with self.assertRaises(ValueError):_copy_frozen_mask(cfg,'C',record,archive)
         self.assertFalse((Path(cfg['run_root'])/record['recovery_relative']).exists())

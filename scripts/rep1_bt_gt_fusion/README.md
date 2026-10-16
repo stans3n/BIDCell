@@ -122,6 +122,14 @@ and per-proposal acceptance/rejection reason. R prediction batches persist RDS
 and post-prediction RNG state; Python fsyncs and hashes each before authorizing
 reuse. A recovered R batch restores that RNG state before subsequent prediction.
 
+Final GT TIFF installation uses `common.atomic_tiff`: a named same-directory
+temporary file, file fsync, read-only mapped uint32/shape/pixel verification in
+bounded row blocks, atomic replace and directory fsync. This avoids the fixed
+tifffile version's integer `.name` failure with `os.fdopen`, without encoding a
+large TIFF in memory. GT scoring, topology, ordering and scientific checkpoint
+formats are unchanged. A tiny fixture exercises `refine()` through its final
+TIFF and complete receipt, including interruption before and after replace.
+
 ## Manual evaluation and publication
 
 Only a fresh, explicit user instruction may cause the controller to create
@@ -171,22 +179,47 @@ new 30-entry set. Actual mask pixels determine aliases and unique content count.
 Publication returns `context_sync_complete: false`; context append and final
 independent synchronization validation are controller responsibilities.
 
-The actual historical C and SP final masks are absent. The manifest records their
-original expected bytes/SHA256 and deterministic recovery paths, without claiming
-their content has been read. This does not block tonight's six scientific inputs.
-It does block exact unique-mask verification and publication. If the original
-bytes are later found, `recover_historical_mask(config, grant, method, source)`
+The historical C and SP final masks were deleted without backup, as confirmed
+by the user and recorded in the separate 2026-10-16 RecoveryAmendment. Their old
+input manifest and its original `available: false` entries remain unchanged.
+Publication retains both historical negative-result rows, all old non-Purity
+strings, the original mask identities and matrix/registry provenance. Only these
+two names with frozen unavailable inputs may be missing. Any other missing mask,
+a newly missing previously available mask, identity drift or incomplete recovery
+fails; all eight scientific endpoint masks remain mandatory.
+
+Registry, notes, publication and final registration receipts distinguish
+`available_mask_method_entries`, `missing_mask_methods` and
+`available_unique_mask_contents`. With C/SP absent, `unique_mask_contents` is
+JSON null, `unique_mask_contents_verified` is false, and
+`unique_mask_contents_status` is `not_fully_verified_missing_historical_masks`.
+Context renders the whole-30 unique count as NA with the reason. Missing records
+carry no content hash or alias; readable masks are independently hashed and
+deduplicated, including actual new/parent no-op checks. Purity still uses all 30
+rows' existing/new raw F1 values. Validation binds these exceptions to the exact
+frozen input manifest and original matrix mask identities.
+
+If exact original bytes are later found, `recover_historical_mask(config, grant, method, source)`
 accepts only the frozen bytes/SHA256 and writes an actual copy to
 `run_root/recovered_historical_masks/{C,SP}/final.tif` with a recovery receipt
 bound to the original matrix receipt. It cannot admit a new scientific mask,
-modify config/input digests or write the old path. No suitable archive has been
-located; this is an unresolved data dependency, not a successful publication.
+modify config/input digests or write the old path. Recovery is optional for the
+two explicitly waived historical masks; their contents are never fabricated.
 
 ## Verification scope
 
 Run the deterministic fixtures from the repository root with:
 
 `/home/zwan0726/miniforge3/envs/bidcell_local/bin/python -m unittest tests.test_rep1_bt_gt_fusion_science -v`
+
+The TIFF/missing-history repair regressions are
+`python -m unittest tests.test_rep1_bt_gt_science_repair -v` with the same fixed
+interpreter. They cover actual `refine()` completion and recovery, uint32 TIFF
+interruption/corruption, all-30 publication validation with C/SP absent, exact
+optional historical recovery, rejected false unique counts, and the actual
+context/final-receipt consumer redirected entirely into synthetic fixture files.
+`REP1_BT_GT_REPAIR_FIXTURE_ROOT` retains their inputs and receipts in an empty
+evidence destination. Real scientific outputs and context are never written.
 
 The suite includes small actual-R spatial calls with inherited lock FDs. Set
 `REP1_BT_GT_R_FIXTURE_ROOT` to an empty evidence directory to retain their exact

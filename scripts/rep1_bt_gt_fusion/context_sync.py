@@ -7,7 +7,7 @@ from pathlib import Path
 from . import NEW, PARENTS, comparisons
 from .common import (atomic,atomic_json,check_identity,check_receipt,dependencies,digest,identity,read,
                      require_manual_resume,sha256,within)
-from .publication import RESULT_ROOT,PROTOCOL,validate_bundle,read_strings
+from .publication import RESULT_ROOT,PROTOCOL,validate_bundle,read_strings,mask_verification_summary
 
 CONTEXT=Path('/home/zwan0726/work/context')
 TARGETS=[CONTEXT/name for name in ('README.md','01_project_context.md','02_paths_and_environment.md',
@@ -34,9 +34,16 @@ def analysis_review(cfg):
 
 def context_block(cfg,rows,registry,analysis):
     by={r['method']:r for r in rows}
+    if registry['unique_mask_contents'] is None:
+        masks=('可读 mask 的方法条目 '+str(registry['available_mask_method_entries'])+'；缺失方法 '+
+               '、'.join(registry['missing_mask_methods'])+'；可读集合的实际唯一 mask 内容数 '+
+               str(registry['available_unique_mask_contents'])+'。全30方法实际唯一 mask 内容数 NA（未完全核验：历史 C/SP 原件已删除）。')
+    else:
+        masks='全部30方法 mask 已核验，实际唯一 mask 内容数 '+str(registry['unique_mask_contents'])+'。'
     lines=['<!-- '+MARKER+'_BEGIN -->',
            '**Rep1 B/T + GT 融合：生产、八端点评价与30方法登记已验收。**',
-           '协议 `'+PROTOCOL+'`；30个方法条目，实际唯一 mask 内容数 '+str(registry['unique_mask_contents'])+'。',
+           '协议 `'+PROTOCOL+'`；30个方法条目。'+masks,
+           'C/SP 历史负结果、原始非 Purity 指标与原身份链保留；Purity 在全部30行双 F1 原值上独立缩放。',
            'fixed 与 scClassify 正/负 F1 并列；P↑、N↓。下方历史记录原样保留。','',
            '| 方法 | sc P↑ | sc N↓ | fixed P↑ | fixed N↓ | capture % |',
            '|---|---:|---:|---:|---:|---:|']
@@ -132,7 +139,8 @@ def synchronize(cfg,grant,publication):
     result=dict(status='succeeded',dependencies=dependencies(cfg,'FINAL_REGISTRATION'),manual_resume=identity(grant),
                 publication=identity(RESULT_ROOT/'publication_complete.json'),artifact_registry=identity(RESULT_ROOT/'artifact_registry.json'),
                 results_analysis=identity(within(cfg['run_root'],'results_analysis.json')),
-                table=identity(RESULT_ROOT/'main_table.csv'),methods=30,new_methods=list(NEW),unique_mask_contents=registry['unique_mask_contents'],
+                table=identity(RESULT_ROOT/'main_table.csv'),methods=30,new_methods=list(NEW),
+                **mask_verification_summary(registry['mask_content']),
                 old28_raw_preserved=True,context_sync_complete=True,**proof)
     atomic_json(RESULT_ROOT/'context_sync_complete.json',result)
     for obj in result['outputs'].values():check_identity(obj)

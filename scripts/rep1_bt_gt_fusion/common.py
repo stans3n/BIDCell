@@ -88,6 +88,42 @@ def atomic_npy(path, array):
     atomic(path, lambda f: np.save(f, array, allow_pickle=False))
 
 
+def atomic_tiff(path, array):
+    """Commit an exact uint32 mask through a named, same-directory TIFF.
+
+    tifffile inspects a stream's .name; os.fdopen exposes an integer there.
+    A real temporary path avoids that interface mismatch. Reopen the uncompressed
+    TIFF as a read-only mapping and compare bounded row blocks before installing
+    it, without creating an in-memory encoded TIFF or a second decoded mask.
+    """
+    import tifffile
+    array = np.asarray(array)
+    if array.ndim != 2 or array.dtype != np.dtype(np.uint32):
+        raise ValueError('atomic TIFF requires a two-dimensional uint32 mask')
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix='.' + path.name + '.', suffix='.tif', dir=path.parent)
+    os.close(fd)
+    try:
+        tifffile.imwrite(tmp, array)
+        with open(tmp, 'rb') as stream:
+            os.fsync(stream.fileno())
+        reopened = tifffile.memmap(tmp, mode='r')
+        try:
+            if reopened.shape != array.shape or reopened.dtype != array.dtype:
+                raise ValueError('temporary TIFF shape or dtype differs from mask')
+            for start in range(0, array.shape[0], 256):
+                if not np.array_equal(reopened[start:start + 256], array[start:start + 256]):
+                    raise ValueError('temporary TIFF pixels differ from mask')
+        finally:
+            reopened._mmap.close()
+        os.replace(tmp, path)
+        fsync_dir(path.parent)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+
+
 def atomic_npz(path, **arrays):
     atomic(path, lambda f: np.savez_compressed(f, **arrays))
 

@@ -15,12 +15,14 @@ import tifffile
 from . import EXISTING, NEW, PARENTS, N_CELLS, ELIGIBLE
 from .common import (atomic, atomic_json, check_identity, check_receipt, dependencies, digest,
                      fsync_dir, identity, progress, read, require_manual_resume, within)
-from .inputs import load_inputs, TABLE, REGISTRY, TABLE_SHA, REGISTRY_SHA, matrix_arrays
+from .inputs import load_inputs, load_manifest, TABLE, REGISTRY, TABLE_SHA, REGISTRY_SHA, matrix_arrays
 
 RESULT_ROOT=Path('/home/zwan0726/work/outputs/bidcell_historical_dual_bt_gt_fusion_20261017')
 PROTOCOL='DUAL-F1-BTGT-v1.0-30methods-20261017'
 PURITY_VERSION='PURITY-30methods-v1.0-20261017'
 PURITY_COLUMNS={'scclassify_Purity_F1','fixed_Purity_F1','purity_scaling_version','purity_scaling_path'}
+MISSING_HISTORICAL_MASK_ALLOWLIST=frozenset(('C','SP'))
+MISSING_MASK_REASON='original historical mask deleted; original identity retained; actual pixels unavailable for verification'
 SPATIAL_COLUMNS={
     'cv_total_transciprts':'scclassify_spatial_entropy_vs_cv_total_transciprts',
     'cv_total_genes':'scclassify_spatial_entropy_vs_cv_total_genes',
@@ -79,6 +81,29 @@ def mask_content(path):
     h.update(np.asarray(array.shape,dtype='<i8').tobytes())
     for row in range(0,array.shape[0],256):h.update(np.asarray(array[row:row+256],dtype='<u4').tobytes())
     return h.hexdigest()
+
+
+def mask_verification_summary(records):
+    """Count readable method entries and their contents, never impute missing masks."""
+    missing=sorted(name for name,record in records.items() if record['available'] is False)
+    if any(type(record.get('available')) is not bool for record in records.values()):
+        raise ValueError('mask availability must be explicit')
+    if not set(missing)<=MISSING_HISTORICAL_MASK_ALLOWLIST or set(missing)&set(EXISTING+NEW):
+        raise ValueError('missing mask is outside the frozen C/SP exception')
+    contents=set()
+    for record in records.values():
+        if record['available']:
+            content=record.get('content_sha256')
+            if not isinstance(content,str) or len(content)!=64:
+                raise ValueError('readable mask lacks an actual content hash')
+            contents.add(content)
+        elif record.get('content_sha256') is not None or record.get('alias_of') is not None:
+            raise ValueError('missing mask cannot have a content hash or alias')
+    return dict(available_mask_method_entries=len(records)-len(missing),missing_mask_methods=missing,
+                available_unique_mask_contents=len(contents),
+                unique_mask_contents=None if missing else len(contents),
+                unique_mask_contents_verified=not missing,
+                unique_mask_contents_status='not_fully_verified_missing_historical_masks' if missing else 'verified_all_method_masks')
 
 
 def new_table_row(cfg,manifest,name,columns):
@@ -160,18 +185,26 @@ def prepare_publication(cfg,grant,callback=None):
             spec=new_spec(cfg,name);mask=identity(spec['final']);mr=identity(Path(spec['matrix'])/'complete.json')
         else:
             hist=manifest['historical_masks'][name];mask=resolved_masks[name];mr=hist['matrix_receipt']
+        if mask is None:
+            mask_records[name]=dict(mask=hist['mask'],matrix_receipt=mr,available=False,
+                content_sha256=None,alias_of=None,unavailable_reason=MISSING_MASK_REASON)
+            progress(callback,'publication_mask_content',i+1,30,method=name,available=False)
+            continue
         check_identity(mask);check_identity(mr)
         content=mask_content(mask['path'])
-        alias=next((other for other,obj in mask_records.items() if obj['content_sha256']==content),None)
-        mask_records[name]=dict(mask=mask,matrix_receipt=mr,content_sha256=content,alias_of=alias)
-        progress(callback,'publication_mask_content',i+1,30,method=name)
+        alias=next((other for other,obj in mask_records.items() if obj['available'] and obj['content_sha256']==content),None)
+        mask_records[name]=dict(mask=mask,matrix_receipt=mr,available=True,content_sha256=content,alias_of=alias)
+        progress(callback,'publication_mask_content',i+1,30,method=name,available=True)
+    mask_summary=mask_verification_summary(mask_records)
     registry=dict(protocol=PROTOCOL,status='verified_30_method_extension',methods=[r['method'] for r in rows],new_methods=list(NEW),
                   historical28_registry=identity(REGISTRY),historical28_table=identity(TABLE),
                   historical28_chain=read(REGISTRY),mask_content=mask_records,
+                  frozen_input_manifest=identity(cfg['input_manifest']),run_root=str(Path(cfg['run_root']).resolve()),
+                  missing_historical_mask_allowlist=sorted(MISSING_HISTORICAL_MASK_ALLOWLIST),
                   author_reference={k:manifest['files'][str(Path(v).resolve())] for k,v in manifest['author_reference'].items()},
                   historical_mask_recovery_receipts={name:identity(recovery_paths(cfg,name,record)[1])
-                      for name,record in manifest['historical_masks'].items() if not record['available']},
-                  unique_mask_contents=len({v['content_sha256'] for v in mask_records.values()}),
+                      for name,record in manifest['historical_masks'].items() if not record['available'] and resolved_masks[name] is not None},
+                  **mask_summary,
                   comparison_entries=30,existing_six_B_T=identity(within(cfg['run_root'],'bt_existing6/complete.json')),
                   evaluation8=identity(within(cfg['run_root'],'evaluation8/complete.json')),dependencies=deps,new_endpoints={})
     for name in NEW:
@@ -186,7 +219,9 @@ def prepare_publication(cfg,grant,callback=None):
               evaluation_receipt=identity(ev/'complete.json'),production_receipt=identity(Path(spec['root'])/'production_complete.json'),
               no_op_with_parent=mask_records[name]['content_sha256']==mask_records[PARENTS[name]]['content_sha256'])
     atomic_json(stage/'artifact_registry.json',registry)
-    atomic_json(stage/'publication_notes.json',dict(protocol=PROTOCOL,methods=30,unique_mask_contents=registry['unique_mask_contents'],
+    atomic_json(stage/'publication_notes.json',dict(protocol=PROTOCOL,methods=30,**mask_summary,
+                missing_historical_mask_allowlist=sorted(MISSING_HISTORICAL_MASK_ALLOWLIST),
+                missing_mask_policy='only frozen unavailable C/SP; historical rows, raw metrics and original identity chains retained; no substitute masks',
                 fixed_and_sc_F1_parallel=True,negative_results_included=True,old28_nonpurity_strings_preserved=True,
                 CSV_encoding='UTF-8; input BOM accepted and output header written without BOM; all non-Purity data strings unchanged',
                 boundary_accuracy_claim=False,GT='Geometry+Type, not ground truth',
@@ -206,18 +241,35 @@ def recovery_paths(cfg,name,record):
     return path,path.with_name('recovery_complete.json')
 
 
+def _check_historical_mask_binding(record):
+    if type(record.get('available')) is not bool:
+        raise ValueError('historical availability is not frozen as a boolean')
+    check_identity(record['matrix_receipt'])
+    bound=read(record['matrix_receipt']['path'])['dependencies']['mask']
+    if any(bound[k]!=record['mask'][k] for k in ('path','bytes','sha256')):
+        raise ValueError('frozen original mask identity is not bound by its original matrix receipt')
+
+
+def _recovery_dependencies(base,name,record):
+    deps={key:base[key] for key in ('schema','run_id','config_digest','source_digest','input_digest','plan_sha256')}
+    return dict(deps,stage='HISTORICAL_MASK_RECOVERY_'+name,
+                original_matrix_receipt=record['matrix_receipt'],expected_mask=record['mask'])
+
+
+def _allow_frozen_missing(name,record):
+    if name not in MISSING_HISTORICAL_MASK_ALLOWLIST or record['available'] is not False or name in EXISTING+NEW:
+        raise ValueError('missing mask is outside the frozen C/SP exception: '+name)
+
+
 def _copy_frozen_mask(cfg,name,record,source):
     """Recover known artifact bytes only; this does not admit a new mask identity."""
     target,receipt=recovery_paths(cfg,name,record)
-    original=record['mask'];check_identity(record['matrix_receipt'])
-    bound=read(record['matrix_receipt']['path'])['dependencies']['mask']
-    if any(bound[k]!=original[k] for k in ('path','bytes','sha256')):
-        raise ValueError('frozen original mask identity is not bound by its original matrix receipt')
+    original=record['mask'];_check_historical_mask_binding(record)
     source=Path(source).resolve(strict=True)
     source_identity=identity(source)
     if any(source_identity[k]!=original[k] for k in ('bytes','sha256')):
         raise ValueError('historical recovery source differs from the exact frozen original bytes')
-    deps=dict(dependencies(cfg,'HISTORICAL_MASK_RECOVERY_'+name),original_matrix_receipt=record['matrix_receipt'],expected_mask=original)
+    deps=_recovery_dependencies(dependencies(cfg,'PUBLICATION'),name,record)
     if receipt.exists():
         saved=check_receipt(receipt,deps,cfg['run_root'])
         if saved['outputs']['mask']['path']!=str(target):raise ValueError('recovery receipt targets another mask')
@@ -243,22 +295,97 @@ def recover_historical_mask(cfg,manual_resume,name,source):
 
 
 def require_publication_masks(cfg,manifest):
-    """Require actual bytes, accepting only exact frozen-identity recoveries."""
+    """Resolve actual bytes; only frozen unavailable C/SP may remain explicit None.
+
+    The original manifest is never rewritten. An incomplete or corrupt recovery,
+    any other missing method, and drift of a previously available mask still fail.
+    """
     result={}
     for name,record in manifest['historical_masks'].items():
-        check_identity(record['matrix_receipt'])
+        _check_historical_mask_binding(record)
         if record['available']:
             check_identity(record['mask']);result[name]=record['mask'];continue
         target,receipt=recovery_paths(cfg,name,record)
         if not target.is_file() or not receipt.is_file():
-            raise ValueError('publication unique-mask verification blocked: frozen original mask unavailable: '+name)
-        deps=dict(dependencies(cfg,'HISTORICAL_MASK_RECOVERY_'+name),original_matrix_receipt=record['matrix_receipt'],expected_mask=record['mask'])
+            if target.exists() or receipt.exists() or Path(record['mask']['path']).exists():
+                raise ValueError('incomplete or unregistered historical mask recovery: '+name)
+            _allow_frozen_missing(name,record)
+            result[name]=None;continue
+        deps=_recovery_dependencies(dependencies(cfg,'PUBLICATION'),name,record)
         restored=check_receipt(receipt,deps,cfg['run_root'])
         if not restored.get('exact_original_artifact') or restored['outputs']['mask']['path']!=str(target):
             raise ValueError('historical mask recovery receipt identity mismatch')
         check_identity(dict(record['mask'],path=str(target)))
         result[name]=restored['outputs']['mask']
     return result
+
+
+def validate_mask_records(reg,methods,deps):
+    """Independently verify the readable subset and the exact frozen exceptions."""
+    records=reg['mask_content']
+    if reg['comparison_entries']!=30 or reg['methods']!=methods or set(records)!=set(methods):
+        raise ValueError('publication mask/method coverage mismatch')
+    if reg.get('dependencies')!=deps or reg.get('missing_historical_mask_allowlist')!=sorted(MISSING_HISTORICAL_MASK_ALLOWLIST):
+        raise ValueError('publication dependency or missing-mask policy mismatch')
+    frozen=check_identity(reg['frozen_input_manifest'])
+    manifest=load_manifest(frozen,verify=False)
+    if digest(manifest)!=deps['input_digest']:
+        raise ValueError('publication frozen input digest differs')
+    run_root=Path(reg['run_root']).resolve()
+    if frozen!=run_root/'configs/inputs_manifest.json':
+        raise ValueError('publication frozen input manifest is outside its run')
+    if set(manifest['historical_masks'])|set(NEW)!=set(methods) or set(reg['new_endpoints'])!=set(NEW):
+        raise ValueError('publication historical/new method domain mismatch')
+    summary=mask_verification_summary(records)
+    if any(key not in reg or reg[key]!=value for key,value in summary.items()):
+        raise ValueError('mask availability or unique-content counts inconsistent')
+    recoveries=reg.get('historical_mask_recovery_receipts',{})
+    expected_recoveries=set();seen={}
+    for name in methods:
+        record=records[name]
+        if name in NEW:
+            expected=reg['new_endpoints'][name]
+            if not record['available'] or any(record[key]!=expected[key] for key in ('mask','matrix_receipt')):
+                raise ValueError('new scientific endpoint mask identity/availability mismatch')
+        else:
+            hist=manifest['historical_masks'][name]
+            _check_historical_mask_binding(hist)
+            if record['matrix_receipt']!=hist['matrix_receipt']:
+                raise ValueError('historical matrix receipt differs from frozen identity')
+            if hist['available']:
+                if not record['available'] or record['mask']!=hist['mask']:
+                    raise ValueError('previously available historical mask cannot be waived')
+            else:
+                target,receipt=recovery_paths({'run_root':str(run_root)},name,hist)
+                if not record['available']:
+                    _allow_frozen_missing(name,hist)
+                    if record['mask']!=hist['mask'] or record.get('unavailable_reason')!=MISSING_MASK_REASON:
+                        raise ValueError('missing historical mask lost its original identity or reason')
+                    if Path(hist['mask']['path']).exists() or target.exists() or receipt.exists():
+                        raise ValueError('missing mask has unverified original or recovery bytes')
+                else:
+                    expected_recoveries.add(name)
+                    if name not in recoveries or check_identity(recoveries[name])!=receipt:
+                        raise ValueError('recovered historical mask lacks its exact recovery receipt')
+                    saved=check_receipt(receipt,_recovery_dependencies(deps,name,hist),run_root)
+                    if not saved.get('exact_original_artifact') or saved['outputs']['mask']!=record['mask'] or record['mask']['path']!=str(target):
+                        raise ValueError('recovered historical mask binding mismatch')
+                    check_identity(dict(hist['mask'],path=str(target)))
+        check_identity(record['matrix_receipt'])
+        if record['available']:
+            check_identity(record['mask'])
+            content=mask_content(record['mask']['path'])
+            if content!=record['content_sha256'] or record['alias_of']!=seen.get(content):
+                raise ValueError('actual mask content or alias differs from publication')
+            seen.setdefault(content,name)
+    if set(recoveries)!=expected_recoveries:
+        raise ValueError('historical recovery receipt coverage mismatch')
+    if any(not records[name]['available'] for name in EXISTING+NEW):
+        raise ValueError('all eight scientific endpoint masks must be available')
+    for name in NEW:
+        if reg['new_endpoints'][name]['no_op_with_parent']!=(records[name]['content_sha256']==records[PARENTS[name]]['content_sha256']):
+            raise ValueError('new endpoint no-op status differs from actual parent pixels')
+    return summary
 
 
 def validate_bundle(root,deps=None):
@@ -276,11 +403,12 @@ def validate_bundle(root,deps=None):
             actual=r[profile+'_Purity_F1']
             if actual!=('NA' if expected is None else str(expected)):raise ValueError('table/Purity inconsistency')
     reg=read(root/'artifact_registry.json')
-    if reg['comparison_entries']!=30 or set(reg['mask_content'])!={r['method'] for r in new} or reg['unique_mask_contents']!=len({v['content_sha256'] for v in reg['mask_content'].values()}):raise ValueError('unique-mask count inconsistent')
-    for record in reg['mask_content'].values():
-        check_identity(record['mask']);check_identity(record['matrix_receipt'])
-        if mask_content(record['mask']['path'])!=record['content_sha256']:raise ValueError('actual mask content differs from published identity')
-    for receipt in reg.get('historical_mask_recovery_receipts',{}).values():check_identity(receipt)
+    summary=validate_mask_records(reg,[r['method'] for r in new],receipt['dependencies'])
+    notes=read(root/'publication_notes.json')
+    if notes.get('methods')!=30 or any(key not in notes or notes[key]!=value for key,value in summary.items()):
+        raise ValueError('publication notes mask verification differs from registry')
+    if reg['historical28_registry']!=identity(REGISTRY) or reg['historical28_table']!=identity(TABLE) or reg['historical28_chain']!=read(REGISTRY):
+        raise ValueError('historical28 identity chain changed')
     for name in NEW:
         row=next(r for r in new if r['method']==name)
         item=reg['new_endpoints'][name]
@@ -309,6 +437,7 @@ def publish(cfg,manual_resume,progress=None):
     rec=validate_bundle(RESULT_ROOT)
     proof=dict(status='succeeded',dependencies=rec['dependencies'],published_root=str(RESULT_ROOT),
                outputs={n:identity(RESULT_ROOT/n) for n in ('main_table.csv','artifact_registry.json','purity_scaling.json','staging_complete.json')},
+               **mask_verification_summary(read(RESULT_ROOT/'artifact_registry.json')['mask_content']),
                independent_raw_and_purity_recomputation=True,old28_unchanged=True,context_sync_complete=False)
     atomic_json(RESULT_ROOT/'publication_complete.json',proof)
     return proof
