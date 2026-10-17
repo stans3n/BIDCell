@@ -51,9 +51,9 @@ def _validate_production(cfg,name,stage,manifest):
 
 def validate_stage(cfg,stage,manifest=None):
     cfg=read(cfg) if isinstance(cfg,(str,Path)) else cfg;config_check(cfg);stage=normalize_stage(stage)
-    if cfg.get('continuation') and stage in ('01','02','03','04'):
-        from .continuation import validate_adopted_stage
-        return validate_adopted_stage(cfg,stage)
+    if cfg.get('continuation'):
+        from .continuation import validate_adopted_stage,manifest as continuation_manifest
+        if stage in continuation_manifest(cfg)['stages']:return validate_adopted_stage(cfg,stage)
     manifest=manifest or load_inputs(cfg,verify=False)
     rec=check_receipt(receipt_path(cfg,stage),output_root=cfg['run_root'])
     if rec['dependencies'].get('config_digest')!=digest(cfg):raise ValueError('stage config identity mismatch')
@@ -172,7 +172,8 @@ def run_stage(config,stage,progress=None,lock_fds=(),validate_execution=None,com
         mat,conservation=produce_matrix(cfg,manifest,name,progress)
         if name=='P2_SIMPLE':
             from .p2_diagnostics import transfer_diagnostics
-            transfer_diagnostics(cfg,name,out/'predictions',within(cfg['run_root'],'replay/SIMPLE_NATIVE/predictions'),read(out/'machine.json'),out/'matrix')
+            from .continuation import native_replay_root
+            transfer_diagnostics(cfg,name,out/'predictions',native_replay_root(cfg)/'predictions',read(out/'machine.json'),out/'matrix')
         result=write_receipt(out/'production_complete.json',dependencies(cfg,stage),inventory(out),endpoint=name,parent=PARENTS[name],stage=stage,
             conservation=conservation,evaluation_complete=False,no_op_with_parent=bool(np.array_equal(tifffile.imread(out/'final.tif'),tifffile.imread(resolve_parent(cfg,manifest,name)['final']))))
     elif stage in EVALUATION_STAGES:

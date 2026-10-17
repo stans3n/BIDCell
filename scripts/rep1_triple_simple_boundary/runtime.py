@@ -186,15 +186,19 @@ def domain_cardinalities(root,frozen=None):
     if not obj['within_measured_bounds']:raise RuntimeError('frozen cardinalities exceed measured resource projection; new review required')
     return obj
 
-def prepare(output_root,run_id,plans_manifest,donor_validation=None,split_validation=None,donor_baseline=None):
+def prepare(output_root,run_id,plans_manifest,donor_validation=None,split_validation=None,donor_baseline=None,replay_donor_validation=None,replay_donor_baseline=None):
     if Path(output_root).resolve()!=ex.OUTPUT or Path(plans_manifest).resolve()!=ex.PLAN or not re.fullmatch(r'rep1-triple-simple-boundary-20261017-r[0-9]{2,}',run_id):raise ValueError('unauthorized preparation path')
     if ex.git('branch','--show-current')!=ex.BRANCH or ex.git('status','--porcelain','--untracked-files=all'):raise ValueError('prepare requires clean committed authorized branch')
     recovery=any(x is not None for x in (donor_validation,split_validation,donor_baseline))
     if recovery and not all(x is not None for x in (donor_validation,split_validation,donor_baseline)):raise ValueError('continuation requires full donor, numeric split and baseline proofs')
+    recovery2=any(x is not None for x in (replay_donor_validation,replay_donor_baseline))
+    if recovery2 and (recovery or not all(x is not None for x in (replay_donor_validation,replay_donor_baseline))):raise ValueError('two-donor continuation requires only complete replay validation and baseline proofs')
+    recovery=2 if recovery2 else int(recovery)
     commit=ex.git('rev-parse','HEAD');audit=ex.preparation_audit(commit,recovery=recovery);root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
     for name in ('configs','control','logs','admission','tmp','cache/matplotlib','cache/numba'):(root/name).mkdir(parents=True,exist_ok=True)
-    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(),preparation_audit=audit,resource_proposal=identity(ex.RECOVERY_RESOURCE if recovery else ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
-    if recovery:partial['continuation_request']=dict(donor_validation=identity(donor_validation),split_validation=identity(split_validation),baseline=identity(donor_baseline))
+    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(),preparation_audit=audit,resource_proposal=identity(ex.RECOVERY2_RESOURCE if recovery==2 else ex.RECOVERY_RESOURCE if recovery else ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
+    if recovery==2:partial['continuation_request']=dict(replay_validation=identity(replay_donor_validation),replay_baseline=identity(replay_donor_baseline))
+    elif recovery:partial['continuation_request']=dict(donor_validation=identity(donor_validation),split_validation=identity(split_validation),baseline=identity(donor_baseline))
     with ExitStack() as stack:
         fds=tuple(stack.enter_context(lock(p)) for p in paths(partial))
         if recovery:
@@ -221,7 +225,7 @@ def resume_prepare(params):
         if (root/'admission/final.json').exists():raise PermissionError('admitted run cannot resume preparation')
         for name in ('endpoints','analysis','replay','reused'):
             if (root/name).exists():
-                allowed={root/STAGES[s]['required_receipt'] for s in ('01','02','03','04')} if partial.get('continuation_request') else set()
+                allowed={root/STAGES[s]['required_receipt'] for s in (('01','02','03','04','05') if ex.recovery_generation(partial)==2 else ('01','02','03','04'))} if partial.get('continuation_request') else set()
                 if any(p not in allowed for p in (root/name).rglob('*') if p.is_file() or p.is_symlink()):raise PermissionError('compute output exists; preparation cannot resume')
         if (root/'state.json').exists():
             s=read(root/'state.json')
@@ -234,7 +238,12 @@ def prepare_snapshot(params,fds):
     root=Path(partial['run_root'])
     if partial.get('continuation_request'):
         from .continuation import build,manifest as continuation_manifest
-        req=partial['continuation_request'];partial=dict(partial,continuation=build(partial,req['donor_validation']['path'],req['split_validation']['path'],req['baseline']['path']))
+        req=partial['continuation_request']
+        if ex.recovery_generation(partial)==2:
+            from .continuation2 import build as build2
+            item=build2(partial,req['replay_validation']['path'],req['replay_baseline']['path'])
+        else:item=build(partial,req['donor_validation']['path'],req['split_validation']['path'],req['baseline']['path'])
+        partial=dict(partial,continuation=item)
     guard=ResourceGuard(partial);guard(True)
     from .inputs import freeze_inputs
     from .frozen_domains import freeze
@@ -347,6 +356,9 @@ def witness(cfg,stage,path):
     if not bindings or any(x.get('config_digest')!=digest(cfg) or x.get('run_id')!=cfg['run_id'] for x in bindings):raise ValueError('scientific witness lacks current config binding')
     if obj.get('schema')=='rep1-triple-simple-p2-postprocess-v1' and any(x.get('stage')!=stage for x in bindings):
         raise ValueError('P2 scientific witness stage binding differs')
+    if obj.get('kind')=='global_nucleus_index_validation' or path.name=='global_nucleus_index_validation.json':
+        from .nucleus_validation import witness as index_witness
+        index_witness(cfg,stage,path)
     if stage=='01' and path==science.receipt_path(cfg,'01'):
         if obj.get('coordinate_rows')!=34442716 or obj.get('methods')!=list(science.EXISTING):raise ValueError('stage01 semantic completion coverage missing')
     elif stage=='01':

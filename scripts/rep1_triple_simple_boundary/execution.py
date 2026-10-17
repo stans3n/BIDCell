@@ -31,6 +31,18 @@ AUDITOR='/root/independent_code_auditor'
 RECOVERY_AUDITOR='/root/independent_code_auditor'
 RECOVERY_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery01_CodeAudit_20261017.json'
 RECOVERY_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery01_ResourceTimeRevision_20261017.json'
+RECOVERY2_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery02_CodeAudit_20261018.json'
+RECOVERY2_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery02_ResourceTimeRevision_20261018.json'
+
+def recovery_generation(cfg):
+    if 'replay_validation' in cfg.get('continuation_request',{}):return 2
+    if cfg.get('continuation'):
+        from .continuation import _bound_json
+        if _bound_json(cfg['continuation']).get('schema')=='rep1-triple-simple-continuation-v2':return 2
+    return 1 if cfg.get('continuation') or cfg.get('continuation_request') else 0
+
+def audit_path(generation):
+    return RECOVERY2_AUDIT if generation==2 else RECOVERY_AUDIT if generation else CONTROLLER_AUDIT
 
 def reviewer(cfg=None):
     return dict(agent_id=RECOVERY_AUDITOR if cfg and (cfg.get('continuation') or cfg.get('continuation_request')) else AUDITOR,
@@ -126,7 +138,7 @@ def controlled_environment(cfg):
 def child_environment(cfg):return dict(os.environ,**controlled_environment(cfg))
 
 def preparation_audit(commit,records=None,recovery=False):
-    path=RECOVERY_AUDIT if recovery else CONTROLLER_AUDIT;a=read(path)
+    path=audit_path(recovery);a=read(path)
     if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=reviewer({'continuation_request':True} if recovery else None) or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
     if a.get('source_files_digest')!=digest(source_files() if records is None else records):raise PermissionError('preparation source inventory differs from code audit')
     for item in a.get('evidence',[]):check_identity(item)
@@ -137,11 +149,13 @@ def verify_preparation(partial,params):
     if partial.get('schema')!='rep1-triple-simple-preparation-v1' or partial.get('resources')!=__import__(__package__+'.runtime',fromlist=['resource_contract']).resource_contract():raise ValueError('preparation contract drift')
     if params!=root/'control/preparation.json' or Path(partial['source_snapshot'])!=root/'source_snapshot':raise ValueError('preparation path mismatch')
     binding=read(root/'control/preparation_binding.json');check_identity(binding['params']);check_identity(binding['source_manifest']);check_identity(partial['preparation_audit']);check_identity(partial['resource_proposal'])
-    recovery=bool(partial.get('continuation_request'))
-    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(RECOVERY_AUDIT if recovery else CONTROLLER_AUDIT):raise ValueError('preparation identity location drift')
+    recovery=recovery_generation(partial)
+    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(audit_path(recovery)):raise ValueError('preparation identity location drift')
     m=read(root/'source_manifest.json');rows=[dict(path=r['original'],bytes=r['bytes'],sha256=r['sha256'],snapshot_relative=r['relative']) for r in m['files']]
     if preparation_audit(partial['source_commit'],rows,recovery)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
-    for item in partial.get('continuation_request',{}).values():check_identity(item)
+    req=partial.get('continuation_request',{})
+    if req and set(req)!=({'replay_validation','replay_baseline'} if recovery==2 else {'donor_validation','split_validation','baseline'}):raise ValueError('unknown continuation preparation request')
+    for item in req.values():check_identity(item)
     verify_snapshot(partial)
 
 def environment(root,lock_fds=(),cfg=None):
@@ -197,8 +211,8 @@ def verify_contracts(cfg):
     if s.get('decision')!='PASS_FOR_CONTROLLER_IMPLEMENTATION' or s.get('open_scientific_blockers')!=[]:raise ValueError('science audit not passed')
     if cfg.get('continuation'):
         from .continuation import approved_repair,verify
-        approved_repair();verify(cfg,False)
-        if cfg['preparation_audit']['path']!=str(RECOVERY_AUDIT):raise ValueError('recovery requires separately bound independent code audit')
+        approved_repair(cfg);verify(cfg,False)
+        if cfg['preparation_audit']['path']!=str(audit_path(recovery_generation(cfg))):raise ValueError('recovery requires separately bound independent code audit')
 
 def immutable_paths(cfg):
     root=Path(cfg['run_root']);m=read(root/'source_manifest.json');inputs=read(cfg['input_manifest']);env=read(root/'environment.json');domain=read(cfg['domain_manifest'])
@@ -206,9 +220,9 @@ def immutable_paths(cfg):
     paths += [r['snapshot_path'] for r in m['files']]+[r['path'] for r in inputs['files'].values()]+[r['path'] for r in env['files']]+[r['path'] for r in domain['outputs'].values()]
     paths += [Path(cfg['source_snapshot'])]+[p for p in Path(cfg['source_snapshot']).rglob('*') if p.is_dir()]+env['directories']
     if cfg.get('continuation'):
-        from .continuation import manifest,_bound_json
-        m=manifest(cfg);paths += [cfg['continuation']['path']]+list(_bound_json(m['fingerprints'])['paths'])
-        paths += [m[k]['path'] for k in ('donor_config','donor_source_manifest','donor_admission','donor_validation','split_validation','repair_plan','repair_plan_audit','source_compatibility','fingerprints')]
+        from .continuation import manifest,fingerprint_paths,evidence_items
+        m=manifest(cfg);paths += [cfg['continuation']['path']]+list(fingerprint_paths(m))
+        paths += [item['path'] for item in evidence_items(m)]
     return paths+[r['path'] for r in read(PLAN)['files']]
 
 def make_preflight(cfg,fds):
@@ -240,6 +254,9 @@ def verify_admission(cfg):
         m=verify(cfg)
         if a.get('continuation')!=cfg['continuation'] or a.get('continuation_source_compatibility')!=m['source_compatibility'] or a.get('continuation_fingerprints')!=m['fingerprints']:
             raise PermissionError('final admission lacks exact continuation bindings')
+        if m.get('generation2'):
+            expected={k:m['generation2'][k] for k in ('base_continuation','donor2_config','donor2_source_manifest','donor2_admission','donor2_validation','donor2_baseline','base_baseline')}
+            if a.get('continuation_generation2')!=expected:raise PermissionError('final admission lacks exact two-donor lineage')
     return identity(p)
 
 class ExecutionValidator:

@@ -145,7 +145,7 @@ def tile_coordinates(shape, patch_size):
 
 def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
             workers=4, seed=1234, patch_size=1024, origin=(0, 0), cfg=None,
-            node=None, interrupt_after=None, allowed_root=None, dependency_context=None, callback=None, lock_fds=(), continuation_cfg=None):
+            node=None, interrupt_after=None, allowed_root=None, dependency_context=None, callback=None, lock_fds=(), continuation_cfg=None, index_validation=None):
     """Resumable native/P2 stages. The caller owns the formal resource lock.
 
     interrupt_after is an admission-only deterministic fault injector. Progress
@@ -184,6 +184,9 @@ def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
     if not np.array_equal(_NUC, full[oy:oy+_NUC.shape[0], ox:ox+_NUC.shape[1]]):
         raise ValueError('cropped nuclei differ from complete global nuclear raster')
     _INDEX = FullNucleusIndex(full) if rule == 'P2' else None
+    if index_validation is not None:
+        from .nucleus_validation import commit
+        commit(_INDEX, out, dep, index_validation, callback)
     size, hs, ws, coords = tile_coordinates(_PRE.shape, patch_size)
     tasks = [(y, x, size, str(out/f'tile_{y}_{x}.tif'),
               dict(base=dep, coords=[y, x], shape=list(_PRE[y:y+size, x:x+size].shape)), native_pred)
@@ -357,12 +360,14 @@ def produce(cfg,manifest,callback=None,lock_fds=()):
     from .common import dependencies,write_receipt,check_receipt,atomic
     import shutil
     parent=manifest['endpoints']['MORPH_SIMPLE_FUSION'];out=within(cfg['run_root'],'endpoints/P2_SIMPLE')
-    replay=within(cfg['run_root'],'replay/SIMPLE_NATIVE')
-    check_receipt(replay/'complete.json',dependencies(cfg,'05'),cfg['run_root'])
-    pred=out/'predictions';dep=dependencies(cfg,'P2_SIMPLE_POSTPROCESS')
+    from .continuation import native_replay_root
+    from .nucleus_validation import contract
+    replay=native_replay_root(cfg)
+    pred=out/'predictions';dep=dependencies(cfg,'06')
     result=process(parent['pre'],parent['nuclei'],parent['nuclei'],pred,'P2',native_pred=replay/'predictions',
                    workers=cfg['resources']['p2_workers'],allowed_root=cfg['run_root'],dependency_context=dep,
-                   callback=callback,lock_fds=lock_fds)
+                   callback=callback,lock_fds=lock_fds,
+                   continuation_cfg=cfg if cfg.get('continuation') else None,index_validation=contract(cfg))
     validate_process(pred)
     dest=out/'final.tif'
     if dest.exists():

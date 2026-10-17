@@ -66,7 +66,9 @@ def transfer_diagnostics(cfg, node, pred, native_pred, machine, matrix, *, origi
     tables = []
     total_proposals = 0
     for y, x in coords:
-        with np.load(pred/'postprocess'/f'tile_{y}_{x}_diagnostics.npz') as z:
+        from .p2 import verify_record
+        tile_record=verify_record(pred/'postprocess'/f'tile_{y}_{x}.json')
+        with np.load(tile_record['outputs']['diagnostics']['path']) as z:
             count = z['proposal_count']
             total_proposals += int(count[:ymax[y]-y, :xmax[x]-x].sum(dtype=np.uint64))
             resolution = z['conflict_resolution']

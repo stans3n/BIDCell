@@ -49,12 +49,15 @@ def _bound_json(item):
     return value
 
 
-def approved_repair():
+def approved_repair(cfg=None):
     check_identity(dict(path=str(REPAIR_PLAN),sha256=REPAIR_PLAN_SHA))
     check_identity(dict(path=str(REPAIR_AUDIT),sha256=REPAIR_AUDIT_SHA))
     a=read(REPAIR_AUDIT)
     if a.get('decision')!='PASS_FOR_REPAIR_IMPLEMENTATION' or a.get('open_blockers')!=[]:
         raise PermissionError('repair plan has no root implementation approval')
+    if cfg and cfg.get('continuation') and manifest(cfg).get('generation2'):
+        from .continuation2 import approved
+        approved()
 
 
 def manifest(cfg):
@@ -64,6 +67,9 @@ def manifest(cfg):
     p=within(cfg['run_root'],'configs/continuation.json')
     if item['path']!=str(p):raise ValueError('continuation manifest location differs')
     m=_bound_json(item)
+    if m.get('schema')=='rep1-triple-simple-continuation-v2':
+        from .continuation2 import expand
+        m=expand(cfg,m)
     if m.get('schema')!=SCHEMA or m.get('target_run_id')!=cfg['run_id'] or m.get('target_run_root')!=cfg['run_root']:
         raise ValueError('continuation target identity differs')
     if m['new_source_digest']!=cfg['source_digest'] or m['new_source_commit']!=cfg['source_commit']:
@@ -76,6 +82,21 @@ def manifest(cfg):
     return m
 
 
+def fingerprint_paths(m):
+    if m.get('generation2'):
+        from .continuation2 import fingerprints
+        return fingerprints(m)
+    return _bound_json(m['fingerprints'])['paths']
+
+
+def evidence_items(m):
+    result=[m[k] for k in ('donor_config','donor_source_manifest','donor_admission','donor_validation','split_validation','repair_plan','repair_plan_audit','source_compatibility','fingerprints')]
+    if m.get('generation2'):
+        from .continuation2 import evidence_items as additional
+        result+=additional(m)
+    return result
+
+
 def verify(cfg, all_fingerprints=True):
     m=manifest(cfg)
     for key in ('donor_config','donor_source_manifest','donor_admission','donor_validation','split_validation','repair_plan','repair_plan_audit','source_compatibility','fingerprints'):
@@ -83,7 +104,7 @@ def verify(cfg, all_fingerprints=True):
         if key in ('repair_plan','repair_plan_audit'):check_identity(item)
         else:_bound_json(item)
     if all_fingerprints:
-        for path,expected in _bound_json(m['fingerprints'])['paths'].items():
+        for path,expected in fingerprint_paths(m).items():
             if fingerprint(path)!=expected:raise ValueError('adopted producer mutation fingerprint drift: '+path)
     return m
 
@@ -110,19 +131,30 @@ def validate_adopted_stage(cfg,stage):
     """Use already completed full semantic validation, never a filename check."""
     from .contracts import STAGES
     m=manifest(cfg)
-    if stage not in ('01','02','03','04'):raise ValueError('stage not authorized for adoption')
+    if stage not in m['stages']:raise ValueError('stage not authorized for adoption')
     p=within(cfg['run_root'],STAGES[stage]['required_receipt']);r=read(p)
-    if r.get('schema')!=SCHEMA or r.get('status')!='succeeded' or r.get('dependencies')!=dependencies(cfg,stage) or r.get('adopted') is not True:
+    if r.get('schema')!=SCHEMA or r.get('status')!='succeeded' or r.get('dependencies')!=dependencies(cfg,stage) or r.get('adopted') is not True or r.get('recomputed') is not False:
         raise ValueError('adoption wrapper identity differs')
     expected=m['stages'][stage]
     if r.get('original_producer')!=expected or r.get('continuation')!=cfg['continuation'] or r.get('reused_from')!=expected['receipt']:
         raise ValueError('adoption wrapper producer differs')
+    if r.get('outputs')!={'original_receipt':expected['receipt']}:raise ValueError('adoption wrapper output authorization differs')
     # ExecutionValidator checks the whole fingerprint set at each boundary.
     # These narrow checks also make direct read-only stage validation fail closed.
-    fps=_bound_json(m['fingerprints'])['paths']
-    for obj in (expected['receipt'],m['donor_config'],m['donor_validation']):
+    fps=fingerprint_paths(m)
+    for obj in (expected['receipt'],expected.get('config',m['donor_config']),expected['semantic_validation']):
         if fingerprint(obj['path'])!=fps[obj['path']]:raise ValueError('adopted stage producer drift')
     return r
+
+
+def native_replay_root(cfg):
+    if cfg.get('continuation') and manifest(cfg).get('generation2'):
+        validate_adopted_stage(cfg,'05')
+        return Path(manifest(cfg)['stages']['05']['receipt']['path']).parent
+    from .common import check_receipt
+    root=within(cfg['run_root'],'replay/SIMPLE_NATIVE')
+    check_receipt(root/'complete.json',dependencies(cfg,'05'),cfg['run_root'])
+    return root
 
 
 def install_stages(cfg):
@@ -160,7 +192,7 @@ def partition_authorization(cfg, source, target, deps, binding):
     if any(deps.get(k)!=dependencies(cfg,'unused')[k] for k in ('config_digest','run_id','source_digest','input_digest','domain_digest','plan_digest')):
         raise ValueError('continuation partition current consumer dependencies differ')
     if _partition_files(source,old)!=entry['files']:raise ValueError('partition output mapping differs')
-    fps=_bound_json(m['fingerprints'])['paths']
+    fps=fingerprint_paths(m)
     for item in (entry['receipt'],*entry['files'].values()):
         if fingerprint(item['path'])!=fps[item['path']]:raise ValueError('continuation partition content changed')
     return entry,old
@@ -216,7 +248,7 @@ def read_data(path):
         if rel in entry['files']:
             if p.exists() or p.is_symlink():raise ValueError('read-only referenced data shadowed by local file')
             result=Path(entry['files'][rel]['path'])
-            if fingerprint(result)!=_bound_json(m['fingerprints'])['paths'][str(result)]:raise ValueError('referenced leaf changed')
+            if fingerprint(result)!=fingerprint_paths(m)[str(result)]:raise ValueError('referenced leaf changed')
             return result
         if rel in ('complete.json','initial_reuse.json','.data-reference.json') or (r['receipt_name']=='initial_reuse.json' and p.relative_to(parent).parts[0]=='structure'):
             return p
@@ -231,6 +263,9 @@ def reused_bytes(cfg):
 
 def adopt_tiles(cfg,dep,out,tasks):
     from .p2 import record,verify_record
+    if dep.get('rule')=='P2':
+        from .continuation2 import adopt_tiles as adopt_p2
+        return adopt_p2(cfg,dep,out,tasks)
     m=manifest(cfg);partial=m['partial_replay'];oldbase=partial['tile_base']
     if dep.get('run')!=dependencies(cfg,'05') or dep.get('rule')!='B' or Path(out)!=within(cfg['run_root'],'replay/SIMPLE_NATIVE/predictions/postprocess'):
         raise ValueError('partial replay adoption requires current stage05 native producer')
@@ -239,7 +274,7 @@ def adopt_tiles(cfg,dep,out,tasks):
     if len(tasks)!=len(partial['tile_receipts']):raise ValueError('partial replay tile geometry/coverage differs')
     oldtiles={tuple(read(item['path'])['coords']):item for item in partial['tile_receipts']}
     if len(oldtiles)!=len(tasks):raise ValueError('duplicate donor tile coordinates')
-    fps=_bound_json(m['fingerprints'])['paths']
+    fps=fingerprint_paths(m)
     for y,x,size,dest,tiledep,native_pred in tasks:
         item=oldtiles.get((y,x))
         if item is None or fingerprint(item['path'])!=fps[item['path']]:raise ValueError('unapproved donor tile')
@@ -256,6 +291,10 @@ def adopt_tiles(cfg,dep,out,tasks):
 
 def adopt_split(cfg,dep,splitdir,splitdeps,ids):
     from .p2 import record,verify_record
+    if dep.get('rule')=='P2':
+        if dep.get('run')!=dependencies(cfg,'06') or not manifest(cfg).get('generation2'):
+            raise ValueError('new P2 splits require current stage06 continuation')
+        return # No old P2 split exists; every P2 split is computed normally.
     m=manifest(cfg);partial=m['partial_replay']
     expected_ids=partial['split_id_digest']
     if dep.get('run')!=dependencies(cfg,'05') or len(ids)!=partial['split_id_count'] or expected_ids.get('encoding')!='canonical-json-sha256' or digest(ids)!=expected_ids['sha256']:
@@ -299,11 +338,19 @@ def source_compatibility(old_root,new_root):
         ("verify_record(receipt,d)['outputs']['split']","identity(dest)"))}
     class EnvelopeOnly(ast.NodeTransformer):
         def visit_FunctionDef(self,node):
-            pairs=[(a,d) for a,d in zip(node.args.kwonlyargs,node.args.kw_defaults) if a.arg!='continuation_cfg']
+            pairs=[(a,d) for a,d in zip(node.args.kwonlyargs,node.args.kw_defaults) if a.arg not in ('continuation_cfg','index_validation')]
             node.args.kwonlyargs=[a for a,d in pairs];node.args.kw_defaults=[d for a,d in pairs]
             return self.generic_visit(node)
         def visit_If(self,node):
-            if ast.unparse(node.test)=='continuation_cfg is not None':return None
+            if ast.unparse(node.test)=='continuation_cfg is not None':
+                allowed=("from .continuation import adopt_tiles\nadopt_tiles(continuation_cfg, dep, out, tasks)",
+                         "from .continuation import adopt_split\nadopt_split(continuation_cfg, dep, splitdir, splitdeps, check)")
+                if any(ast.dump(ast.Module(body=node.body,type_ignores=[]),include_attributes=False)==ast.dump(ast.parse(text),include_attributes=False) for text in allowed) and not node.orelse:return None
+                raise ValueError('unreviewed continuation hook body')
+            if ast.unparse(node.test)=='index_validation is not None':
+                text='from .nucleus_validation import commit\ncommit(_INDEX, out, dep, index_validation, callback)'
+                if ast.dump(ast.Module(body=node.body,type_ignores=[]),include_attributes=False)==ast.dump(ast.parse(text),include_attributes=False) and not node.orelse:return None
+                raise ValueError('unreviewed nuclear validation hook body')
             if ast.unparse(node.test)=='dependency_context is not None' and len(node.body)==1 and isinstance(node.body[0],ast.Assign) and ast.unparse(node.body[0].targets[0])=="d['run']":return None
             return self.generic_visit(node)
         def visit_Assign(self,node):
@@ -315,11 +362,32 @@ def source_compatibility(old_root,new_root):
     def process_tree(root,normalize):
         tree=next(n for n in ast.parse((root/'scripts/rep1_triple_simple_boundary/p2.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='process')
         return ast.dump(EnvelopeOnly().visit(tree) if normalize else tree,include_attributes=False)
-    old_process,new_process=process_tree(old_root,False),process_tree(new_root,True)
+    old_process,new_process=process_tree(old_root,True),process_tree(new_root,True)
     if old_process!=new_process:raise ValueError('process numerical/order/cleanup kernel changed beyond explicit envelope and verified input readers')
+    class DiagnosticReaderOnly(ast.NodeTransformer):
+        def visit_ImportFrom(self,node):
+            if ast.unparse(node) in ('from .p2 import verify_record','from .continuation import frozen_root'):return None
+            return self.generic_visit(node)
+        def visit_BinOp(self,node):
+            if ast.unparse(node)=="frozen_root(cfg) / 'cells.csv'":
+                return expression("Path(cfg['run_root'])/'frozen_domain/cells.csv'")
+            return self.generic_visit(node)
+        def visit_Assign(self,node):
+            if ast.unparse(node)=="tile_record = verify_record(pred / 'postprocess' / f'tile_{y}_{x}.json')":return None
+            return self.generic_visit(node)
+        def visit_Subscript(self,node):
+            if ast.unparse(node)=="tile_record['outputs']['diagnostics']['path']":
+                return expression("pred/'postprocess'/f'tile_{y}_{x}_diagnostics.npz'")
+            return self.generic_visit(node)
+    def diagnostics_tree(root):
+        tree=ast.parse((root/'scripts/rep1_triple_simple_boundary/p2_diagnostics.py').read_text())
+        return ast.dump(DiagnosticReaderOnly().visit(tree),include_attributes=False)
+    old_diag,new_diag=diagnostics_tree(old_root),diagnostics_tree(new_root)
+    if old_diag!=new_diag:raise ValueError('P2 diagnostics changed beyond the verified tile payload reader')
     return dict(schema='rep1-triple-simple-source-compatibility-v1',unchanged_kernels=unchanged,
         exact_AST_functions=functions,process_kernel_AST_sha256=digest(old_process),
-        process_normalizations=['remove continuation-only adoption hooks','replace verified tile/split output readers with original output locations','remove explicit split run envelope'],
+        diagnostics_kernel_AST_sha256=digest(old_diag),
+        process_normalizations=['remove exact continuation-only adoption hooks','remove exact full-index numerical validation hook','replace verified tile/split output readers with original output locations','remove explicit split run envelope'],
         adapter_original=identity(old_root/'scripts/rep1_triple_simple_boundary/p2.py'),
         adapter_current=identity(new_root/'scripts/rep1_triple_simple_boundary/p2.py'),
         scope='Numerical kernels unchanged; explicit receipt/source/reader adaptations require independent full commit review')
