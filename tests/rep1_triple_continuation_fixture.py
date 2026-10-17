@@ -29,12 +29,17 @@ def worker(config,fds):
     def load(path):
         if str(Path(path))!=expected['path'] or identity(path)!=expected:raise ValueError('fixture config changed')
         return cfg
-    class Validator:
+    class Validator(ex.ExecutionValidator):
         def __init__(self,cfg,fds):
             self.cfg,self.fds=cfg,fds;self.admission=identity(root/'admission/not_formal.json')
-            ex.verify_snapshot(cfg);self()
-        def __call__(self):
-            rt.check_fds(self.cfg,self.fds);c.verify(self.cfg);ex.module_origins(self.cfg['source_snapshot']);load(config)
+            ex.verify_snapshot(cfg);c.verify(cfg);load(config)
+            proof=root/'admission/fixture_mutation_set.json';self.expected=read(proof)['paths']
+            self.extra=ex.fingerprints([proof,self.admission['path']]);times=[]
+            for _ in range(3):
+                start=time.monotonic();super().__call__();times.append(time.monotonic()-start)
+            atomic_json(root/'admission/actual_validator_cost.json',dict(seconds=times,paths=len(self.expected),
+                implementation='Actual ExecutionValidator.__call__, real locks and module origins; engineering constructor instead of formal admission',
+                mutation_set=identity(proof)))
     def run_stage(cfg,stage,progress=None,lock_fds=(),validate_execution=None,compute_authorization=None):
         assert stage=='05';validate_execution();manifest=inputs.load_inputs(cfg);parent=manifest['endpoints']['MORPH_SIMPLE_FUSION']
         p2.process(parent['pre'],parent['nuclei'],parent['nuclei'],root/'replay/SIMPLE_NATIVE/predictions','B',
@@ -60,6 +65,12 @@ def assemble(root):
         stage_order=list(contracts.STAGE_ORDER),python=ex.PYTHON,rscript=ex.RSCRIPT)
     atomic_json(root/'configs/run.json',cfg);c.install_stages(cfg);atomic_json(root/'state.json',rt.new_state(cfg))
     atomic_json(root/'admission/not_formal.json',dict(approved_for_formal_launch=False,engineering_only=True,config_digest=digest(cfg)))
+    m=c.manifest(cfg);old=read(c.DONOR/'admission/preflight.json')
+    paths=set(old['fingerprints'])|set(read(m['fingerprints']['path'])['paths'])
+    paths.update(str(p) for p in (root/'source_snapshot').rglob('*'))
+    paths.update((str(root/'source_snapshot'),str(root/'source_manifest.json'),str(root/'configs/run.json'),cont['path'],m['source_compatibility']['path'],m['fingerprints']['path']))
+    atomic_json(root/'admission/fixture_mutation_set.json',dict(paths=ex.fingerprints(paths),
+        scope='Complete original input/domain/environment closure plus adopted scientific closure and actual new source/config/continuation proofs; formal preparation/admission objects do not exist in this engineering fixture'))
     atomic_json(root/'admission/build_measurement.json',dict(seconds=elapsed,continuation=cont,source_files=ex.source_files()))
     return cfg
 
@@ -145,6 +156,7 @@ def suite(root):
         assert Path(progress['witness']['path']).name=='000128.json' and not receipt.get('reused_from')
         assert progress['sequence']==1 and progress['progress']['cursor']==256 and seconds<=120
         checks['first_genuine_new_split_seconds']=seconds
+        checks['actual_full_validator']=read(root/'admission/actual_validator_cost.json')
         checks['adopted48tiles_and_first128IDs_not_counted_as_progress']=True
         assert 'admission interruption after splits' in (root/'logs/bounded_native_worker.log').read_text()
         # Recompute receipt integrity around wrong envelopes: witness must still
