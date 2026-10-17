@@ -74,8 +74,23 @@ def fsync_dir(path):
         os.close(fd)
 
 
+def writable_path(path):
+    """A data reference never grants write access to its original producer."""
+    p=Path(path).absolute()
+    donor=Path('/home/zwan0726/work/outputs/bidcell_rep1_triple_simple_boundary_20261017/rep1-triple-simple-boundary-20261017-r01')
+    if p==donor or donor in p.parents:raise PermissionError('historical continuation producer is read-only')
+    for parent in (p,*p.parents):
+        if parent.is_symlink():raise PermissionError('scientific write through symlink forbidden')
+        ref=parent/'.data-reference.json'
+        if ref.is_file():
+            rel=p.relative_to(parent);obj=read(ref)
+            if str(rel) not in ('complete.json','initial_reuse.json','.data-reference.json') and not (obj.get('receipt_name')=='initial_reuse.json' and rel.parts[0]=='structure'):
+                raise PermissionError('referenced partition leaf is read-only')
+    return p
+
+
 def atomic(path, writer, binary=True):
-    path = Path(path)
+    path = writable_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix='.' + path.name + '.', dir=path.parent)
     try:
@@ -124,7 +139,7 @@ def atomic_tiff(path, array):
     array = np.asarray(array)
     if array.ndim != 2 or array.dtype != np.dtype(np.uint32):
         raise ValueError('atomic TIFF requires a two-dimensional uint32 mask')
-    path = Path(path)
+    path = writable_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix='.' + path.name + '.', suffix='.tif', dir=path.parent)
     os.close(fd)
@@ -218,7 +233,7 @@ def resume_chunk(path, deps):
     return check_receipt(path, deps) if Path(path).exists() else None
 
 
-def reuse_partition(source, target, deps, binding, receipt_name='complete.json'):
+def reuse_partition(source, target, deps, binding, receipt_name='complete.json', *, cfg=None):
     """Validate an immutable scientific producer and install a later consumer.
 
     Hard links keep both named products without duplicating scientific data.
@@ -229,6 +244,9 @@ def reuse_partition(source, target, deps, binding, receipt_name='complete.json')
     source,target=Path(source),Path(target)
     old=check_receipt(source/'complete.json')
     invariant=('config_digest','source_digest','input_digest','domain_digest','plan_digest')
+    if any(old['dependencies'].get(k)!=deps.get(k) for k in invariant) and cfg is not None and cfg.get('continuation'):
+        from .continuation import reuse_partition as adopt_partition
+        return adopt_partition(cfg,source,target,deps,binding,receipt_name)
     if any(old['dependencies'].get(k)!=deps.get(k) for k in invariant) or old.get('reuse_binding')!=safe(binding):
         raise ValueError('scientific producer partition is incompatible with consumer')
     target.mkdir(parents=True,exist_ok=True)

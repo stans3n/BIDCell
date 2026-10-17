@@ -1,4 +1,5 @@
 """Parent/BASE paired evidence required before a new FULL_EVALUATE receipt."""
+from .continuation import frozen_root
 from pathlib import Path
 import importlib
 import numpy as np
@@ -54,7 +55,7 @@ def validate(cfg,manifest,name,specs=None,require_complete=True):
     fixed=pd.read_csv(manifest['fixed_population']).cell_id.to_numpy(np.int64)
     tables={m:populations.endpoint_scores(s,fixed) for m,s in specs.items()}
     frames={m:bt.endpoint_frame(cfg,manifest,s) for m,s in specs.items()}
-    frozen=Path(cfg['run_root'])/'frozen_domain';gf=np.load(frozen/'cell_groups.npz');groups={k:gf[k] for k in gf.files}
+    frozen=frozen_root(cfg);gf=np.load(frozen/'cell_groups.npz');groups={k:gf[k] for k in gf.files}
     reference=bt.checked_ids(pd.read_csv(frozen/'cells.csv'),'paired fixed nuclear reference');target=frozen/'bt_targets'
     check_receipt(target/'complete.json');records=[]
     for candidate,control in pairs:

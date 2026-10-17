@@ -92,11 +92,13 @@ def matrix_evidence(spec, expected_cells=N_CELLS, expected_genes=N_GENES, expect
 
 def new_spec(cfg,name):
     if name not in NEW:raise ValueError('new endpoint outside authorized four')
-    root=within(cfg['run_root'],'endpoints',name)
+    from .continuation import endpoint_root,producer_cfg
+    root=endpoint_root(cfg,name);producer=producer_cfg(cfg,name)
     return dict(name=name,root=str(root),machine=str(root/'machine.json'),matrix=str(root/'matrix'),
                 evaluation=str(root/'evaluation'),final=str(root/'final.tif'),
                 sc_scores=str(root/'evaluation/paper_aligned_v1/markers_per_cell.csv'),
-                fixed_scores=str(root/'evaluation/fixed/fixed_population.csv'))
+                fixed_scores=str(root/'evaluation/fixed/fixed_population.csv'),
+                producer_config_digest=digest(producer),execution_config_digest=digest(cfg))
 
 def resolve_parent(cfg,manifest,endpoint):
     if endpoint not in NEW:raise ValueError('unrecognized new endpoint')
@@ -248,6 +250,10 @@ def load_manifest(path,verify=True):
     return obj
 
 def load_inputs(cfg,verify=True):
+    if cfg.get('continuation') and verify:
+        from .continuation import verify as verify_continuation
+        verify_continuation(cfg)
+        verify=False
     obj=load_manifest(cfg['input_manifest'],verify)
     if digest(obj)!=cfg['input_digest']:raise ValueError('config/input digest mismatch')
     return obj

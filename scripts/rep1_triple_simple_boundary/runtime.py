@@ -70,7 +70,9 @@ def load_config(path):
     if any(k in cfg for k in ('fixture','fixture_backend','engineering_fixture','fake_backend','test_mode')):raise ValueError('formal configuration rejects fixture options')
     science.config_check(cfg)
     if cfg['python']!=ex.PYTHON or cfg['rscript']!=ex.RSCRIPT or cfg.get('r_libs_user')!=str(ex.R_LIBRARY) or cfg.get('r_libs_site')!='':raise ValueError('fixed interpreter/library mismatch')
-    for k,p in dict(source_snapshot=root/'source_snapshot',input_manifest=root/'configs/inputs_manifest.json',domain_manifest=root/'frozen_domain/complete.json',comparison_manifest=root/'configs/comparisons.json').items():
+    locations=dict(source_snapshot=root/'source_snapshot',input_manifest=root/'configs/inputs_manifest.json',comparison_manifest=root/'configs/comparisons.json')
+    if not cfg.get('continuation'):locations['domain_manifest']=root/'frozen_domain/complete.json'
+    for k,p in locations.items():
         if cfg[k]!=str(p):raise ValueError('immutable location mismatch: '+k)
     if cfg.get('no_ai_dependency') is not True or cfg.get('auto_ai_wakeup') is not False or cfg.get('publication_manual_resume_required') is not True:raise ValueError('compute/publication/AI boundary drift')
     r=cfg['resources']
@@ -144,10 +146,12 @@ def allocations(cfg):
         sizes[category]+=s.st_blocks*512
     return sizes
 def forecast(cfg,stage_start=False):
-    r=cfg['resources'];used=allocations(cfg);remaining={k:max(0,v-used[k]) for k,v in r['retained_bytes'].items()};shared=max(0,r['shared_bytes']-used['shared']);free=shutil.disk_usage(cfg['run_root']).free;mem=memory_available();sample=pss(cfg)
+    from .continuation import reused_bytes
+    r=cfg['resources'];used=allocations(cfg);credit=reused_bytes(cfg)
+    remaining={k:max(0,v-used[k]-credit[k]) for k,v in r['retained_bytes'].items()};shared=max(0,r['shared_bytes']-used['shared']-credit['shared']);free=shutil.disk_usage(cfg['run_root']).free;mem=memory_available();sample=pss(cfg)
     required=sum(remaining.values())+shared+r['temporary_peak_bytes']+r['reserve_bytes']
     ram_ok=mem+sample['pss_bytes']>=r['ram_allowance_bytes']+r['ram_reserve_bytes'] if stage_start else mem>=r['ram_reserve_bytes'] and sample['pss_bytes']<=r['ram_allowance_bytes']
-    return dict(time=utc(),used_allocated_unique_bytes=used,remaining_retained_bytes=remaining,shared_remaining_bytes=shared,free_bytes=free,required_free_bytes=required,temporary_additional_bytes=r['temporary_peak_bytes'],reserve_bytes=r['reserve_bytes'],memory_available_bytes=mem,owned_tree=sample,stage_start=stage_start,admitted=free>=required and ram_ok)
+    return dict(time=utc(),used_allocated_unique_bytes=used,validated_external_logical_reuse_bytes=credit,external_reuse_is_not_freed_disk=True,remaining_retained_bytes=remaining,shared_remaining_bytes=shared,free_bytes=free,required_free_bytes=required,temporary_additional_bytes=r['temporary_peak_bytes'],reserve_bytes=r['reserve_bytes'],memory_available_bytes=mem,owned_tree=sample,stage_start=stage_start,admitted=free>=required and ram_ok)
 class ResourceGuard:
     def __init__(self,cfg):self.cfg=cfg;self.last=0;self.saved=None
     def __call__(self,start=False):
@@ -166,10 +170,10 @@ def worker_command(cfg,path,stage,attempt,fds):return bootstrap_command(cfg,'_wo
 def execution_validator(cfg,fds):return ex.ExecutionValidator(cfg,fds)
 def resource_contract():
     return dict(p2_workers=4,retained_bytes=dict(gt=int(4.5*GIB),p2_replay=int(5.5*GIB),analysis=15*GIB),shared_bytes=2*GIB,temporary_peak_bytes=4*GIB,reserve_bytes=15*GIB,ram_allowance_bytes=22*GIB,ram_reserve_bytes=6*GIB,heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900)
-def domain_cardinalities(root):
+def domain_cardinalities(root,frozen=None):
     import numpy as np,pandas as pd
     from .local_statistics import spatial_masks
-    frozen=Path(root)/'frozen_domain';groups=np.load(frozen/'cell_groups.npz');cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
+    frozen=Path(frozen) if frozen is not None else Path(root)/'frozen_domain';groups=np.load(frozen/'cell_groups.npz');cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
     local=len(groups.files)+sum(cells.groupby(['original_type',field],dropna=False).ngroups for field in ('block_500','block_1000','block_2000','RNA_density_quartile','nuclear_crowding_quartile'))
     empty={k:np.empty(0,np.int64) for k in ('BASE_owner','region_bits','competition_type','interface_type','K','local_density','single_unknown')}
     actual=dict(cell_groups=len(groups.files),local_groups=local,spatial_groups=len(list(spatial_masks(empty,cells))),interface_groups=len(groups.files)+4)
@@ -182,14 +186,23 @@ def domain_cardinalities(root):
     if not obj['within_measured_bounds']:raise RuntimeError('frozen cardinalities exceed measured resource projection; new review required')
     return obj
 
-def prepare(output_root,run_id,plans_manifest):
+def prepare(output_root,run_id,plans_manifest,donor_validation=None,split_validation=None,donor_baseline=None):
     if Path(output_root).resolve()!=ex.OUTPUT or Path(plans_manifest).resolve()!=ex.PLAN or not re.fullmatch(r'rep1-triple-simple-boundary-20261017-r[0-9]{2,}',run_id):raise ValueError('unauthorized preparation path')
     if ex.git('branch','--show-current')!=ex.BRANCH or ex.git('status','--porcelain','--untracked-files=all'):raise ValueError('prepare requires clean committed authorized branch')
-    commit=ex.git('rev-parse','HEAD');audit=ex.preparation_audit(commit);root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
+    recovery=any(x is not None for x in (donor_validation,split_validation,donor_baseline))
+    if recovery and not all(x is not None for x in (donor_validation,split_validation,donor_baseline)):raise ValueError('continuation requires full donor, numeric split and baseline proofs')
+    commit=ex.git('rev-parse','HEAD');audit=ex.preparation_audit(commit,recovery=recovery);root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
     for name in ('configs','control','logs','admission','tmp','cache/matplotlib','cache/numba'):(root/name).mkdir(parents=True,exist_ok=True)
-    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(),preparation_audit=audit,resource_proposal=identity(ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
+    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(),preparation_audit=audit,resource_proposal=identity(ex.RECOVERY_RESOURCE if recovery else ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
+    if recovery:partial['continuation_request']=dict(donor_validation=identity(donor_validation),split_validation=identity(split_validation),baseline=identity(donor_baseline))
     with ExitStack() as stack:
-        fds=tuple(stack.enter_context(lock(p)) for p in paths(partial));ResourceGuard(partial)(True);source=ex.copy_snapshot(root,commit)
+        fds=tuple(stack.enter_context(lock(p)) for p in paths(partial))
+        if recovery:
+            # Only the bounded independent source/proof preparation precedes the
+            # full remaining-work gate; no scientific production runs here.
+            if shutil.disk_usage(root).free<partial['resources']['reserve_bytes']+partial['resources']['shared_bytes']:raise RuntimeError('insufficient source/proof preparation space')
+        else:ResourceGuard(partial)(True)
+        source=ex.copy_snapshot(root,commit)
         partial.update(source_snapshot=source['snapshot_root'],source_commit=commit,source_digest=source['source_digest'])
         params=root/'control/preparation.json';atomic_json(params,partial)
         atomic_json(root/'control/preparation_binding.json',dict(params=identity(params),source_manifest=identity(root/'source_manifest.json')))
@@ -207,7 +220,9 @@ def resume_prepare(params):
         fds=tuple(stack.enter_context(lock(p,False)) for p in paths(partial));ex.verify_preparation(partial,params)
         if (root/'admission/final.json').exists():raise PermissionError('admitted run cannot resume preparation')
         for name in ('endpoints','analysis','replay','reused'):
-            if (root/name).exists():raise PermissionError('compute output exists; preparation cannot resume')
+            if (root/name).exists():
+                allowed={root/STAGES[s]['required_receipt'] for s in ('01','02','03','04')} if partial.get('continuation_request') else set()
+                if any(p not in allowed for p in (root/name).rglob('*') if p.is_file() or p.is_symlink()):raise PermissionError('compute output exists; preparation cannot resume')
         if (root/'state.json').exists():
             s=read(root/'state.json')
             if s.get('attempts') or s.get('status')!='PREPARED':raise PermissionError('formal dispatch already attempted')
@@ -217,14 +232,25 @@ def resume_prepare(params):
 def prepare_snapshot(params,fds):
     partial=read(params);check_fds(partial,fds);ex.verify_preparation(partial,params)
     root=Path(partial['run_root'])
+    if partial.get('continuation_request'):
+        from .continuation import build,manifest as continuation_manifest
+        req=partial['continuation_request'];partial=dict(partial,continuation=build(partial,req['donor_validation']['path'],req['split_validation']['path'],req['baseline']['path']))
     guard=ResourceGuard(partial);guard(True)
     from .inputs import freeze_inputs
     from .frozen_domains import freeze
     def progress(x):
         guard()
         atomic_json(root/'control/preparation_progress.json',dict(time=utc(),**x));print(json.dumps(x),flush=True)
-    manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress)
-    domain_cardinalities(root)
+    if partial.get('continuation'):
+        cm=continuation_manifest(partial);manifest=read(cm['input_manifest']['path'])
+        inputs_path=root/'configs/inputs_manifest.json'
+        if inputs_path.exists():
+            if sha256(inputs_path)!=cm['input_manifest']['sha256']:raise ValueError('adopted input manifest changed')
+        else:shutil.copyfile(cm['input_manifest']['path'],inputs_path)
+        domain_path=Path(cm['domain_manifest']['path']);domain_cardinalities(root,domain_path.parent)
+    else:
+        manifest=freeze_inputs(root,ex.INSPECTED,ex.PLAN,progress);freeze(root,manifest,partial['source_digest'],progress)
+        domain_path=root/'frozen_domain/complete.json';domain_cardinalities(root)
     def immutable_json(path,value):
         if path.exists():
             if read(path)!=value:raise ValueError('existing preparation output differs: '+str(path))
@@ -235,9 +261,12 @@ def prepare_snapshot(params,fds):
     else:shutil.copyfile(dag,comparison)
     immutable_json(root/'configs/resource_budget.json',read(check_identity(partial['resource_proposal'])))
     env=ex.environment(partial['source_snapshot'],fds,partial);immutable_json(root/'environment.json',env)
-    cfg=dict(partial,schema='rep1-triple-simple-boundary-run-v1',input_manifest=str(root/'configs/inputs_manifest.json'),input_digest=digest(manifest),domain_manifest=str(root/'frozen_domain/complete.json'),domain_digest=sha256(root/'frozen_domain/complete.json'),plan_manifest=str(ex.PLAN),plan_digest=sha256(ex.PLAN),comparison_manifest=str(root/'configs/comparisons.json'),environment_digest=digest(env),python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',stage_order=list(STAGE_ORDER),science_audit=identity(ex.SCIENCE_AUDIT),resource_budget=identity(root/'configs/resource_budget.json'),
+    cfg=dict(partial,schema='rep1-triple-simple-boundary-run-v1',input_manifest=str(root/'configs/inputs_manifest.json'),input_digest=digest(manifest),domain_manifest=str(domain_path),domain_digest=sha256(domain_path),plan_manifest=str(ex.PLAN),plan_digest=sha256(ex.PLAN),comparison_manifest=str(root/'configs/comparisons.json'),environment_digest=digest(env),python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',stage_order=list(STAGE_ORDER),science_audit=identity(ex.SCIENCE_AUDIT),resource_budget=identity(root/'configs/resource_budget.json'),
         resources=resource_contract(),preparation_params=identity(params),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
     immutable_json(root/'configs/run.json',cfg)
+    if cfg.get('continuation'):
+        from .continuation import install_stages
+        install_stages(cfg)
     if not (root/'state.json').exists():atomic_json(root/'state.json',new_state(cfg))
     else:
         s=bound_state(cfg)

@@ -1,4 +1,5 @@
 """Predefined 32 stratified ROI selections and deterministic evidence panels."""
+from .continuation import frozen_root
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -77,7 +78,7 @@ def render(cfg,manifest,specs,out,callback=None):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     deps=dependencies(cfg,'ROI_'+str(len(specs)))
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps,cfg['run_root'])
-    frozen=within(cfg['run_root'],'frozen_domain');selection=read(frozen/'roi_selection.json');info=read(frozen/'regions.json')
+    frozen=frozen_root(cfg);selection=read(frozen/'roi_selection.json');info=read(frozen/'regions.json')
     chosen=[r for r in selection['rows'] if r['selected']];masks={}
     # Retain only small crops; twelve complete mask rasters are never co-resident.
     for name,spec in specs.items():

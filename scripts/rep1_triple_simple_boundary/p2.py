@@ -145,7 +145,7 @@ def tile_coordinates(shape, patch_size):
 
 def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
             workers=4, seed=1234, patch_size=1024, origin=(0, 0), cfg=None,
-            node=None, interrupt_after=None, allowed_root=None, dependency_context=None, callback=None, lock_fds=()):
+            node=None, interrupt_after=None, allowed_root=None, dependency_context=None, callback=None, lock_fds=(), continuation_cfg=None):
     """Resumable native/P2 stages. The caller owns the formal resource lock.
 
     interrupt_after is an admission-only deterministic fault injector. Progress
@@ -188,6 +188,9 @@ def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
     tasks = [(y, x, size, str(out/f'tile_{y}_{x}.tif'),
               dict(base=dep, coords=[y, x], shape=list(_PRE[y:y+size, x:x+size].shape)), native_pred)
              for y, x in coords]
+    if continuation_cfg is not None:
+        from .continuation import adopt_tiles
+        adopt_tiles(continuation_cfg, dep, out, tasks)
     receipts = []
 
     def boundary(stage, completed, total):
@@ -208,9 +211,10 @@ def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
     canonical = np.zeros_like(seg)
     all_ids = []
     for y, x in coords:
-        tile = tifffile.imread(out/f'tile_{y}_{x}.tif')
+        tile_record = verify_record(out/f'tile_{y}_{x}.json')
+        tile = tifffile.imread(tile_record['outputs']['postislands']['path'])
         seg[y:y+size, x:x+size] = tile
-        canonical[y:y+size, x:x+size] = tifffile.imread(out/f'tile_{y}_{x}_postconnect.tif')
+        canonical[y:y+size, x:x+size] = tifffile.imread(tile_record['outputs']['postconnect']['path'])
         all_ids.extend(np.unique(tile)[np.unique(tile)>0].tolist())
     atomic_tiff(pred/'postislands_ordered_tile_merge.tif', seg)
     atomic_tiff(pred/'postconnect_canonical.tif', canonical)
@@ -228,12 +232,18 @@ def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
     splitdir = out/'splits'
     splitdir.mkdir(exist_ok=True)
     splitdeps = digest(dict(base=dep, tiles=receipts, ids=check))
+    if continuation_cfg is not None:
+        from .continuation import adopt_split
+        adopt_split(continuation_cfg, dep, splitdir, splitdeps, check)
     chunks = []
     for start in range(0, len(check), 128):
         ids = check[start:start+128]
         dest = splitdir/f'{start:06d}.npz'
         receipt = dest.with_suffix('.json')
         d = dict(base=splitdeps, ids=ids)
+        # The opaque content digest remains exact. Formal progress additionally
+        # needs the real caller's visible current config/run identity envelope.
+        if dependency_context is not None:d['run'] = dependency_context
         if receipt.exists():
             verify_record(receipt, d)
         else:
@@ -245,7 +255,7 @@ def process(pre, nuclei, full_nuclei, pred, rule, *, native_pred=None,
                 arrays[str(cid)] = split_patch(seg, _NUC, cid, box)
             atomic_npz(dest, **arrays)
             record(receipt, d, dict(split=dest))
-        chunks.append(dict(start=start, ids=ids, receipt=identity(receipt), output=identity(dest)))
+        chunks.append(dict(start=start, ids=ids, receipt=identity(receipt), output=verify_record(receipt,d)['outputs']['split']))
         boundary('splits', min(start+128, len(check)), len(check))
     # Resume always rebuilds from immutable tiles, then applies exact chunks.
     for chunk in chunks:
@@ -287,7 +297,9 @@ def validate_process(pred):
     for obj in manifest['split_chunks']:
         check_identity(obj['receipt'])
         check_identity(obj['output'])
-        verify_record(obj['receipt']['path'])
+        expected=dict(base=digest(dict(base=rec['dependencies'],tiles=manifest['tiles'],ids=manifest['split_ids'])),ids=obj['ids'])
+        if 'run' in rec['dependencies']:expected['run']=rec['dependencies']['run']
+        verify_record(obj['receipt']['path'],expected)
     nuc = tifffile.imread(rec['dependencies']['nuclei']['path'])
     final = tifffile.imread(pred/'final.tif')
     if final.dtype != np.uint32 or final.shape != nuc.shape or not np.array_equal(final[nuc > 0], nuc[nuc > 0]):
@@ -330,7 +342,8 @@ def run_replay(cfg,manifest,callback=None,lock_fds=()):
                    parent_endpoint='MORPH_SIMPLE_FUSION',production_kind='native_disabled_replay')
     atomic_json(out/'machine.json',machine)
     process(parent['pre'],parent['nuclei'],parent['nuclei'],pred,'B',workers=cfg['resources']['p2_workers'],
-            allowed_root=cfg['run_root'],dependency_context=dep,callback=callback,lock_fds=lock_fds)
+            allowed_root=cfg['run_root'],dependency_context=dep,callback=callback,lock_fds=lock_fds,
+            continuation_cfg=cfg if cfg.get('continuation') else None)
     validate_process(pred)
     a=tifffile.imread(pred/'final.tif');b=tifffile.imread(parent['final'])
     if a.dtype!=b.dtype or a.shape!=b.shape or not np.array_equal(a,b):raise ValueError('FULL Simple native replay final differs')

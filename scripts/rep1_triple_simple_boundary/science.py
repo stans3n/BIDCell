@@ -14,7 +14,11 @@ def config_check(cfg):
     if cfg.get('schema')!=CONFIG_SCHEMA or any(not cfg.get(k) for k in required):raise ValueError('science config schema/frozen identity fields missing')
     if cfg.get('stage_order')!=list(STAGE_ORDER):raise ValueError('compute stage order/scope drift')
     if not Path(cfg['run_root']).is_absolute():raise ValueError('run root must be absolute')
-    for key in ('source_snapshot','input_manifest','domain_manifest','comparison_manifest'):within(cfg['run_root'],cfg[key])
+    for key in ('source_snapshot','input_manifest','comparison_manifest'):within(cfg['run_root'],cfg[key])
+    if cfg.get('continuation'):
+        from .continuation import manifest
+        manifest(cfg)
+    else:within(cfg['run_root'],cfg['domain_manifest'])
     if sha256(cfg['comparison_manifest'])!=DAG_SHA256:raise ValueError('comparison DAG differs from root-approved bytes')
     if sha256(cfg['plan_manifest'])!=cfg['plan_digest']:raise ValueError('plan digest mismatch')
     if cfg['resources'].get('p2_workers') not in (1,2,4):raise ValueError('P2 frozen worker count must be 1,2 or4')
@@ -47,6 +51,9 @@ def _validate_production(cfg,name,stage,manifest):
 
 def validate_stage(cfg,stage,manifest=None):
     cfg=read(cfg) if isinstance(cfg,(str,Path)) else cfg;config_check(cfg);stage=normalize_stage(stage)
+    if cfg.get('continuation') and stage in ('01','02','03','04'):
+        from .continuation import validate_adopted_stage
+        return validate_adopted_stage(cfg,stage)
     manifest=manifest or load_inputs(cfg,verify=False)
     rec=check_receipt(receipt_path(cfg,stage),output_root=cfg['run_root'])
     if rec['dependencies'].get('config_digest')!=digest(cfg):raise ValueError('stage config identity mismatch')
@@ -117,7 +124,8 @@ def analyze(cfg,manifest,phase,callback=None):
     methods=DAG['initial_methods9'] if phase=='initial' else list(METHODS)
     specs={m:manifest['endpoints'][m] if m in EXISTING else new_spec(cfg,m) for m in methods}
     out=within(cfg['run_root'],'analysis',phase);stage='04' if phase=='initial' else '13';dep=dependencies(cfg,stage)
-    initial=within(cfg['run_root'],'analysis/initial') if phase=='all12' else None
+    from .continuation import initial_root
+    initial=initial_root(cfg) if phase=='all12' else None
     if initial is not None:
         from .coverage import validate_analysis
         validate_analysis(cfg,'initial',DAG['initial_methods9'])

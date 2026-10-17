@@ -7,6 +7,7 @@ from .common import require_manual_resume
 def main():
     p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
     prep=sub.add_parser('prepare');prep.add_argument('--output-root',required=True);prep.add_argument('--run-id',required=True);prep.add_argument('--plans-manifest',required=True)
+    prep.add_argument('--donor-validation');prep.add_argument('--split-validation');prep.add_argument('--donor-baseline')
     for name in ('resume-prepare','validate','launch','status','tail','complete-check','resume-compute','publication-check','_entry','_supervise','_worker','_prepare'):
         q=sub.add_parser(name);q.add_argument('--config',required=True)
         if name=='validate':q.add_argument('--admission')
@@ -18,7 +19,7 @@ def main():
         if name=='_worker':q.add_argument('--stage',required=True)
         if name in ('_worker','_prepare'):q.add_argument('--fds',required=True)
     a=p.parse_args();cmd=a.command
-    if cmd=='prepare':out=rt.prepare(a.output_root,a.run_id,a.plans_manifest)
+    if cmd=='prepare':out=rt.prepare(a.output_root,a.run_id,a.plans_manifest,a.donor_validation,a.split_validation,a.donor_baseline)
     elif cmd=='resume-prepare':out=rt.resume_prepare(a.config)
     elif cmd=='validate':out=rt.validate(a.config,a.admission)
     elif cmd=='launch':out=rt.launch(a.config)

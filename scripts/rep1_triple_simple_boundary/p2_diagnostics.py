@@ -1,4 +1,5 @@
 """Canonical (non-duplicated) pixel/molecule transfer and conflict diagnostics."""
+from .continuation import frozen_root
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -8,7 +9,7 @@ from .p2 import STAGES
 
 
 def frozen_groups(cfg):
-    table=pd.read_csv(Path(cfg['run_root'])/'frozen_domain/cells.csv').set_index('cell_id')
+    table=pd.read_csv(frozen_root(cfg)/'cells.csv').set_index('cell_id')
     table['density_quartile']=table.nuclear_crowding_quartile
     table['count_quartile']=table.BASE_count_quartile
     table['nucleus_shape_bin']=table.eccentricity_quartile

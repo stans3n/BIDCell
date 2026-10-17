@@ -28,6 +28,13 @@ CONTROLLER_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_ControllerCodeAudit_20261
 PROMPT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Boundary_LaunchPrompt_20261017.txt'
 PROMPT_SHA='07052b65e43dfcbe23ee7416db2e1ccc47dce149ef2c7fd1d3c505e81bf5e4b8'
 AUDITOR='/root/independent_code_auditor'
+RECOVERY_AUDITOR='/root/independent_code_auditor'
+RECOVERY_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery01_CodeAudit_20261017.json'
+RECOVERY_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery01_ResourceTimeRevision_20261017.json'
+
+def reviewer(cfg=None):
+    return dict(agent_id=RECOVERY_AUDITOR if cfg and (cfg.get('continuation') or cfg.get('continuation_request')) else AUDITOR,
+                model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False)
 
 def git(*args):
     return subprocess.check_output(['git','-c','core.fsmonitor=false',*args],cwd=REPO,text=True).strip()
@@ -118,22 +125,23 @@ def controlled_environment(cfg):
 
 def child_environment(cfg):return dict(os.environ,**controlled_environment(cfg))
 
-def preparation_audit(commit,records=None):
-    a=read(CONTROLLER_AUDIT)
-    reviewer=dict(agent_id=AUDITOR,model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False)
-    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=reviewer or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
+def preparation_audit(commit,records=None,recovery=False):
+    path=RECOVERY_AUDIT if recovery else CONTROLLER_AUDIT;a=read(path)
+    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=reviewer({'continuation_request':True} if recovery else None) or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
     if a.get('source_files_digest')!=digest(source_files() if records is None else records):raise PermissionError('preparation source inventory differs from code audit')
     for item in a.get('evidence',[]):check_identity(item)
-    return identity(CONTROLLER_AUDIT)
+    return identity(path)
 
 def verify_preparation(partial,params):
     root=Path(partial['run_root']);params=Path(params)
     if partial.get('schema')!='rep1-triple-simple-preparation-v1' or partial.get('resources')!=__import__(__package__+'.runtime',fromlist=['resource_contract']).resource_contract():raise ValueError('preparation contract drift')
     if params!=root/'control/preparation.json' or Path(partial['source_snapshot'])!=root/'source_snapshot':raise ValueError('preparation path mismatch')
     binding=read(root/'control/preparation_binding.json');check_identity(binding['params']);check_identity(binding['source_manifest']);check_identity(partial['preparation_audit']);check_identity(partial['resource_proposal'])
-    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(CONTROLLER_AUDIT):raise ValueError('preparation identity location drift')
+    recovery=bool(partial.get('continuation_request'))
+    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(RECOVERY_AUDIT if recovery else CONTROLLER_AUDIT):raise ValueError('preparation identity location drift')
     m=read(root/'source_manifest.json');rows=[dict(path=r['original'],bytes=r['bytes'],sha256=r['sha256'],snapshot_relative=r['relative']) for r in m['files']]
-    if preparation_audit(partial['source_commit'],rows)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
+    if preparation_audit(partial['source_commit'],rows,recovery)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
+    for item in partial.get('continuation_request',{}).values():check_identity(item)
     verify_snapshot(partial)
 
 def environment(root,lock_fds=(),cfg=None):
@@ -187,12 +195,20 @@ def verify_contracts(cfg):
     for item in read(PLAN)['files']:check_identity(item)
     s=read(check_identity(cfg['science_audit']))
     if s.get('decision')!='PASS_FOR_CONTROLLER_IMPLEMENTATION' or s.get('open_scientific_blockers')!=[]:raise ValueError('science audit not passed')
+    if cfg.get('continuation'):
+        from .continuation import approved_repair,verify
+        approved_repair();verify(cfg,False)
+        if cfg['preparation_audit']['path']!=str(RECOVERY_AUDIT):raise ValueError('recovery requires separately bound independent code audit')
 
 def immutable_paths(cfg):
     root=Path(cfg['run_root']);m=read(root/'source_manifest.json');inputs=read(cfg['input_manifest']);env=read(root/'environment.json');domain=read(cfg['domain_manifest'])
     paths=[root/'configs/run.json',root/'source_manifest.json',root/'environment.json',cfg['input_manifest'],cfg['domain_manifest'],root/'configs/resource_budget.json',root/'configs/comparisons.json',root/'admission/domain_cardinalities.json',root/'control/preparation.json',root/'control/preparation_binding.json',cfg['preparation_audit']['path'],cfg['resource_proposal']['path'],PLAN,AUDIT,PROMPT,cfg['science_audit']['path']]
     paths += [r['snapshot_path'] for r in m['files']]+[r['path'] for r in inputs['files'].values()]+[r['path'] for r in env['files']]+[r['path'] for r in domain['outputs'].values()]
     paths += [Path(cfg['source_snapshot'])]+[p for p in Path(cfg['source_snapshot']).rglob('*') if p.is_dir()]+env['directories']
+    if cfg.get('continuation'):
+        from .continuation import manifest,_bound_json
+        m=manifest(cfg);paths += [cfg['continuation']['path']]+list(_bound_json(m['fingerprints'])['paths'])
+        paths += [m[k]['path'] for k in ('donor_config','donor_source_manifest','donor_admission','donor_validation','split_validation','repair_plan','repair_plan_audit','source_compatibility','fingerprints')]
     return paths+[r['path'] for r in read(PLAN)['files']]
 
 def make_preflight(cfg,fds):
@@ -211,7 +227,7 @@ def make_preflight(cfg,fds):
 def verify_admission(cfg):
     root=Path(cfg['run_root']);p=root/'admission/final.json';a=read(p)
     if a.get('status')!='PASS_FOR_LAUNCH' or a.get('approved_for_formal_launch') is not True or a.get('open_blockers')!=[]:raise PermissionError('independent final launch admission missing')
-    if a.get('reviewer')!=dict(agent_id=AUDITOR,model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False):raise PermissionError('wrong final independent auditor')
+    if a.get('reviewer')!=reviewer(cfg):raise PermissionError('wrong final independent auditor')
     for k,v in dict(source_commit=cfg['source_commit'],source_digest=cfg['source_digest'],config_digest=digest(cfg),input_digest=cfg['input_digest'],domain_digest=cfg['domain_digest'],plan_digest=cfg['plan_digest'],environment_digest=cfg['environment_digest'],source_snapshot=cfg['source_snapshot'],stage_order=list(STAGE_ORDER)).items():
         if a.get(k)!=v:raise PermissionError('final admission binding differs: '+k)
     for key,path in dict(source_manifest=root/'source_manifest.json',environment=root/'environment.json',preflight=root/'admission/preflight.json',config=root/'configs/run.json',input_manifest=Path(cfg['input_manifest']),domain_manifest=Path(cfg['domain_manifest']),resource_budget=root/'configs/resource_budget.json',domain_cardinalities=root/'admission/domain_cardinalities.json').items():
@@ -219,6 +235,11 @@ def verify_admission(cfg):
         if a[key]['path']!=str(path):raise PermissionError('admission evidence location mismatch: '+key)
     if not a.get('evidence'):raise PermissionError('admission lacks fixture evidence')
     for item in a['evidence']:check_identity(item)
+    if cfg.get('continuation'):
+        from .continuation import verify
+        m=verify(cfg)
+        if a.get('continuation')!=cfg['continuation'] or a.get('continuation_source_compatibility')!=m['source_compatibility'] or a.get('continuation_fingerprints')!=m['fingerprints']:
+            raise PermissionError('final admission lacks exact continuation bindings')
     return identity(p)
 
 class ExecutionValidator:

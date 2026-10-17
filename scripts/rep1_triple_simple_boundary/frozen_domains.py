@@ -316,6 +316,10 @@ def freeze(run_root,manifest,source_digest,progress=None):
     return write_receipt(out/'complete.json',dep,inventory(out),**info)
 
 def validate_frozen(cfg):
+    if cfg.get('continuation'):
+        from .continuation import manifest,verify
+        verify(cfg)
+        return read(manifest(cfg)['domain_manifest']['path'])
     dep=dict(schema='rep1-frozen-boundary-v1',input_digest=cfg['input_digest'],source_digest=cfg['source_digest'])
     p=within(cfg['run_root'],'frozen_domain/complete.json');rec=check_receipt(p,dep,cfg['run_root'])
     if identity(p)['sha256']!=cfg['domain_digest']:raise ValueError('fixed-domain digest mismatch')

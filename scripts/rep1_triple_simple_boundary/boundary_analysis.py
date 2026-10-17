@@ -1,4 +1,5 @@
 """Whole and fixed-domain pixel/molecule/cell/interface costs; complete sparse ledger."""
+from .continuation import frozen_root
 from pathlib import Path
 from itertools import zip_longest
 import numpy as np
@@ -56,7 +57,7 @@ def endpoint_regions(cfg,manifest,spec,out,callback=None):
     """Fixed full denominators include BASE background, plus explicit OOB."""
     out=Path(out);out.mkdir(parents=True,exist_ok=True);deps=dependencies(cfg,'REGIONS_'+spec['name'])
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps)
-    frozen=Path(cfg['run_root'])/'frozen_domain';bits=np.load(frozen/'region_bits.npy',mmap_mode='r');mask=tifffile.imread(spec['final'])
+    frozen=frozen_root(cfg);bits=np.load(frozen/'region_bits.npy',mmap_mode='r');mask=tifffile.imread(spec['final'])
     mr=read(Path(spec['matrix'])/'complete.json');rows=[];acc={r:[0,0] for r in REGIONS}
     for i,(rec,coord) in enumerate(zip_longest(mr['receipts'],manifest['coordinates'])):
         if rec is None or coord is None:raise ValueError('regional capture chunk coverage differs')
@@ -82,14 +83,14 @@ def pair_transfers(cfg,manifest,a,b,out,callback=None,reuse_from=None,include_st
     """Control b→candidate a; exact full per-cell/per-gene matrix reconstruction."""
     out=Path(out);out.mkdir(parents=True,exist_ok=True);key=comparison_id(a['name'],b['name']);dep=dependencies(cfg,'TRANSFER_'+key)
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',dep)
-    frozen=Path(cfg['run_root'])/'frozen_domain';cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
+    frozen=frozen_root(cfg);cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
     binding=dict(candidate=endpoint_binding(cfg,a),control=endpoint_binding(cfg,b),
                  weights={str(s):identity(frozen/f'bootstrap_weights_{s}.npz') for s in SCALES})
     groupfile=np.load(frozen/'cell_groups.npz');groups={k:groupfile[k] for k in groupfile.files}
     for dimension in ('block_500','block_1000','block_2000','RNA_density_quartile','nuclear_crowding_quartile'):
         for k,part in cells.groupby(['original_type',dimension],dropna=False):groups['type__'+dimension+'__'+str(k)]=part.index.to_numpy(np.int64)
     if reuse_from is not None and (Path(reuse_from)/'complete.json').exists():
-        if not (out/'initial_reuse.json').exists():reuse_partition(reuse_from,out,dep,binding,'initial_reuse.json')
+        if not (out/'initial_reuse.json').exists():reuse_partition(reuse_from,out,dep,binding,'initial_reuse.json',cfg=cfg)
         else:check_receipt(out/'initial_reuse.json',dep)
         if include_structure:structure_costs(cfg,a,b,cells,groups,out/'structure',callback)
         return write_receipt(out/'complete.json',dep,inventory(out),comparison=key,matrix_gene_cell_delta_exact=True,all313_gene_ledger=True,
@@ -168,7 +169,7 @@ def pair_transfers(cfg,manifest,a,b,out,callback=None,reuse_from=None,include_st
                          sparse_chunks=len(mr['receipts']),scientific_alarms_do_not_block=True,reuse_binding=binding,structure_completed=include_structure)
 
 def pixel_transfers(cfg,manifest,a,b,cells,out,deps,callback=None):
-    out=Path(out);out.mkdir(parents=True,exist_ok=True);frozen=Path(cfg['run_root'])/'frozen_domain'
+    out=Path(out);out.mkdir(parents=True,exist_ok=True);frozen=frozen_root(cfg)
     source=tifffile.imread(b['final']);target=tifffile.imread(a['final']);bits=np.load(frozen/'region_bits.npy',mmap_mode='r');rows=[]
     kinds=transfer_kind(source,target)
     for r in REGIONS:
@@ -215,14 +216,14 @@ def structure_costs(cfg,a,b,cells,groups,out,callback=None):
     for metric in metrics:
         delta=(x[metric]-y[metric]).to_numpy(float)
         for side in SCALES:
-            W=np.load(Path(cfg['run_root'])/'frozen_domain'/f'bootstrap_weights_{side}.npz')['W'];s,n=projector.blocks(cells.index.to_numpy(),delta,side,W.shape[1])
+            W=np.load(frozen_root(cfg)/f'bootstrap_weights_{side}.npz')['W'];s,n=projector.blocks(cells.index.to_numpy(),delta,side,W.shape[1])
             result=block_intervals(s,n,W,projector.names,checkpoint=(out/'bootstrap'/f'{metric}_{side}',dict(dep,metric=metric,scale=side,population_ids_sha256=id_hash(cells.index))),callback=callback)
             for row in result:row.update(metric=metric,scale_um=side,unit='cell')
             intervals.extend(result)
     atomic_csv_gzip(out/'intervals.csv.gz',pd.DataFrame(intervals));return write_receipt(out/'complete.json',dep,inventory(out))
 
 def interface_account(cfg,manifest,a,b,out,deps,callback=None):
-    out=Path(out);out.mkdir(parents=True,exist_ok=True);frozen=Path(cfg['run_root'])/'frozen_domain';pairs=pd.read_csv(frozen/'interfaces/pairs.csv');n=len(pairs)
+    out=Path(out);out.mkdir(parents=True,exist_ok=True);frozen=frozen_root(cfg);pairs=pd.read_csv(frozen/'interfaces/pairs.csv');n=len(pairs)
     values=np.zeros((n,7),np.int64);ar=read(Path(a['matrix'])/'complete.json');br=read(Path(b['matrix'])/'complete.json')
     for i,(ra,rb) in enumerate(zip(ar['receipts'],br['receipts'])):
         sa=np.load(Path(b['matrix'])/rb['owner_file']);ta=np.load(Path(a['matrix'])/ra['owner_file']);st=np.load(frozen/'molecule_strata'/f'chunk_{i:04d}.npz');group=st['interface_id'];good=group>=0;k=transfer_kind(sa,ta)
@@ -275,7 +276,7 @@ def run(cfg,manifest,specs,out,callback=None,reuse_from=None,include_structure=T
     for name,spec in specs.items():
         dest=out/'methods'/name;source=Path(reuse_from)/'methods'/name if reuse_from else None
         if source is not None and (source/'complete.json').exists() and not (dest/'complete.json').exists():
-            reuse_partition(source,dest,dependencies(cfg,'REGIONS_'+name),endpoint_binding(cfg,spec));reused.append('method:'+name)
+            reuse_partition(source,dest,dependencies(cfg,'REGIONS_'+name),endpoint_binding(cfg,spec),cfg=cfg);reused.append('method:'+name)
         else:endpoint_regions(cfg,manifest,spec,dest,callback);computed.append('method:'+name)
     pairs=comparisons(tuple(specs))
     for i,(a,b) in enumerate(pairs):

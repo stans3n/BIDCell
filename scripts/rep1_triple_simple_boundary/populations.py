@@ -7,6 +7,7 @@ from .common import (atomic_csv,atomic_json,atomic_npz,dependencies,identity,id_
                      check_receipt,write_receipt,inventory,progress,reuse_partition,partition_source)
 from .bt import checked_ids
 from .inputs import matrix_arrays
+from .continuation import read_data
 
 def endpoint_scores(spec,fixed_ids):
     ids,genes,counts=matrix_arrays(spec);total=counts.sum(1,dtype=np.int64);ng=(counts>0).sum(1)
@@ -61,9 +62,9 @@ def prepare(cfg,manifest,specs,out,callback=None,reuse_from=None,pair_list=None)
         if (dest/'complete.json').exists():
             rec=check_receipt(dest/'complete.json',cd)
             if rec.get('reuse_binding')!=binding:raise ValueError('population binding drift')
-            rows.extend(read(dest/'populations.json'));continue
+            rows.extend(read(read_data(dest/'populations.json')));continue
         if source is not None and (source/'complete.json').exists():
-            reuse_partition(source,dest,cd,binding);rows.extend(read(dest/'populations.json'));continue
+            reuse_partition(source,dest,cd,binding,cfg=cfg);rows.extend(read(read_data(dest/'populations.json')));continue
         for metric in METRICS:
             initial,selected,excl,qexcl=common_finite(tables,names,fixed,metric)
             p=dest/(metric+'.npz');atomic_npz(p,ids=selected,**excl)
@@ -81,4 +82,4 @@ def prepare(cfg,manifest,specs,out,callback=None,reuse_from=None,pair_list=None)
     return tables
 
 def selected(pop_root,key,metric):
-    z=np.load(Path(pop_root)/key/(metric+'.npz'));return z['ids']
+    z=np.load(read_data(Path(pop_root)/key/(metric+'.npz')));return z['ids']

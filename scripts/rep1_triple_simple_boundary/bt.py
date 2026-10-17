@@ -1,4 +1,5 @@
 """Six B/T markers, exact merged T pools, immutable fixed nuclear distances."""
+from .continuation import frozen_root
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -182,7 +183,7 @@ def endpoint_frame(cfg,manifest,spec):
 def run_endpoint(cfg,manifest,spec,out,callback=None):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);deps=dependencies(cfg,'BT_'+spec['name'])
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps)
-    frozen=Path(cfg['run_root'])/'frozen_domain';reference=checked_ids(pd.read_csv(frozen/'cells.csv'),'fixed nuclear geometry')
+    frozen=frozen_root(cfg);reference=checked_ids(pd.read_csv(frozen/'cells.csv'),'fixed nuclear geometry')
     target=frozen/'bt_targets';check_receipt(target/'complete.json')
     frame=endpoint_frame(cfg,manifest,spec);fixed=pd.read_csv(manifest['fixed_population']).cell_id.to_numpy(np.int64)
     atomic_csv(out/'cells.csv',frame,index=True)
@@ -214,7 +215,7 @@ def paired(cfg,manifest,specs,out,callback=None,reuse_from=None,pair_list=None):
     from .comparisons import pooled_interval
     out=Path(out);out.mkdir(parents=True,exist_ok=True);deps=dependencies(cfg,'BT_PAIRED_'+str(len(specs)))
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps)
-    frames={m:endpoint_frame(cfg,manifest,s) for m,s in specs.items()};frozen=Path(cfg['run_root'])/'frozen_domain'
+    frames={m:endpoint_frame(cfg,manifest,s) for m,s in specs.items()};frozen=frozen_root(cfg)
     ref=checked_ids(pd.read_csv(frozen/'cells.csv'),'nuclear reference');target=frozen/'bt_targets'
     fixed=set(pd.read_csv(manifest['fixed_population']).cell_id);sets=[]
     pairs=comparisons(tuple(specs)) if pair_list is None else pair_list
@@ -233,7 +234,7 @@ def paired(cfg,manifest,specs,out,callback=None,reuse_from=None,pair_list=None):
             matrix={m:identity(Path(specs[m]['matrix'])/'complete.json') for m in methods})
         if (dest/'complete.json').exists():check_receipt(dest/'complete.json',dep);continue
         source=partition_source(reuse_from,key)
-        if source is not None and (source/'complete.json').exists():reuse_partition(source,dest,dep,binding);continue
+        if source is not None and (source/'complete.json').exists():reuse_partition(source,dest,dep,binding,cfg=cfg);continue
         atomic_csv(dest/'population.csv',pd.DataFrame({'cell_id':q}))
         for m in methods:
             write_curves(frames[m],dest/m,'fixed_'+key+'_nuclear_ref',q,ref,target)

@@ -1,4 +1,5 @@
 """Complete prespecified spatial strata, gross transfer rates and local cost CI."""
+from .continuation import frozen_root
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -92,7 +93,7 @@ def spatial_accounts(cfg,manifest,a,b,cells,out,deps,callback=None):
     from .boundary_analysis import _owner_chunk
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps)
-    frozen=Path(cfg['run_root'])/'frozen_domain';weights={s:dict(np.load(frozen/f'bootstrap_weights_{s}.npz')) for s in SCALES}
+    frozen=frozen_root(cfg);weights={s:dict(np.load(frozen/f'bootstrap_weights_{s}.npz')) for s in SCALES}
     source=tifffile.imread(b['final']);target=tifffile.imread(a['final']);base=tifffile.imread(manifest['endpoints']['BASE_MATCH']['final'])
     grids={key:np.load(frozen/file,mmap_mode='r') for key,file in [('region_bits','region_bits.npy'),('local_density','local_density_group.npy'),('competition_type','competition_type.npy'),('interface_type','interface_type.npy')]}
     K=np.load(Path(manifest['historical_strata'])/'support_counts.npy',mmap_mode='r');unknown=np.load(Path(manifest['historical_strata'])/'any_unknown.npy',mmap_mode='r')
@@ -153,7 +154,7 @@ def cell_cost_intervals(cfg,cell,cells,groups,out,deps,callback=None):
     measures={m:(cell[m].to_numpy(float),None) for m in ('incoming_RNA','outgoing_RNA','net_RNA')}
     measures['pooled_RNA_retention']=(cell.retained_RNA.to_numpy(float),cell.previous_RNA.to_numpy(float))
     for side in SCALES:
-        W=np.load(Path(cfg['run_root'])/'frozen_domain'/f'bootstrap_weights_{side}.npz')['W']
+        W=np.load(frozen_root(cfg)/f'bootstrap_weights_{side}.npz')['W']
         for metric,(v,d) in measures.items():
             s,n=projector.blocks(ids,v,side,W.shape[1],d)
             result=block_intervals(s,n,W,projector.names,minimum_units=20 if d is None else 0,

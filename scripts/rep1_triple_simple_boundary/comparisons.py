@@ -1,4 +1,5 @@
 """Pooled spatial intervals using one frozen global W, and factorial contrasts."""
+from .continuation import frozen_root
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -39,7 +40,7 @@ def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None,pai
     from .common import reuse_partition,partition_source
     out=Path(out);out.mkdir(parents=True,exist_ok=True);methods=tuple(specs);deps=dependencies(cfg,'COMPARISONS_'+str(len(methods)))
     if (out/'complete.json').exists():return check_receipt(out/'complete.json',deps)
-    frozen=Path(cfg['run_root'])/'frozen_domain';cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
+    frozen=frozen_root(cfg);cells=pd.read_csv(frozen/'cells.csv').set_index('cell_id')
     groupsfile=np.load(frozen/'cell_groups.npz');groups={k:groupsfile[k] for k in groupsfile.files}
     weights={s:dict(np.load(frozen/f'bootstrap_weights_{s}.npz'),side=s) for s in SCALES}
     from .spatial_bootstrap import GroupProjector
@@ -62,7 +63,7 @@ def run(cfg,manifest,specs,tables,pop_root,out,callback=None,reuse_from=None,pai
             weights={str(s):identity(frozen/f'bootstrap_weights_{s}.npz') for s in SCALES},groups=identity(frozen/'cell_groups.npz'))
         if (dest/'complete.json').exists():check_receipt(dest/'complete.json',dep);continue
         source=partition_source(reuse_from,key)
-        if source is not None and (source/'complete.json').exists():reuse_partition(source,dest,dep,binding);continue
+        if source is not None and (source/'complete.json').exists():reuse_partition(source,dest,dep,binding,cfg=cfg);continue
         results=[]
         for metric in METRICS:
             ids=None if raw_method else selected(pop_root,key if kind=='pairwise' else kind,metric)
