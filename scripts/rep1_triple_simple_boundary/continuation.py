@@ -58,6 +58,9 @@ def approved_repair(cfg=None):
     if cfg and cfg.get('continuation') and manifest(cfg).get('generation2'):
         from .continuation2 import approved
         approved()
+    if cfg and cfg.get('continuation') and manifest(cfg).get('generation3'):
+        from .continuation3 import approved
+        approved()
 
 
 def manifest(cfg):
@@ -67,7 +70,10 @@ def manifest(cfg):
     p=within(cfg['run_root'],'configs/continuation.json')
     if item['path']!=str(p):raise ValueError('continuation manifest location differs')
     m=_bound_json(item)
-    if m.get('schema')=='rep1-triple-simple-continuation-v2':
+    if m.get('schema')=='rep1-triple-simple-continuation-v3':
+        from .continuation3 import expand
+        m=expand(cfg,m)
+    elif m.get('schema')=='rep1-triple-simple-continuation-v2':
         from .continuation2 import expand
         m=expand(cfg,m)
     if m.get('schema')!=SCHEMA or m.get('target_run_id')!=cfg['run_id'] or m.get('target_run_root')!=cfg['run_root']:
@@ -83,6 +89,9 @@ def manifest(cfg):
 
 
 def fingerprint_paths(m):
+    if m.get('generation3'):
+        from .continuation3 import fingerprints
+        return fingerprints(m)
     if m.get('generation2'):
         from .continuation2 import fingerprints
         return fingerprints(m)
@@ -94,6 +103,9 @@ def evidence_items(m):
     if m.get('generation2'):
         from .continuation2 import evidence_items as additional
         result+=additional(m)
+    if m.get('generation3'):
+        from .continuation3 import evidence_items as third
+        result+=third(m)
     return result
 
 
@@ -264,6 +276,9 @@ def reused_bytes(cfg):
 def adopt_tiles(cfg,dep,out,tasks):
     from .p2 import record,verify_record
     if dep.get('rule')=='P2':
+        if manifest(cfg).get('generation3'):
+            from .continuation3 import adopt_tiles as adopt_p2
+            return adopt_p2(cfg,dep,out,tasks)
         from .continuation2 import adopt_tiles as adopt_p2
         return adopt_p2(cfg,dep,out,tasks)
     m=manifest(cfg);partial=m['partial_replay'];oldbase=partial['tile_base']
@@ -292,6 +307,9 @@ def adopt_tiles(cfg,dep,out,tasks):
 def adopt_split(cfg,dep,splitdir,splitdeps,ids):
     from .p2 import record,verify_record
     if dep.get('rule')=='P2':
+        if manifest(cfg).get('generation3'):
+            from .continuation3 import adopt_split as adopt_p2_split
+            return adopt_p2_split(cfg,dep,splitdir,splitdeps,ids)
         if dep.get('run')!=dependencies(cfg,'06') or not manifest(cfg).get('generation2'):
             raise ValueError('new P2 splits require current stage06 continuation')
         return # No old P2 split exists; every P2 split is computed normally.

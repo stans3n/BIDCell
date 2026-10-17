@@ -33,19 +33,25 @@ RECOVERY_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery01_CodeAudit_202610
 RECOVERY_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery01_ResourceTimeRevision_20261017.json'
 RECOVERY2_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery02_CodeAudit_20261018.json'
 RECOVERY2_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery02_ResourceTimeRevision_20261018.json'
+RECOVERY3_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery03_CodeAudit_20261018.json'
+RECOVERY3_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery03_ResourceTimeRevision_20261018.json'
+RECOVERY3_AUDITOR='/root/recovery03_auditor'
 
 def recovery_generation(cfg):
+    if 'p2_validation' in cfg.get('continuation_request',{}):return 3
     if 'replay_validation' in cfg.get('continuation_request',{}):return 2
     if cfg.get('continuation'):
         from .continuation import _bound_json
-        if _bound_json(cfg['continuation']).get('schema')=='rep1-triple-simple-continuation-v2':return 2
+        schema=_bound_json(cfg['continuation']).get('schema')
+        if schema=='rep1-triple-simple-continuation-v3':return 3
+        if schema=='rep1-triple-simple-continuation-v2':return 2
     return 1 if cfg.get('continuation') or cfg.get('continuation_request') else 0
 
 def audit_path(generation):
-    return RECOVERY2_AUDIT if generation==2 else RECOVERY_AUDIT if generation else CONTROLLER_AUDIT
+    return RECOVERY3_AUDIT if generation==3 else RECOVERY2_AUDIT if generation==2 else RECOVERY_AUDIT if generation else CONTROLLER_AUDIT
 
 def reviewer(cfg=None):
-    return dict(agent_id=RECOVERY_AUDITOR if cfg and (cfg.get('continuation') or cfg.get('continuation_request')) else AUDITOR,
+    return dict(agent_id=RECOVERY3_AUDITOR if cfg and recovery_generation(cfg)==3 else RECOVERY_AUDITOR if cfg and (cfg.get('continuation') or cfg.get('continuation_request')) else AUDITOR,
                 model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False)
 
 def git(*args):
@@ -139,7 +145,8 @@ def child_environment(cfg):return dict(os.environ,**controlled_environment(cfg))
 
 def preparation_audit(commit,records=None,recovery=False):
     path=audit_path(recovery);a=read(path)
-    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=reviewer({'continuation_request':True} if recovery else None) or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
+    expected_reviewer=reviewer({'continuation_request':{'p2_validation':True}} if recovery==3 else {'continuation_request':{}} if recovery else None)
+    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=expected_reviewer or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
     if a.get('source_files_digest')!=digest(source_files() if records is None else records):raise PermissionError('preparation source inventory differs from code audit')
     for item in a.get('evidence',[]):check_identity(item)
     return identity(path)
@@ -154,7 +161,7 @@ def verify_preparation(partial,params):
     m=read(root/'source_manifest.json');rows=[dict(path=r['original'],bytes=r['bytes'],sha256=r['sha256'],snapshot_relative=r['relative']) for r in m['files']]
     if preparation_audit(partial['source_commit'],rows,recovery)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
     req=partial.get('continuation_request',{})
-    if req and set(req)!=({'replay_validation','replay_baseline'} if recovery==2 else {'donor_validation','split_validation','baseline'}):raise ValueError('unknown continuation preparation request')
+    if req and set(req)!=({'p2_validation','p2_baseline'} if recovery==3 else {'replay_validation','replay_baseline'} if recovery==2 else {'donor_validation','split_validation','baseline'}):raise ValueError('unknown continuation preparation request')
     for item in req.values():check_identity(item)
     verify_snapshot(partial)
 
@@ -257,6 +264,10 @@ def verify_admission(cfg):
         if m.get('generation2'):
             expected={k:m['generation2'][k] for k in ('base_continuation','donor2_config','donor2_source_manifest','donor2_admission','donor2_validation','donor2_baseline','base_baseline')}
             if a.get('continuation_generation2')!=expected:raise PermissionError('final admission lacks exact two-donor lineage')
+        if m.get('generation3'):
+            from .continuation3 import ADMISSION_KEYS
+            expected={k:m['generation3'][k] for k in ADMISSION_KEYS}
+            if a.get('continuation_generation3')!=expected:raise PermissionError('final admission lacks exact third-producer lineage')
     return identity(p)
 
 class ExecutionValidator:

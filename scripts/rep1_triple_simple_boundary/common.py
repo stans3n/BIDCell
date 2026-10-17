@@ -77,7 +77,7 @@ def fsync_dir(path):
 def writable_path(path):
     """A data reference never grants write access to its original producer."""
     p=Path(path).absolute()
-    for name in ('r01','r02'):
+    for name in ('r01','r02','r03'):
         donor=Path('/home/zwan0726/work/outputs/bidcell_rep1_triple_simple_boundary_20261017/rep1-triple-simple-boundary-20261017-'+name)
         if p==donor or donor in p.parents:raise PermissionError('historical continuation producer is read-only')
     for parent in (p,*p.parents):
