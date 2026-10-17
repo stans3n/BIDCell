@@ -36,6 +36,53 @@ RECOVERY2_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery02_ResourceTime
 RECOVERY3_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery03_CodeAudit_20261018.json'
 RECOVERY3_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery03_ResourceTimeRevision_20261018.json'
 RECOVERY3_AUDITOR='/root/recovery03_auditor'
+RECOVERY4_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery04_CodeAudit_20261018.json'
+RECOVERY4_RESOURCE=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery04_ResourceTimeRevision_20261018.json'
+RESOURCE_AUTH=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery04_UserResourceAuthorization_20261018.json'
+RESOURCE_PLAN=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery04_ChangePlan_20261018.md'
+RESOURCE_PLAN_AUDIT=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery04_ChangePlan_Audit_20261018.json'
+RESOURCE_BASE_FINAL=WORK/'docs/BIDCell_Rep1_Triple_Simple_Recovery03_FinalCodeAudit_20261018.json'
+RESOURCE_START_BYTES=29527900160
+RESOURCE_BASE_COMMIT='532ff03d620b2584615d70cec5e93c163f1c0b05'
+RESOURCE_FIXED={
+    'user_authorization':(RESOURCE_AUTH,'0224e2900af4b5ec168989cf295fa1f5ccf9f2c7f156c6e2d4fc2fa4e5592672'),
+    'plan':(RESOURCE_PLAN,'0cb5afca6ed61196c236c70f2861fa5534d7ddcac3c0a20892946a6842a34225'),
+    'plan_audit':(RESOURCE_PLAN_AUDIT,'077d8b14275db42cbec9813759989d51f0f409474bebe8027991c0b9770a3a9c'),
+    'base_code_audit':(RECOVERY3_AUDIT,'6b6fe6c1060887946e8bfa7a967b1a197eb750150e568110acc79431eb4c0d4d'),
+    'base_final_audit':(RESOURCE_BASE_FINAL,'e86d4f0c37acda50ec283b248ae2c368e40963607187043a8af0c086fec9ed8a'),
+    'resource_proposal':(RECOVERY4_RESOURCE,'508dedf21a0e2fef9f46d01b794be19b63698b08d7a3e446ef9739cf5b200701')}
+
+def resource_amended(cfg):return 'ram_start_required_bytes' in cfg.get('resources',{})
+
+def resource_amendment_evidence():
+    evidence={}
+    for key,(path,sha) in RESOURCE_FIXED.items():
+        check_identity(dict(path=str(path),sha256=sha));evidence[key]=identity(path)
+    auth=read(RESOURCE_AUTH);plan_audit=read(RESOURCE_PLAN_AUDIT);proposal=read(RECOVERY4_RESOURCE)
+    if auth.get('ram_start_required_bytes')!=RESOURCE_START_BYTES or auth.get('independent_base_commit')!=RESOURCE_BASE_COMMIT or auth.get('latest_instruction_overrides_new_independent_review_requirement') is not True:
+        raise PermissionError('startup RAM human authorization differs')
+    if plan_audit.get('decision')!='PASS_FOR_RESOURCE_AMENDMENT_IMPLEMENTATION' or plan_audit.get('open_blockers')!=[] or plan_audit.get('reviewer')!='/root' or plan_audit.get('plan')!=evidence['plan'] or plan_audit.get('user_authorization')!=evidence['user_authorization']:
+        raise PermissionError('startup RAM amendment plan approval differs')
+    for key,auth_key,decision in (('base_code_audit','independent_base_CodeAudit','PASS_FOR_PREPARATION'),('base_final_audit','independent_base_FinalCodeAudit','PASS_FOR_LAUNCH')):
+        base=read(evidence[key]['path'])
+        if auth.get(auth_key)!=evidence[key] or base.get('decision')!=decision or base.get('source_commit')!=RESOURCE_BASE_COMMIT or base.get('open_blockers')!=[] or base.get('reviewer')!=reviewer({'continuation_request':{'p2_validation':True}}):
+            raise PermissionError('startup RAM independent base approval differs')
+    if proposal.get('plan')!=evidence['plan'] or proposal.get('plan_audit')!=evidence['plan_audit'] or proposal.get('user_resource_authorization')!=evidence['user_authorization'] or proposal.get('RAM_start_required_bytes')!=RESOURCE_START_BYTES:
+        raise PermissionError('startup RAM resource proposal differs')
+    check_identity(auth['base_actual_validation_failure'])
+    return evidence
+
+def verify_resource_amendment(cfg):
+    if not resource_amended(cfg):
+        if 'resource_amendment' in cfg:raise PermissionError('resource authorization without amended threshold')
+        return None
+    r=cfg['resources']
+    if type(r['ram_start_required_bytes']) is not int or r['ram_start_required_bytes']!=RESOURCE_START_BYTES or r.get('ram_allowance_bytes')!=22*1024**3 or r.get('ram_reserve_bytes')!=6*1024**3 or r.get('reserve_bytes')!=14*1024**3:
+        raise ValueError('unauthorized startup RAM threshold or runtime reserve')
+    evidence=resource_amendment_evidence()
+    if recovery_generation(cfg)!=3 or cfg.get('resource_amendment')!=evidence or cfg.get('resource_proposal')!=evidence['resource_proposal']:
+        raise PermissionError('startup RAM amendment evidence/owner scope differs')
+    return evidence
 
 def recovery_generation(cfg):
     if 'p2_validation' in cfg.get('continuation_request',{}):return 3
@@ -47,10 +94,15 @@ def recovery_generation(cfg):
         if schema=='rep1-triple-simple-continuation-v2':return 2
     return 1 if cfg.get('continuation') or cfg.get('continuation_request') else 0
 
-def audit_path(generation):
+def audit_path(generation,amended=False):
+    if amended:
+        if generation!=3:raise PermissionError('startup RAM amendment requires generation3')
+        return RECOVERY4_AUDIT
     return RECOVERY3_AUDIT if generation==3 else RECOVERY2_AUDIT if generation==2 else RECOVERY_AUDIT if generation else CONTROLLER_AUDIT
 
 def reviewer(cfg=None):
+    if cfg and resource_amended(cfg):
+        return dict(agent_id='/root',role='user_authorized_resource_amendment_reviewer',implementation_author=False,independent_review=False)
     return dict(agent_id=RECOVERY3_AUDITOR if cfg and recovery_generation(cfg)==3 else RECOVERY_AUDITOR if cfg and (cfg.get('continuation') or cfg.get('continuation_request')) else AUDITOR,
                 model='gpt-6-astra',reasoning_effort='xhigh',role='independent_code_auditor',implementation_author=False)
 
@@ -143,23 +195,25 @@ def controlled_environment(cfg):
 
 def child_environment(cfg):return dict(os.environ,**controlled_environment(cfg))
 
-def preparation_audit(commit,records=None,recovery=False):
-    path=audit_path(recovery);a=read(path)
-    expected_reviewer=reviewer({'continuation_request':{'p2_validation':True}} if recovery==3 else {'continuation_request':{}} if recovery else None)
-    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=expected_reviewer or a.get('source_commit')!=commit:raise PermissionError('independent controller preparation audit missing/mismatched')
+def preparation_audit(commit,records=None,recovery=False,amended=False):
+    path=audit_path(recovery,amended);a=read(path)
+    expected_reviewer=reviewer({'resources':{'ram_start_required_bytes':RESOURCE_START_BYTES}} if amended else {'continuation_request':{'p2_validation':True}} if recovery==3 else {'continuation_request':{}} if recovery else None)
+    if a.get('decision')!='PASS_FOR_PREPARATION' or a.get('open_blockers')!=[] or a.get('reviewer')!=expected_reviewer or a.get('source_commit')!=commit:raise PermissionError('required preparation audit missing/mismatched')
+    if amended and a.get('resource_amendment')!=resource_amendment_evidence():raise PermissionError('preparation audit lacks startup RAM authorization')
     if a.get('source_files_digest')!=digest(source_files() if records is None else records):raise PermissionError('preparation source inventory differs from code audit')
     for item in a.get('evidence',[]):check_identity(item)
     return identity(path)
 
 def verify_preparation(partial,params):
     root=Path(partial['run_root']);params=Path(params)
-    if partial.get('schema')!='rep1-triple-simple-preparation-v1' or partial.get('resources')!=__import__(__package__+'.runtime',fromlist=['resource_contract']).resource_contract():raise ValueError('preparation contract drift')
+    amended=resource_amended(partial);verify_resource_amendment(partial)
+    if partial.get('schema')!='rep1-triple-simple-preparation-v1' or partial.get('resources')!=__import__(__package__+'.runtime',fromlist=['resource_contract']).resource_contract(amended):raise ValueError('preparation contract drift')
     if params!=root/'control/preparation.json' or Path(partial['source_snapshot'])!=root/'source_snapshot':raise ValueError('preparation path mismatch')
     binding=read(root/'control/preparation_binding.json');check_identity(binding['params']);check_identity(binding['source_manifest']);check_identity(partial['preparation_audit']);check_identity(partial['resource_proposal'])
     recovery=recovery_generation(partial)
-    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(audit_path(recovery)):raise ValueError('preparation identity location drift')
+    if binding['params']['path']!=str(params) or binding['source_manifest']['path']!=str(root/'source_manifest.json') or partial['preparation_audit']['path']!=str(audit_path(recovery,amended)):raise ValueError('preparation identity location drift')
     m=read(root/'source_manifest.json');rows=[dict(path=r['original'],bytes=r['bytes'],sha256=r['sha256'],snapshot_relative=r['relative']) for r in m['files']]
-    if preparation_audit(partial['source_commit'],rows,recovery)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
+    if preparation_audit(partial['source_commit'],rows,recovery,amended)!=partial['preparation_audit']:raise ValueError('preparation audit changed')
     req=partial.get('continuation_request',{})
     if req and set(req)!=({'p2_validation','p2_baseline'} if recovery==3 else {'replay_validation','replay_baseline'} if recovery==2 else {'donor_validation','split_validation','baseline'}):raise ValueError('unknown continuation preparation request')
     for item in req.values():check_identity(item)
@@ -211,6 +265,7 @@ def fingerprints(paths):
     return out
 
 def verify_contracts(cfg):
+    verify_resource_amendment(cfg)
     check_identity(dict(path=str(PLAN),sha256=PLAN_MANIFEST_SHA256));check_identity(dict(path=str(AUDIT),sha256=PLAN_AUDIT_SHA256));check_identity(dict(path=str(PROMPT),sha256=PROMPT_SHA))
     if cfg['plan_manifest']!=str(PLAN) or cfg['plan_digest']!=PLAN_MANIFEST_SHA256:raise ValueError('plan binding mismatch')
     for item in read(PLAN)['files']:check_identity(item)
@@ -219,13 +274,16 @@ def verify_contracts(cfg):
     if cfg.get('continuation'):
         from .continuation import approved_repair,verify
         approved_repair(cfg);verify(cfg,False)
-        if cfg['preparation_audit']['path']!=str(audit_path(recovery_generation(cfg))):raise ValueError('recovery requires separately bound independent code audit')
+        if cfg['preparation_audit']['path']!=str(audit_path(recovery_generation(cfg),resource_amended(cfg))):raise ValueError('recovery requires separately bound code audit')
 
 def immutable_paths(cfg):
     root=Path(cfg['run_root']);m=read(root/'source_manifest.json');inputs=read(cfg['input_manifest']);env=read(root/'environment.json');domain=read(cfg['domain_manifest'])
     paths=[root/'configs/run.json',root/'source_manifest.json',root/'environment.json',cfg['input_manifest'],cfg['domain_manifest'],root/'configs/resource_budget.json',root/'configs/comparisons.json',root/'admission/domain_cardinalities.json',root/'control/preparation.json',root/'control/preparation_binding.json',cfg['preparation_audit']['path'],cfg['resource_proposal']['path'],PLAN,AUDIT,PROMPT,cfg['science_audit']['path']]
     paths += [r['snapshot_path'] for r in m['files']]+[r['path'] for r in inputs['files'].values()]+[r['path'] for r in env['files']]+[r['path'] for r in domain['outputs'].values()]
     paths += [Path(cfg['source_snapshot'])]+[p for p in Path(cfg['source_snapshot']).rglob('*') if p.is_dir()]+env['directories']
+    if resource_amended(cfg):
+        paths += [r['path'] for r in verify_resource_amendment(cfg).values()]
+        paths += [read(RESOURCE_AUTH)['base_actual_validation_failure']['path']]
     if cfg.get('continuation'):
         from .continuation import manifest,fingerprint_paths,evidence_items
         m=manifest(cfg);paths += [cfg['continuation']['path']]+list(fingerprint_paths(m))
@@ -247,8 +305,10 @@ def make_preflight(cfg,fds):
 
 def verify_admission(cfg):
     root=Path(cfg['run_root']);p=root/'admission/final.json';a=read(p)
-    if a.get('status')!='PASS_FOR_LAUNCH' or a.get('approved_for_formal_launch') is not True or a.get('open_blockers')!=[]:raise PermissionError('independent final launch admission missing')
-    if a.get('reviewer')!=reviewer(cfg):raise PermissionError('wrong final independent auditor')
+    if a.get('status')!='PASS_FOR_LAUNCH' or a.get('approved_for_formal_launch') is not True or a.get('open_blockers')!=[]:raise PermissionError('final launch admission missing')
+    if a.get('reviewer')!=reviewer(cfg):raise PermissionError('wrong final reviewer/auditor')
+    amendment=verify_resource_amendment(cfg)
+    if amendment is not None and a.get('resource_amendment')!=amendment:raise PermissionError('final admission lacks startup RAM authorization')
     for k,v in dict(source_commit=cfg['source_commit'],source_digest=cfg['source_digest'],config_digest=digest(cfg),input_digest=cfg['input_digest'],domain_digest=cfg['domain_digest'],plan_digest=cfg['plan_digest'],environment_digest=cfg['environment_digest'],source_snapshot=cfg['source_snapshot'],stage_order=list(STAGE_ORDER)).items():
         if a.get(k)!=v:raise PermissionError('final admission binding differs: '+k)
     for key,path in dict(source_manifest=root/'source_manifest.json',environment=root/'environment.json',preflight=root/'admission/preflight.json',config=root/'configs/run.json',input_manifest=Path(cfg['input_manifest']),domain_manifest=Path(cfg['domain_manifest']),resource_budget=root/'configs/resource_budget.json',domain_cardinalities=root/'admission/domain_cardinalities.json').items():

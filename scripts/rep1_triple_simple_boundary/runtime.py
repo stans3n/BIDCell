@@ -147,11 +147,13 @@ def allocations(cfg):
     return sizes
 def forecast(cfg,stage_start=False):
     from .continuation import reused_bytes
+    ex.verify_resource_amendment(cfg)
     r=cfg['resources'];used=allocations(cfg);credit=reused_bytes(cfg)
     remaining={k:max(0,v-used[k]-credit[k]) for k,v in r['retained_bytes'].items()};shared=max(0,r['shared_bytes']-used['shared']-credit['shared']);free=shutil.disk_usage(cfg['run_root']).free;mem=memory_available();sample=pss(cfg)
     required=sum(remaining.values())+shared+r['temporary_peak_bytes']+r['reserve_bytes']
-    ram_ok=mem+sample['pss_bytes']>=r['ram_allowance_bytes']+r['ram_reserve_bytes'] if stage_start else mem>=r['ram_reserve_bytes'] and sample['pss_bytes']<=r['ram_allowance_bytes']
-    return dict(time=utc(),used_allocated_unique_bytes=used,validated_external_logical_reuse_bytes=credit,external_reuse_is_not_freed_disk=True,remaining_retained_bytes=remaining,shared_remaining_bytes=shared,free_bytes=free,required_free_bytes=required,temporary_additional_bytes=r['temporary_peak_bytes'],reserve_bytes=r['reserve_bytes'],memory_available_bytes=mem,owned_tree=sample,stage_start=stage_start,admitted=free>=required and ram_ok)
+    ram_start=r.get('ram_start_required_bytes',r['ram_allowance_bytes']+r['ram_reserve_bytes'])
+    ram_ok=mem+sample['pss_bytes']>=ram_start if stage_start else mem>=r['ram_reserve_bytes'] and sample['pss_bytes']<=r['ram_allowance_bytes']
+    return dict(time=utc(),used_allocated_unique_bytes=used,validated_external_logical_reuse_bytes=credit,external_reuse_is_not_freed_disk=True,remaining_retained_bytes=remaining,shared_remaining_bytes=shared,free_bytes=free,required_free_bytes=required,temporary_additional_bytes=r['temporary_peak_bytes'],reserve_bytes=r['reserve_bytes'],memory_available_bytes=mem,owned_tree=sample,ram_start_required_bytes=ram_start,stage_start=stage_start,admitted=free>=required and ram_ok)
 class ResourceGuard:
     def __init__(self,cfg):self.cfg=cfg;self.last=0;self.saved=None
     def __call__(self,start=False):
@@ -172,8 +174,10 @@ def entry_command(cfg,path,attempt):return bootstrap_command(cfg,'_entry','--con
 def supervisor_command(cfg,path,attempt):return bootstrap_command(cfg,'_supervise','--config',path,'--attempt',attempt)
 def worker_command(cfg,path,stage,attempt,fds):return bootstrap_command(cfg,'_worker','--config',path,'--stage',stage,'--attempt',attempt,'--fds',','.join(map(str,fds)))
 def execution_validator(cfg,fds):return ex.ExecutionValidator(cfg,fds)
-def resource_contract():
-    return dict(p2_workers=4,retained_bytes=dict(gt=int(4.5*GIB),p2_replay=int(5.5*GIB),analysis=15*GIB),shared_bytes=2*GIB,temporary_peak_bytes=4*GIB,reserve_bytes=14*GIB,ram_allowance_bytes=22*GIB,ram_reserve_bytes=6*GIB,heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900)
+def resource_contract(amended=False):
+    r=dict(p2_workers=4,retained_bytes=dict(gt=int(4.5*GIB),p2_replay=int(5.5*GIB),analysis=15*GIB),shared_bytes=2*GIB,temporary_peak_bytes=4*GIB,reserve_bytes=14*GIB,ram_allowance_bytes=22*GIB,ram_reserve_bytes=6*GIB,heartbeat_seconds=10,stale_seconds=60,no_progress_seconds=900)
+    if amended:r['ram_start_required_bytes']=ex.RESOURCE_START_BYTES
+    return r
 def domain_cardinalities(root,frozen=None):
     import numpy as np,pandas as pd
     from .local_statistics import spatial_masks
@@ -200,9 +204,11 @@ def prepare(output_root,run_id,plans_manifest,donor_validation=None,split_valida
     recovery3=any(x is not None for x in (p2_donor_validation,p2_donor_baseline))
     if recovery3 and (recovery or recovery2 or not all(x is not None for x in (p2_donor_validation,p2_donor_baseline))):raise ValueError('third-producer continuation requires only complete P2 validation and baseline proofs')
     recovery=3 if recovery3 else 2 if recovery2 else int(recovery)
-    commit=ex.git('rev-parse','HEAD');audit=ex.preparation_audit(commit,recovery=recovery);root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
+    amended=recovery==3
+    commit=ex.git('rev-parse','HEAD');audit=ex.preparation_audit(commit,recovery=recovery,amended=amended);root=ex.OUTPUT/run_id;root.mkdir(parents=True,exist_ok=False)
     for name in ('configs','control','logs','admission','tmp','cache/matplotlib','cache/numba'):(root/name).mkdir(parents=True,exist_ok=True)
-    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(),preparation_audit=audit,resource_proposal=identity(ex.RECOVERY3_RESOURCE if recovery==3 else ex.RECOVERY2_RESOURCE if recovery==2 else ex.RECOVERY_RESOURCE if recovery else ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
+    partial=dict(schema='rep1-triple-simple-preparation-v1',run_id=run_id,run_root=str(root),resources=resource_contract(amended),preparation_audit=audit,resource_proposal=identity(ex.RECOVERY4_RESOURCE if amended else ex.RECOVERY3_RESOURCE if recovery==3 else ex.RECOVERY2_RESOURCE if recovery==2 else ex.RECOVERY_RESOURCE if recovery else ex.WORK/'docs/BIDCell_Rep1_Triple_Simple_RootResourceRevision_20261017.json'))
+    if amended:partial['resource_amendment']=ex.resource_amendment_evidence()
     if recovery==3:partial['continuation_request']=dict(p2_validation=identity(p2_donor_validation),p2_baseline=identity(p2_donor_baseline))
     elif recovery==2:partial['continuation_request']=dict(replay_validation=identity(replay_donor_validation),replay_baseline=identity(replay_donor_baseline))
     elif recovery:partial['continuation_request']=dict(donor_validation=identity(donor_validation),split_validation=identity(split_validation),baseline=identity(donor_baseline))
@@ -281,7 +287,7 @@ def prepare_snapshot(params,fds):
     immutable_json(root/'configs/resource_budget.json',read(check_identity(partial['resource_proposal'])))
     env=ex.environment(partial['source_snapshot'],fds,partial);immutable_json(root/'environment.json',env)
     cfg=dict(partial,schema='rep1-triple-simple-boundary-run-v1',input_manifest=str(root/'configs/inputs_manifest.json'),input_digest=digest(manifest),domain_manifest=str(domain_path),domain_digest=sha256(domain_path),plan_manifest=str(ex.PLAN),plan_digest=sha256(ex.PLAN),comparison_manifest=str(root/'configs/comparisons.json'),environment_digest=digest(env),python=ex.PYTHON,rscript=ex.RSCRIPT,r_libs_user=str(ex.R_LIBRARY),r_libs_site='',stage_order=list(STAGE_ORDER),science_audit=identity(ex.SCIENCE_AUDIT),resource_budget=identity(root/'configs/resource_budget.json'),
-        resources=resource_contract(),preparation_params=identity(params),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
+        resources=partial['resources'],preparation_params=identity(params),compute_authorization=dict(mode='admitted_compute',allowed_stages=list(STAGE_ORDER)),endpoint_refs={name:dict(parent=parent) for name,parent in science.PARENTS.items()},no_ai_dependency=True,auto_ai_wakeup=False,publication_manual_resume_required=True)
     immutable_json(root/'configs/run.json',cfg)
     if cfg.get('continuation'):
         from .continuation import install_stages
