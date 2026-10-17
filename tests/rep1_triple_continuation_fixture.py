@@ -20,6 +20,35 @@ DOCS=Path('/home/zwan0726/work/docs')
 PROOF=DOCS/'BIDCell_Rep1_Triple_Simple_Recovery01_RootDonorValidation_20261017.json'
 SPLIT=DOCS/'BIDCell_Rep1_Triple_Simple_Recovery01_RootSplit128Numeric_20261017.json'
 BASELINE=DOCS/'BIDCell_Rep1_Triple_Simple_Recovery01_DonorBaseline_20261017.json'
+MERGE_PROOF=DOCS/'BIDCell_Rep1_Triple_Simple_Recovery01_IDEncodingProbe_20261017.json'
+
+
+def merge_reference(previous,root):
+    """Verify and reference the preserved failed engineering merge, never r01 writes."""
+    previous=Path(previous).resolve(strict=True);old=read(previous/'configs/run.json')
+    if previous==root or old.get('schema')!='rep1-triple-recovery-data-fixture-v1' or 'recovery-fixtures' not in str(previous):raise ValueError('merge reuse is engineering-only')
+    ex.verify_snapshot(old,location=False);m=c.verify(old);probe=read(MERGE_PROOF)
+    if probe['fixture_config']!=identity(previous/'configs/run.json') or probe['fixture_source_manifest']!=identity(previous/'source_manifest.json') or probe['original_validation']!=identity(PROOF):raise ValueError('engineering merge identity proof differs')
+    compatibility=c.source_compatibility(c.DONOR/'source_snapshot',previous/'source_snapshot')
+    tiles=[]
+    for item in m['partial_replay']['tile_receipts']:
+        path=previous/'replay/SIMPLE_NATIVE/predictions/postprocess'/Path(item['path']).name
+        record=p2.verify_record(path)
+        if record.get('reused_from')!=item or record.get('original_producer')!=read(item['path']) or record['dependencies']['base']['run']!=dependencies(old,'05'):
+            raise ValueError('engineering merge tile producer differs')
+        tiles.append(identity(path))
+    if len(tiles)!=48:raise ValueError('engineering merge lacks full48 original tile producers')
+    for values in probe['merges'].values():
+        from scripts.rep1_triple_simple_boundary.common import check_identity
+        check_identity(values['engineering_producer']);check_identity(values['original_producer'])
+        if values['engineering_producer']['sha256']!=values['original_producer']['sha256']:raise ValueError('engineering merge differs from original canonical merge')
+    obj=dict(schema='rep1-triple-engineering-merge-reference-v1',original_fixture_config=identity(previous/'configs/run.json'),
+        original_fixture_source_manifest=identity(previous/'source_manifest.json'),original_continuation=old['continuation'],
+        complete48_tile_producers=tiles,merge_proof=identity(MERGE_PROOF),merges=probe['merges'],
+        producer_fingerprints={str(p):c.fingerprint(p) for p in previous.rglob('*')},
+        process_kernel_AST_sha256=compatibility['process_kernel_AST_sha256'],production_adoption=False,
+        scope='Engineering disk deduplication only; production p2.atomic_tiff is unchanged; actual arrays must be rebuilt and compared before referring to these bytes')
+    target=root/'admission/engineering_merge_reference.json';atomic_json(target,obj);return identity(target)
 
 
 def worker(config,fds):
@@ -42,6 +71,25 @@ def worker(config,fds):
                 mutation_set=identity(proof)))
     def run_stage(cfg,stage,progress=None,lock_fds=(),validate_execution=None,compute_authorization=None):
         assert stage=='05';validate_execution();manifest=inputs.load_inputs(cfg);parent=manifest['endpoints']['MORPH_SIMPLE_FUSION']
+        if cfg.get('engineering_merge_reference'):
+            from scripts.rep1_triple_simple_boundary.common import check_identity
+            import tifffile
+            reference=read(check_identity(cfg['engineering_merge_reference']));original_write=p2.atomic_tiff
+            def checked_merge(path,array):
+                path=Path(path)
+                if path.parent!=root/'replay/SIMPLE_NATIVE/predictions' or path.name not in reference['merges']:
+                    return original_write(path,array)
+                item=reference['merges'][path.name]['engineering_producer'];check_identity(item)
+                saved=tifffile.memmap(item['path'],mode='r')
+                try:
+                    if array.shape!=saved.shape or array.dtype!=saved.dtype:raise ValueError('reconstructed engineering merge geometry differs')
+                    for start in range(0,array.shape[0],256):
+                        if not np.array_equal(array[start:start+256],saved[start:start+256]):raise ValueError('reconstructed engineering merge pixels differ')
+                finally:saved._mmap.close()
+                atomic_json(root/'admission'/('verified_engineering_merge_'+path.stem+'.json'),dict(requested_new_path=str(path),
+                    read_only_original_producer=item,reference=cfg['engineering_merge_reference'],actual_reconstruction_exact=True,
+                    counted_as_new_scientific_progress=False,physical_copy=False))
+            p2.atomic_tiff=checked_merge
         p2.process(parent['pre'],parent['nuclei'],parent['nuclei'],root/'replay/SIMPLE_NATIVE/predictions','B',
             workers=cfg['resources']['p2_workers'],allowed_root=root,dependency_context=dependencies(cfg,'05'),
             continuation_cfg=cfg,callback=progress,lock_fds=lock_fds,interrupt_after=('splits',256))
@@ -50,7 +98,7 @@ def worker(config,fds):
     return rt.worker(config,'05','engineering-01',fds)
 
 
-def assemble(root):
+def assemble(root,previous=None):
     root=Path(root);root.mkdir(parents=True,exist_ok=False)
     for name in ('configs','control','logs','admission','tmp','cache'):(root/name).mkdir()
     source=ex.copy_snapshot(root,ex.git('rev-parse','HEAD'))
@@ -63,12 +111,19 @@ def assemble(root):
         domain_manifest=donor['domain_manifest'],domain_digest=donor['domain_digest'],plan_manifest=donor['plan_manifest'],plan_digest=donor['plan_digest'],
         comparison_manifest=str(root/'configs/comparisons.json'),environment_digest='engineering fixture; no admission',
         stage_order=list(contracts.STAGE_ORDER),python=ex.PYTHON,rscript=ex.RSCRIPT)
+    if previous:cfg['engineering_merge_reference']=merge_reference(previous,root)
     atomic_json(root/'configs/run.json',cfg);c.install_stages(cfg);atomic_json(root/'state.json',rt.new_state(cfg))
     atomic_json(root/'admission/not_formal.json',dict(approved_for_formal_launch=False,engineering_only=True,config_digest=digest(cfg)))
     m=c.manifest(cfg);old=read(c.DONOR/'admission/preflight.json')
     paths=set(old['fingerprints'])|set(read(m['fingerprints']['path'])['paths'])
     paths.update(str(p) for p in (root/'source_snapshot').rglob('*'))
     paths.update((str(root/'source_snapshot'),str(root/'source_manifest.json'),str(root/'configs/run.json'),cont['path'],m['source_compatibility']['path'],m['fingerprints']['path']))
+    if previous:
+        ref=read(cfg['engineering_merge_reference']['path']);paths.add(cfg['engineering_merge_reference']['path'])
+        paths.update(ref['producer_fingerprints'])
+        paths.update(x['path'] for x in ref['complete48_tile_producers'])
+        paths.update(ref[k]['path'] for k in ('original_fixture_config','original_fixture_source_manifest','original_continuation','merge_proof'))
+        paths.update(v['engineering_producer']['path'] for v in ref['merges'].values())
     atomic_json(root/'admission/fixture_mutation_set.json',dict(paths=ex.fingerprints(paths),
         scope='Complete original input/domain/environment closure plus adopted scientific closure and actual new source/config/continuation proofs; formal preparation/admission objects do not exist in this engineering fixture'))
     atomic_json(root/'admission/build_measurement.json',dict(seconds=elapsed,continuation=cont,source_files=ex.source_files()))
@@ -139,11 +194,11 @@ def reference_rejections(cfg):
     return rejected
 
 
-def suite(root):
+def suite(root,previous=None):
     root=Path(root);checks={}
     with ExitStack() as stack:
         # The actual workspace lock prevents overlap with another heavy task.
-        workspace=stack.enter_context(rt.lock(ex.COMPUTE));cfg=assemble(root)
+        workspace=stack.enter_context(rt.lock(ex.COMPUTE));cfg=assemble(root,previous)
         fds=(stack.enter_context(rt.lock(root/'control/launch.lock')),stack.enter_context(rt.lock(root/'control/run.lock')),workspace)
         forecast=rt.forecast(cfg,True);atomic_json(root/'admission/resource_fixture.json',forecast)
         assert forecast['admitted'],forecast
@@ -162,15 +217,18 @@ def suite(root):
         # Recompute receipt integrity around wrong envelopes: witness must still
         # reject these actual split records under the complete continuation cfg.
         rejected=[]
-        for mode in ('missing','wrong_run','wrong_config'):
+        for mode in ('missing','wrong_run','wrong_config','wrong_envelope_stage'):
             bad=copy.deepcopy(receipt)
             if mode=='missing':bad['dependencies'].pop('run')
-            else:bad['dependencies']['run']['run_id' if mode=='wrong_run' else 'config_digest']='unrelated'
+            else:bad['dependencies']['run'][{'wrong_run':'run_id','wrong_config':'config_digest','wrong_envelope_stage':'stage'}[mode]]='unrelated'
             bad['integrity']=digest({k:v for k,v in bad.items() if k!='integrity'});path=root/'tamper'/f'{mode}.json';atomic_json(path,bad)
             try:rt.witness(cfg,'05',path)
             except ValueError:rejected.append(mode)
             else:raise AssertionError('tampered current identity accepted')
         checks['recomputed_integrity_binding_rejections']=rejected
+        try:rt.witness(cfg,'06',Path(progress['witness']['path']))
+        except ValueError:checks['actual_stage05_split_rejected_by_stage06']=True
+        else:raise AssertionError('actual split accepted under the wrong called stage')
         original=receipt['outputs']['split'];corrupt=root/'tamper/corrupt_split.npz';data=bytearray(Path(original['path']).read_bytes());data[-1]^=1;corrupt.write_bytes(data)
         bad=copy.deepcopy(receipt);bad['outputs']['split']['path']=str(corrupt);bad['integrity']=digest({k:v for k,v in bad.items() if k!='integrity'})
         corrupt_receipt=root/'tamper/corrupt_split.json';atomic_json(corrupt_receipt,bad)
@@ -180,6 +238,13 @@ def suite(root):
         before=time.monotonic();c.verify(cfg);checks['all_scientific_fingerprints_seconds']=time.monotonic()-before
         checks['partition_consumers']=partitions(cfg)
         checks['readonly_reference_rejections']=reference_rejections(cfg)
+        if previous:
+            ref=read(cfg['engineering_merge_reference']['path']);prior=Path(previous).resolve()
+            assert {str(p) for p in prior.rglob('*')}==set(ref['producer_fingerprints'])
+            assert all(c.fingerprint(p)==fp for p,fp in ref['producer_fingerprints'].items())
+            checks['prior_engineering_fixture_entire_tree_preserved']=True
+            checks['engineering_merge_references']=[identity(p) for p in (root/'admission').glob('verified_engineering_merge_*.json')]
+            assert len(checks['engineering_merge_references'])==2
         baseline=read(BASELINE)
         assert {str(p.relative_to(c.DONOR)) for p in c.DONOR.rglob('*')}==set(baseline['old_files_and_directories'])
         assert all(c.fingerprint(c.DONOR/path)==fp for path,fp in baseline['old_files_and_directories'].items())
@@ -190,6 +255,6 @@ def suite(root):
 
 
 if __name__=='__main__':
-    if sys.argv[1]=='suite':suite(sys.argv[2])
+    if sys.argv[1]=='suite':suite(sys.argv[2],sys.argv[3] if len(sys.argv)>3 else None)
     elif sys.argv[1]=='worker':raise SystemExit(worker(Path(sys.argv[2]),tuple(map(int,sys.argv[3].split(',')))))
     else:raise ValueError('unknown isolated continuation fixture command')

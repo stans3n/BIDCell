@@ -88,6 +88,13 @@ def suite(root):
             assert split and all(x['validated_at_commit'] for x in split)
             assert exitrec['actual_os_exit_code']==0
             checks['real_process_split_accepted_by_actual_worker_witness']=identity(split[0]['witness']['path'])
+            witness=Path(split[0]['witness']['path']);bad=read(witness);bad['dependencies']['run']['stage']='06'
+            bad['integrity']=digest({k:v for k,v in bad.items() if k!='integrity'});wrong=base/'tamper/wrong_stage.json';atomic_json(wrong,bad)
+            for called,path in (('06',witness),('05',wrong)):
+                try:rt.witness(cfg,called,path)
+                except ValueError as error:assert 'P2 scientific witness stage binding differs' in str(error)
+                else:raise AssertionError('P2 split stage mismatch accepted')
+            checks['actual_split_called_stage_and_resigned_envelope_stage_rejected']=True
         if name=='split_binding_failure':
             log=''.join(p.read_text() for p in (base/'logs').glob('05_*.log'))
             assert 'scientific witness lacks current config binding' in log

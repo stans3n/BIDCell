@@ -345,6 +345,8 @@ def witness(cfg,stage,path):
             for x in v:find(x)
     find(obj.get('dependencies',{}))
     if not bindings or any(x.get('config_digest')!=digest(cfg) or x.get('run_id')!=cfg['run_id'] for x in bindings):raise ValueError('scientific witness lacks current config binding')
+    if obj.get('schema')=='rep1-triple-simple-p2-postprocess-v1' and any(x.get('stage')!=stage for x in bindings):
+        raise ValueError('P2 scientific witness stage binding differs')
     if stage=='01' and path==science.receipt_path(cfg,'01'):
         if obj.get('coordinate_rows')!=34442716 or obj.get('methods')!=list(science.EXISTING):raise ValueError('stage01 semantic completion coverage missing')
     elif stage=='01':

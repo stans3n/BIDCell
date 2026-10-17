@@ -256,9 +256,9 @@ def adopt_tiles(cfg,dep,out,tasks):
 
 def adopt_split(cfg,dep,splitdir,splitdeps,ids):
     from .p2 import record,verify_record
-    from .common import id_hash
     m=manifest(cfg);partial=m['partial_replay']
-    if dep.get('run')!=dependencies(cfg,'05') or len(ids)!=partial['split_id_count'] or id_hash(ids)!=partial['split_ids_sha256']:
+    expected_ids=partial['split_id_digest']
+    if dep.get('run')!=dependencies(cfg,'05') or len(ids)!=partial['split_id_count'] or expected_ids.get('encoding')!='canonical-json-sha256' or digest(ids)!=expected_ids['sha256']:
         raise ValueError('canonical merged native split ID set differs')
     original=verify_record(partial['old_split']['path'],partial['old_split_expected_dependencies'])
     # Reconstruct the opaque legacy dependency from the exact original ordered
@@ -417,7 +417,8 @@ def build(partial,donor_validation,split_validation,baseline):
         domain_manifest=identity(donor['domain_manifest']),input_manifest=identity(donor['input_manifest']),
         stages=stages,initial_root=str(DONOR/'analysis/initial'),partitions=partitions,
         partial_replay=dict(tile_receipts=proof['tile_receipts'],tile_base=proof['tile_base'],old_split=proof['old_split'],
-            old_split_expected_dependencies=proof['old_split_expected_dependencies'],split_id_count=proof['split_id_count'],split_ids_sha256=proof['split_id_hash']),
+            old_split_expected_dependencies=proof['old_split_expected_dependencies'],split_id_count=proof['split_id_count'],
+            split_id_digest=dict(encoding='canonical-json-sha256',sha256=proof['split_id_hash'])),
         validated_external_reuse_bytes=credits,reuse_credit_files=credit_files,
         resource_credit_semantics='validated logical remaining work only; observed free bytes are never increased',
         recomputed=False,stage_order_unchanged=True)
