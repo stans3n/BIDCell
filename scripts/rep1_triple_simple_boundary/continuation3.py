@@ -32,6 +32,7 @@ _EXPANDED={};_FP={}
 def fixed(item,path):
     if item.get('path')!=str(path) or (path in FIXED and item.get('sha256')!=FIXED[path]):
         raise ValueError('unapproved third-producer evidence')
+    if path==PLAN:return check_identity(item)
     return c._bound_json(item)
 
 
